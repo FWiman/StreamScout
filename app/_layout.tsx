@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import "@/lib/webStyles";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { TopNav } from "@/components/TopNav";
 import { useIsWide } from "@/hooks/useIsWide";
