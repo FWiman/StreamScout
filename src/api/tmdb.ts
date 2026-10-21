@@ -112,15 +112,25 @@ export function getRecommendations(type: MediaType, id: number, page = 1) {
   return getListPage(`/${type}/${id}/recommendations`, type, page);
 }
 
-export async function searchMedia(query: string) {
-  const trimmed = query.trim();
-  if (!trimmed) return [];
-  return toMediaList(
-    await tmdbFetch<TmdbPage<TmdbMediaResult>>("/search/multi", {
-      query: trimmed,
-      include_adult: "false",
-    })
-  );
+export type SearchFilter = "all" | MediaType;
+
+/**
+ * Söker filmer och/eller serier. Med ett filter används TMDB:s egna sökningar
+ * för bara filmer eller bara serier, som ger träffsäkrare resultat än multisökningen.
+ */
+export async function searchMedia(query: string, filter: SearchFilter = "all", page = 1): Promise<MediaPage> {
+  const path = filter === "all" ? "/search/multi" : `/search/${filter}`;
+  const raw = await tmdbFetch<TmdbPage<TmdbMediaResult>>(path, {
+    query: query.trim(),
+    include_adult: "false",
+    page,
+  });
+  return {
+    // Titlar utan affisch är nästan alltid okända eller felaktiga poster – hoppa över dem.
+    items: toMediaList(raw, filter === "all" ? undefined : filter).filter((i) => i.posterPath),
+    page: raw.page,
+    totalPages: Math.min(raw.total_pages, MAX_PAGES),
+  };
 }
 
 // ---- Detaljer ----

@@ -3,7 +3,6 @@ import { Tabs } from "expo-router";
 import type { ComponentProps } from "react";
 import type { ColorValue } from "react-native";
 import { Logo } from "@/components/Logo";
-import { TopNav } from "@/components/TopNav";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors } from "@/theme";
 
@@ -26,7 +25,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        header: isWide ? () => <TopNav /> : undefined,
+        // På datorn ligger toppmenyn i rotlayouten i stället.
+        headerShown: !isWide,
         headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.text,
         tabBarStyle: isWide

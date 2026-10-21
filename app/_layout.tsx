@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { TopNav } from "@/components/TopNav";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors } from "@/theme";
@@ -23,19 +24,27 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
-          contentStyle: { backgroundColor: colors.background },
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="title/[type]/[id]"
-          options={isWide ? { header: () => <TopNav /> } : { title: "" }}
-        />
-      </Stack>
+      <View style={styles.root}>
+        {/* Dator: en gemensam toppmeny för alla sidor. Telefon: varje navigator har sin egen rubrik. */}
+        {isWide && <TopNav />}
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: colors.background },
+            headerTintColor: colors.text,
+            contentStyle: { backgroundColor: colors.background },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="title/[type]/[id]" options={{ title: "", headerShown: !isWide }} />
+        </Stack>
+      </View>
     </QueryClientProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+});

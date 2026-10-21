@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link, router, useGlobalSearchParams, usePathname } from "expo-router";
-import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
 import { Logo } from "./Logo";
 
@@ -11,26 +11,39 @@ const LINKS = [
   { href: "/series", label: "Serier" },
 ] as const;
 
-/** Toppmeny för datorlayouten: logga, sektioner och sökfält. */
+/**
+ * Toppmeny för datorlayouten: logga, sektioner och sökfält.
+ * Den ligger i rotlayouten och finns kvar mellan sidbyten, så sökfältet tappar
+ * inte fokus när man skickas vidare till söksidan medan man skriver.
+ */
 export function TopNav() {
   const pathname = usePathname();
   const { q } = useGlobalSearchParams<{ q?: string }>();
   const onSearchPage = pathname === "/search";
   const [query, setQuery] = useState(onSearchPage ? q ?? "" : "");
+  const [focused, setFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
-  // Lämnar man söksidan töms fältet.
+  // Lämnar man söksidan töms fältet. Kommer man dit via en länk med ?q= fylls det i.
   useEffect(() => {
     if (!onSearchPage) setQuery("");
+    else if (q && !query) setQuery(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onSearchPage]);
 
   const onChange = (text: string) => {
     setQuery(text);
-    // Står man redan på söksidan uppdateras resultaten medan man skriver.
-    if (onSearchPage) router.setParams({ q: text });
+    if (onSearchPage) {
+      router.setParams({ q: text });
+    } else if (text.trim().length > 0) {
+      // Börja visa resultat direkt när man skriver – ingen Enter behövs.
+      router.push({ pathname: "/search", params: { q: text } });
+    }
   };
 
-  const onSubmit = () => {
-    if (!onSearchPage) router.push({ pathname: "/search", params: { q: query } });
+  const clear = () => {
+    onChange("");
+    inputRef.current?.focus();
   };
 
   return (
@@ -51,12 +64,17 @@ export function TopNav() {
           })}
         </View>
 
-        <View style={styles.search}>
-          <Ionicons name="search" size={18} color={colors.textMuted} />
+        <View style={[styles.search, focused && styles.searchFocused]}>
+          <Ionicons name="search" size={18} color={focused ? colors.text : colors.textMuted} />
           <TextInput
+            ref={inputRef}
             value={query}
             onChangeText={onChange}
-            onSubmitEditing={onSubmit}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            onKeyPress={(e) => {
+              if (e.nativeEvent.key === "Escape") clear();
+            }}
             placeholder="Sök filmer och serier"
             placeholderTextColor={colors.textMuted}
             style={styles.input}
@@ -64,8 +82,8 @@ export function TopNav() {
             autoCorrect={false}
           />
           {query.length > 0 && (
-            <Pressable onPress={() => onChange("")} accessibilityLabel="Rensa sökningen">
-              <Ionicons name="close" size={18} color={colors.textMuted} />
+            <Pressable onPress={clear} accessibilityLabel="Rensa sökningen" hitSlop={8}>
+              <Ionicons name="close-circle" size={18} color={colors.textMuted} />
             </Pressable>
           )}
         </View>
@@ -110,18 +128,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
-    width: 300,
-    paddingHorizontal: 12,
+    width: 320,
+    paddingHorizontal: 14,
     height: 40,
     borderRadius: 20,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
+  searchFocused: {
+    borderColor: colors.accent,
+    backgroundColor: colors.surfaceRaised,
+  },
   input: {
     flex: 1,
     color: colors.text,
     fontSize: 15,
     height: "100%",
+    // Ta bort webbläsarens egen fokusram – fältets kant visar fokus i stället.
+    ...Platform.select({ web: { outlineWidth: 0 }, default: {} }),
   },
 });

@@ -9,11 +9,16 @@ import { colors, spacing } from "@/theme";
 interface Props {
   item: MediaItem;
   width?: number;
+  /** Visa "Film"/"Serie" under titeln – användbart när listan blandar båda. */
+  showType?: boolean;
 }
 
 /** Affisch med titel och betyg. Trycker man öppnas detaljsidan. */
-export function MediaCard({ item, width = 130 }: Props) {
+export function MediaCard({ item, width = 130, showType = false }: Props) {
   const poster = imageUrl(item.posterPath, width > 160 ? "w500" : "w342");
+  const subtitle = [item.year, showType ? (item.type === "movie" ? "Film" : "Serie") : null]
+    .filter(Boolean)
+    .join(" · ");
 
   // Zoomar affischen lite när muspekaren är över kortet (bara på dator).
   const scale = useRef(new Animated.Value(1)).current;
@@ -56,7 +61,7 @@ export function MediaCard({ item, width = 130 }: Props) {
               <Text style={styles.title} numberOfLines={1}>
                 {item.title}
               </Text>
-              {item.year && <Text style={styles.year}>{item.year}</Text>}
+              {subtitle.length > 0 && <Text style={styles.year}>{subtitle}</Text>}
             </View>
           )}
         </Pressable>

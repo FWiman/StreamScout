@@ -9,8 +9,9 @@ import {
   getTrending,
   getWatchProviders,
   searchMedia,
+  type SearchFilter,
 } from "./tmdb";
-import type { MediaItem, MediaType } from "./types";
+import type { MediaItem, MediaPage, MediaType } from "./types";
 
 // React Query cachar svaren, så samma lista hämtas inte om och om igen.
 
@@ -37,32 +38,38 @@ export function useMediaList(kind: ListKind, type: MediaType, id?: number) {
     getNextPageParam: (last) => (last.page < last.totalPages ? last.page + 1 : undefined),
   });
 
-  const items = useMemo(() => {
-    // Trendlistor kan flytta en titel mellan sidor medan man scrollar – visa den bara en gång.
-    const seen = new Set<string>();
-    const result: MediaItem[] = [];
-    for (const page of query.data?.pages ?? []) {
-      for (const item of page.items) {
-        const key = `${item.type}-${item.id}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          result.push(item);
-        }
-      }
-    }
-    return result;
-  }, [query.data]);
-
+  const items = useMemo(() => flattenPages(query.data?.pages), [query.data]);
   return { ...query, items };
 }
 
-export function useSearch(query: string) {
+/** Slår ihop sidor till en lista. En titel kan flytta mellan sidor medan man scrollar – visa den bara en gång. */
+function flattenPages(pages: MediaPage[] | undefined): MediaItem[] {
+  const seen = new Set<string>();
+  const result: MediaItem[] = [];
+  for (const page of pages ?? []) {
+    for (const item of page.items) {
+      const key = `${item.type}-${item.id}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(item);
+      }
+    }
+  }
+  return result;
+}
+
+/** Sidindelad sökning. Startar först när söktexten är minst två tecken. */
+export function useSearch(query: string, filter: SearchFilter) {
   const trimmed = query.trim();
-  return useQuery({
-    queryKey: ["search", trimmed],
-    queryFn: () => searchMedia(trimmed),
+  const result = useInfiniteQuery({
+    queryKey: ["search", trimmed, filter],
+    queryFn: ({ pageParam }) => searchMedia(trimmed, filter, pageParam),
     enabled: trimmed.length > 1,
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.page < last.totalPages ? last.page + 1 : undefined),
   });
+  const items = useMemo(() => flattenPages(result.data?.pages), [result.data]);
+  return { ...result, items };
 }
 
 export function useDetails(type: MediaType, id: number) {

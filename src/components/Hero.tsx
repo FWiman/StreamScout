@@ -44,7 +44,14 @@ export function Hero({ kind, type, label }: Props) {
 
   return (
     <View style={[styles.hero, { height }]}>
-      <Image source={backdrop} style={StyleSheet.absoluteFill} contentFit="cover" transition={300} />
+      {/* Förankra i överkant: ansikten och titlar sitter oftast högt upp i bilden */}
+      <Image
+        source={backdrop}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        contentPosition="top"
+        transition={300}
+      />
 
       {/* Tonar ut bilden mot bakgrunden så texten går att läsa */}
       <LinearGradient

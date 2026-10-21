@@ -64,7 +64,13 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
       {/* Bakgrundsbild i full bredd som tonar ut mot sidan */}
       <View style={[styles.backdrop, { height: backdropHeight }]}>
         {backdrop && (
-          <Image source={backdrop} style={StyleSheet.absoluteFill} contentFit="cover" transition={300} />
+          <Image
+            source={backdrop}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            contentPosition="top"
+            transition={300}
+          />
         )}
         <LinearGradient
           colors={[colors.backgroundClear, colors.background]}
