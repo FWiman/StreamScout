@@ -303,7 +303,6 @@ const styles = StyleSheet.create({
   },
   more: {
     width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
     marginTop: spacing.lg,
   },
   center: {

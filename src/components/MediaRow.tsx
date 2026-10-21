@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useMediaList, type ListKind } from "@/api/queries";
 import type { MediaItem, MediaType } from "@/api/types";
+import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors, spacing } from "@/theme";
 import { MediaCard } from "./MediaCard";
@@ -34,6 +35,8 @@ const ZOOM_ROOM = spacing.sm;
 
 /**
  * En horisontell rad med affischer som hämtar fler titlar när man närmar sig slutet.
+ * Raden går kant i kant: rubriken och första kortet linjerar med sidans innehåll,
+ * medan korten fortsätter ut till skärmkanten.
  * På bredare webbskärmar visas pilar, eftersom mushjulet bara scrollar i höjdled.
  */
 export function MediaRow({ title, kind, type, id }: Props) {
@@ -47,6 +50,7 @@ export function MediaRow({ title, kind, type, id }: Props) {
 
   const { width: windowWidth } = useWindowDimensions();
   const isWide = useIsWide();
+  const gutter = useGutter();
   const cardWidth = isWide ? CARD_WIDTH_WIDE : CARD_WIDTH;
   const posterHeight = cardWidth * 1.5;
   const showArrows = Platform.OS === "web" && windowWidth >= 768;
@@ -73,11 +77,11 @@ export function MediaRow({ title, kind, type, id }: Props) {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.heading}>{title}</Text>
+      <Text style={[styles.heading, { paddingHorizontal: gutter }]}>{title}</Text>
       {isPending ? (
-        <ActivityIndicator color={colors.textMuted} style={styles.status} />
+        <ActivityIndicator color={colors.textMuted} style={[styles.status, { paddingHorizontal: gutter }]} />
       ) : isError ? (
-        <Text style={[styles.status, styles.error]}>Kunde inte hämta listan.</Text>
+        <Text style={[styles.status, styles.error, { paddingHorizontal: gutter }]}>Kunde inte hämta listan.</Text>
       ) : (
         <View onLayout={(e) => setViewWidth(e.nativeEvent.layout.width)}>
           <FlatList
@@ -86,7 +90,7 @@ export function MediaRow({ title, kind, type, id }: Props) {
             data={items}
             keyExtractor={(item) => `${item.type}-${item.id}`}
             renderItem={({ item }) => <MediaCard item={item} width={cardWidth} />}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={[styles.list, { paddingHorizontal: gutter }]}
             showsHorizontalScrollIndicator={false}
             onEndReached={loadMore}
             onEndReachedThreshold={2}
@@ -143,11 +147,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 20,
     fontWeight: "700",
-    paddingHorizontal: spacing.md,
   },
   list: {
     gap: spacing.md,
-    paddingHorizontal: spacing.md,
     paddingVertical: ZOOM_ROOM,
   },
   footer: {
@@ -155,7 +157,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   status: {
-    paddingHorizontal: spacing.md,
     paddingVertical: spacing.lg,
     alignSelf: "flex-start",
   },
@@ -174,9 +175,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   arrowBack: {
-    left: spacing.xs,
+    left: spacing.md,
   },
   arrowForward: {
-    right: spacing.xs,
+    right: spacing.md,
   },
 });

@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { TMDB_NOTICE } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
 import { Screen } from "@/components/Screen";
+import { useGutter } from "@/hooks/useGutter";
 import { colors, spacing } from "@/theme";
 
 const tmdbLogo = require("../assets/tmdb-logo.svg");
@@ -28,11 +29,12 @@ function ExternalLink({ url, children }: { url: string; children: string }) {
 }
 
 export default function AboutScreen() {
+  const gutter = useGutter();
   return (
     <Screen>
       <Stack.Screen options={{ title: "Om StreamWatch" }} />
 
-      <View style={styles.page}>
+      <View style={[styles.page, { marginHorizontal: gutter }]}>
         <Logo size={28} />
         <Text style={styles.lead}>
           StreamWatch hjälper dig att hitta filmer och serier och se var de går att streama, hyra eller köpa i
@@ -82,7 +84,6 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   page: {
     maxWidth: 720,
-    paddingHorizontal: spacing.md,
     paddingTop: spacing.lg,
     gap: spacing.xl,
   },

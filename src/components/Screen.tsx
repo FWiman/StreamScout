@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
+import { colors, spacing } from "@/theme";
 import { Footer } from "./Footer";
 
 interface Props {
@@ -35,9 +35,9 @@ const styles = StyleSheet.create({
   padTop: {
     paddingTop: spacing.md,
   },
+  // Full bredd: rader går kant i kant och linjerar själva med useGutter().
   inner: {
     width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
     gap: spacing.xl,
   },
 });
