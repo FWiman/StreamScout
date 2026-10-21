@@ -1,0 +1,21 @@
+export const colors = {
+  background: "#0b0d12",
+  surface: "#161a22",
+  surfaceRaised: "#1f2430",
+  border: "#2a3040",
+  text: "#f2f4f8",
+  textMuted: "#9aa3b5",
+  accent: "#e5484d",
+  rating: "#f5c451",
+} as const;
+
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+} as const;
+
+/** Maxbredd för innehåll på stora skärmar (webben). */
+export const MAX_CONTENT_WIDTH = 1200;
