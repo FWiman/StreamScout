@@ -6,8 +6,9 @@ import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useMediaList, useTrailer, type ListKind } from "@/api/queries";
 import { imageUrl } from "@/api/tmdb";
 import type { MediaType } from "@/api/types";
+import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
-import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
+import { colors, spacing } from "@/theme";
 import { Button } from "./Button";
 import { MetaLine } from "./MetaLine";
 
@@ -28,6 +29,7 @@ export function Hero({ kind, type, label }: Props) {
   const trailer = useTrailer(type, item?.id);
 
   const isWide = useIsWide();
+  const gutter = useGutter();
   const { width } = useWindowDimensions();
   const height = isWide
     ? Math.min(Math.max(width * 0.42, 380), 600)
@@ -67,7 +69,7 @@ export function Hero({ kind, type, label }: Props) {
       )}
 
       <View style={styles.contentWrap}>
-        <View style={[styles.content, isWide && styles.contentWide]}>
+        <View style={[styles.content, isWide && styles.contentWide, { paddingHorizontal: gutter }]}>
           <Text style={styles.label}>{label}</Text>
           <Text style={[styles.title, isWide && styles.titleWide]} numberOfLines={2}>
             {item.title}
@@ -109,15 +111,14 @@ const styles = StyleSheet.create({
   },
   contentWrap: {
     width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
-    alignSelf: "center",
   },
   content: {
-    padding: spacing.md,
+    paddingVertical: spacing.md,
     gap: spacing.sm,
   },
   contentWide: {
-    maxWidth: 600,
+    // Textens bredd plus marginalen till vänster.
+    maxWidth: 600 + 64,
     paddingBottom: spacing.xl,
   },
   label: {

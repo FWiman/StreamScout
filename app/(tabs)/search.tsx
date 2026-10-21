@@ -20,8 +20,9 @@ import { MediaRow } from "@/components/MediaRow";
 import { SearchResultRow } from "@/components/SearchResultRow";
 import { TopResult } from "@/components/TopResult";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
-import { colors, MAX_CONTENT_WIDTH, noFocusOutline, spacing } from "@/theme";
+import { colors, noFocusOutline, spacing } from "@/theme";
 
 const FILTERS: { value: SearchFilter; label: string }[] = [
   { value: "all", label: "Alla" },
@@ -45,7 +46,8 @@ export default function SearchScreen() {
 
   // Dator: rutnät med affischer. Telefon: lista med rader (lättare att skumma med tummen).
   const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_CONTENT_WIDTH) - spacing.md * 2;
+  const gutter = useGutter();
+  const contentWidth = width - gutter * 2;
   const columns = isWide ? Math.max(3, Math.floor((contentWidth + spacing.md) / (160 + spacing.md))) : 1;
   const cardWidth = (contentWidth - spacing.md * (columns - 1)) / columns;
 
@@ -54,7 +56,7 @@ export default function SearchScreen() {
   const openTitle = (item: MediaItem) => router.push(`/title/${item.type}/${item.id}`);
 
   const header = (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingHorizontal: gutter }]}>
       {isWide ? (
         <Text style={styles.heading}>
           {hasQuery ? `Sökresultat för "${debouncedQuery}"` : "Sök"}
@@ -115,7 +117,7 @@ export default function SearchScreen() {
   // Allt ligger i samma FlatList, så sökfältet inte byts ut (och tappar fokus) när resultaten dyker upp.
   const footer = !hasQuery ? (
     <View style={styles.browse}>
-      <Text style={styles.message}>
+      <Text style={[styles.message, { paddingHorizontal: gutter }]}>
         {isWide ? "Börja skriva i sökfältet högst upp." : "Skriv minst två bokstäver för att söka."}
       </Text>
       <MediaRow title="Trendande filmer" kind="trending" type="movie" />
@@ -146,7 +148,7 @@ export default function SearchScreen() {
         }
         ListHeaderComponent={header}
         ListFooterComponent={footer}
-        columnWrapperStyle={columns > 1 ? styles.row : undefined}
+        columnWrapperStyle={columns > 1 ? [styles.row, { paddingHorizontal: gutter }] : undefined}
         contentContainerStyle={[styles.grid, !isWide && styles.listMobile]}
         onEndReached={() => {
           if (hasQuery && hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -166,15 +168,12 @@ const styles = StyleSheet.create({
   },
   list: {
     width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
-    alignSelf: "center",
   },
   browse: {
     gap: spacing.lg,
   },
   header: {
     gap: spacing.md,
-    paddingHorizontal: spacing.md,
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
   },
@@ -240,7 +239,6 @@ const styles = StyleSheet.create({
   message: {
     color: colors.textMuted,
     fontSize: 15,
-    paddingHorizontal: spacing.md,
   },
   alignStart: {
     alignSelf: "flex-start",
@@ -251,7 +249,6 @@ const styles = StyleSheet.create({
   },
   row: {
     gap: spacing.md,
-    paddingHorizontal: spacing.md,
   },
   footer: {
     paddingVertical: spacing.lg,

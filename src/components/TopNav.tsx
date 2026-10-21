@@ -5,7 +5,8 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 import { useSearch } from "@/api/queries";
 import type { MediaItem } from "@/api/types";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { colors, MAX_CONTENT_WIDTH, noFocusOutline, spacing } from "@/theme";
+import { useGutter } from "@/hooks/useGutter";
+import { colors, noFocusOutline, spacing } from "@/theme";
 import { Logo } from "./Logo";
 import { SearchResultRow } from "./SearchResultRow";
 
@@ -25,6 +26,7 @@ const DROPDOWN_LIMIT = 6;
  */
 export function TopNav() {
   const pathname = usePathname();
+  const gutter = useGutter();
   const { q } = useGlobalSearchParams<{ q?: string }>();
   const onSearchPage = pathname === "/search";
 
@@ -93,7 +95,7 @@ export function TopNav() {
 
   return (
     <View style={styles.bar}>
-      <View style={styles.inner}>
+      <View style={[styles.inner, { paddingHorizontal: gutter }]}>
         <Link href="/" accessibilityLabel="Till startsidan">
           <Logo />
         </Link>
@@ -195,9 +197,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
     height: 64,
-    paddingHorizontal: spacing.md,
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xl,

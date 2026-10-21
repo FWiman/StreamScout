@@ -2,8 +2,9 @@ import { Image } from "expo-image";
 import { Link } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
-import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
+import { colors, spacing } from "@/theme";
 import { Logo } from "./Logo";
 
 const tmdbLogo = require("../../assets/tmdb-logo.svg");
@@ -24,11 +25,12 @@ export const TMDB_NOTICE = "This product uses the TMDB API but is not endorsed o
  */
 export function Footer() {
   const isWide = useIsWide();
+  const gutter = useGutter();
   const year = new Date().getFullYear();
 
   return (
     <View style={styles.footer}>
-      <View style={[styles.inner, isWide && styles.innerWide]}>
+      <View style={[styles.inner, isWide && styles.innerWide, { paddingHorizontal: gutter }]}>
         <View style={styles.brand}>
           <Logo size={18} />
           <Text style={styles.tagline}>Hitta filmer och serier – och se var de streamas i Sverige.</Text>
@@ -73,8 +75,6 @@ const styles = StyleSheet.create({
   },
   inner: {
     width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
-    paddingHorizontal: spacing.md,
     gap: spacing.lg,
   },
   innerWide: {

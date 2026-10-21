@@ -26,8 +26,6 @@ export const spacing = {
   xl: 32,
 } as const;
 
-/** Maxbredd för innehåll på stora skärmar (webben). */
-export const MAX_CONTENT_WIDTH = 1200;
 
 /**
  * Tar bort webbläsarens fokusram på textfält (den ritas som en kantig rektangel

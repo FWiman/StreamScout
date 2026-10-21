@@ -11,8 +11,9 @@ import { Footer } from "@/components/Footer";
 import { MediaRow } from "@/components/MediaRow";
 import { MetaLine } from "@/components/MetaLine";
 import { ProviderLogos } from "@/components/ProviderLogos";
+import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
-import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
+import { colors, spacing } from "@/theme";
 
 function isMediaType(value: unknown): value is MediaType {
   return value === "movie" || value === "tv";
@@ -41,6 +42,7 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const providers = useWatchProviders(type, id);
   const isWide = useIsWide();
   const { width } = useWindowDimensions();
+  const gutter = useGutter();
 
   if (details.isPending) return <Message loading />;
   if (details.isError) return <Message text="Kunde inte hämta titeln." />;
@@ -80,7 +82,9 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
         />
       </View>
 
-      <View style={[styles.body, isWide && styles.bodyWide, { marginTop: isWide ? -160 : -60 }]}>
+      <View
+        style={[styles.body, isWide && styles.bodyWide, { marginTop: isWide ? -160 : -60, paddingHorizontal: gutter }]}
+      >
         {poster && (
           <Image
             source={poster}
@@ -186,8 +190,7 @@ const styles = StyleSheet.create({
   },
   body: {
     width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
-    padding: spacing.md,
+    paddingVertical: spacing.md,
     gap: spacing.lg,
   },
   bodyWide: {

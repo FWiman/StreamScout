@@ -1,12 +1,15 @@
 import { useWindowDimensions } from "react-native";
-import { MAX_CONTENT_WIDTH, spacing } from "@/theme";
+import { spacing } from "@/theme";
+
+/** Största sidomarginal på riktigt breda skärmar. */
+const MAX_GUTTER = 64;
 
 /**
- * Sidomarginal som linjerar innehåll med den centrerade spalten (MAX_CONTENT_WIDTH).
- * Används av element som går kant i kant – t.ex. rader med affischer – så att rubriken
- * och första kortet hamnar i linje med resten av sidan medan raden fortsätter ut till kanten.
+ * Sidomarginalen för hela appen. Allt – toppmeny, toppsektion, rader och sidfot –
+ * börjar vid samma vänstermarginal, som växer lite med skärmen (4 % av bredden),
+ * som hos Netflix. Rader med affischer går sedan kant i kant åt höger.
  */
 export function useGutter() {
   const { width } = useWindowDimensions();
-  return Math.max(spacing.md, (width - MAX_CONTENT_WIDTH) / 2 + spacing.md);
+  return Math.round(Math.min(MAX_GUTTER, Math.max(spacing.md, width * 0.04)));
 }
