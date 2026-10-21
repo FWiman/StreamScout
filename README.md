@@ -1,6 +1,6 @@
 # StreamWatch
 
-Hitta filmer och serier och se var de går att streama i Sverige. En gemensam kodbas för **webb, iOS och Android**, byggd med [Expo](https://expo.dev) (SDK 58), Expo Router och TypeScript. Data kommer från [TMDB](https://www.themoviedb.org/).
+Hitta filmer och serier och se var de går att streama i Sverige. En gemensam kodbas för **webb, iOS och Android**, byggd med [Expo](https://expo.dev) (SDK 57), Expo Router och TypeScript. Data kommer från [TMDB](https://www.themoviedb.org/).
 
 Efterföljare till [MovieApp](https://github.com/FWiman/MovieApp) (webb) och [Movie-PhoneApp](https://github.com/FWiman/Movie-PhoneApp) (mobil).
 
@@ -30,7 +30,7 @@ copy .env.example .env
 
 Öppna sedan `.env` och klistra in din TMDB-nyckel efter `EXPO_PUBLIC_TMDB_API_KEY=`.
 
-> `npm run setup` installerar resten av paketen i de versioner som passar Expo SDK 58. Det behöver bara köras en gång.
+> `npm run setup` installerar resten av paketen i de versioner som passar Expo SDK 57. Det behöver bara köras en gång.
 
 ### Starta appen
 

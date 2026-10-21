@@ -1,10 +1,10 @@
 # StreamWatch – projektkontext för Claude
 
 ## Om projektet
-App för att hitta filmer/serier och se var de streamas i Sverige. En Expo-kodbas (SDK 58) som byggs till webb, iOS och Android. Ägaren utvecklar på Windows och kommunicerar på svenska.
+App för att hitta filmer/serier och se var de streamas i Sverige. En Expo-kodbas (SDK 57 – samma version som Expo Go i App Store; uppgradera när Expo Go stöder nyare) som byggs till webb, iOS och Android. Ägaren utvecklar på Windows och kommunicerar på svenska.
 
 ## Stack
-- Expo SDK 58, Expo Router (filbaserad routing i `app/`), TypeScript strict
+- Expo SDK 57, Expo Router (filbaserad routing i `app/`), TypeScript strict
 - `@tanstack/react-query` för datahämtning och cache
 - `expo-image` för bilder, `@expo/vector-icons` (Ionicons) för ikoner
 - TMDB API v3, språk `sv-SE`, region `SE`
@@ -17,8 +17,8 @@ App för att hitta filmer/serier och se var de streamas i Sverige. En Expo-kodba
 - Användartext på svenska; kod, variabelnamn och commit-meddelanden på engelska
 - Allt ska fungera på webb, iOS och Android – undvik webb- eller native-specifika API:er utan fallback
 - Dator och telefon har olika layout: `useIsWide()` (`src/hooks/useIsWide.ts`) styr toppmeny (`TopNav`) vs flikmeny, kortstorlekar och toppsektionens (`Hero`) utseende
-- React Native 0.88 har strikta typer: skriv refs som `useRef<ComponentRef<typeof TextInput>>(null)` (inte `useRef<TextInput>`), och `ListFooterComponent` m.fl. tar `undefined`, inte `null`
-- Installera paket med `npx expo install <paket>` (inte `npm install`) så versionerna passar SDK:n
+- React Native (0.86+) har strikta typer: skriv refs som `useRef<ComponentRef<typeof TextInput>>(null)` (inte `useRef<TextInput>`), och `ListFooterComponent` m.fl. tar `undefined`, inte `null`
+- Installera paket med `npx expo install <paket>` (inte `npm install`) så versionerna passar SDK:n. Byt inte SDK-version utan att kolla vilken Expo Go i App Store stöder
 
 ## Kommandon
 - `npm run web` / `npm start` – utvecklingsserver
