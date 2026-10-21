@@ -16,6 +16,7 @@ App för att hitta filmer/serier och se var de streamas i Sverige. En Expo-kodba
 - Importera från `src` med aliaset `@/`
 - Användartext på svenska; kod, variabelnamn och commit-meddelanden på engelska
 - Allt ska fungera på webb, iOS och Android – undvik webb- eller native-specifika API:er utan fallback
+- Dator och telefon har olika layout: `useIsWide()` (`src/hooks/useIsWide.ts`) styr toppmeny (`TopNav`) vs flikmeny, kortstorlekar och toppsektionens (`Hero`) utseende
 - Installera paket med `npx expo install <paket>` (inte `npm install`) så versionerna passar SDK:n
 
 ## Kommandon

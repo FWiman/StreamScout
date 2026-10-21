@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useMediaList, type ListKind } from "@/api/queries";
 import type { MediaItem, MediaType } from "@/api/types";
+import { useIsWide } from "@/hooks/useIsWide";
 import { colors, spacing } from "@/theme";
 import { MediaCard } from "./MediaCard";
 
@@ -24,8 +25,10 @@ interface Props {
 }
 
 const CARD_WIDTH = 130;
-const POSTER_HEIGHT = CARD_WIDTH * 1.5;
-const ARROW_SIZE = 40;
+const CARD_WIDTH_WIDE = 170;
+const ARROW_SIZE = 44;
+/** Luft ovanför och under korten så att hover-zoomen inte klipps av. */
+const ZOOM_ROOM = spacing.sm;
 
 /**
  * En horisontell rad med affischer som hämtar fler titlar när man närmar sig slutet.
@@ -41,6 +44,9 @@ export function MediaRow({ title, kind, type }: Props) {
   const [contentWidth, setContentWidth] = useState(0);
 
   const { width: windowWidth } = useWindowDimensions();
+  const isWide = useIsWide();
+  const cardWidth = isWide ? CARD_WIDTH_WIDE : CARD_WIDTH;
+  const posterHeight = cardWidth * 1.5;
   const showArrows = Platform.OS === "web" && windowWidth >= 768;
   const canGoBack = offset > 4;
   const canGoForward = offset + viewWidth < contentWidth - 4 || hasNextPage;
@@ -74,7 +80,7 @@ export function MediaRow({ title, kind, type }: Props) {
             horizontal
             data={items}
             keyExtractor={(item) => `${item.type}-${item.id}`}
-            renderItem={({ item }) => <MediaCard item={item} width={CARD_WIDTH} />}
+            renderItem={({ item }) => <MediaCard item={item} width={cardWidth} />}
             contentContainerStyle={styles.list}
             showsHorizontalScrollIndicator={false}
             onEndReached={loadMore}
@@ -84,7 +90,7 @@ export function MediaRow({ title, kind, type }: Props) {
             onContentSizeChange={(w) => setContentWidth(w)}
             ListFooterComponent={
               isFetchingNextPage ? (
-                <View style={styles.footer}>
+                <View style={[styles.footer, { width: cardWidth / 2, height: posterHeight }]}>
                   <ActivityIndicator color={colors.textMuted} />
                 </View>
               ) : null
@@ -92,10 +98,10 @@ export function MediaRow({ title, kind, type }: Props) {
           />
 
           {showArrows && canGoBack && (
-            <Arrow direction="back" onPress={() => scrollBy(-1)} />
+            <Arrow direction="back" top={ZOOM_ROOM + posterHeight / 2} onPress={() => scrollBy(-1)} />
           )}
           {showArrows && canGoForward && (
-            <Arrow direction="forward" onPress={() => scrollBy(1)} />
+            <Arrow direction="forward" top={ZOOM_ROOM + posterHeight / 2} onPress={() => scrollBy(1)} />
           )}
         </View>
       )}
@@ -103,14 +109,21 @@ export function MediaRow({ title, kind, type }: Props) {
   );
 }
 
-function Arrow({ direction, onPress }: { direction: "back" | "forward"; onPress: () => void }) {
+interface ArrowProps {
+  direction: "back" | "forward";
+  /** Pilens mittpunkt i höjdled, i linje med affischernas mitt. */
+  top: number;
+  onPress: () => void;
+}
+
+function Arrow({ direction, top, onPress }: ArrowProps) {
   const isBack = direction === "back";
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={isBack ? "Scrolla bakåt" : "Scrolla framåt"}
-      style={[styles.arrow, isBack ? styles.arrowBack : styles.arrowForward]}
+      style={[styles.arrow, { top: top - ARROW_SIZE / 2 }, isBack ? styles.arrowBack : styles.arrowForward]}
     >
       <Ionicons name={isBack ? "chevron-back" : "chevron-forward"} size={22} color={colors.text} />
     </Pressable>
@@ -119,7 +132,7 @@ function Arrow({ direction, onPress }: { direction: "back" | "forward"; onPress:
 
 const styles = StyleSheet.create({
   section: {
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   heading: {
     color: colors.text,
@@ -130,10 +143,9 @@ const styles = StyleSheet.create({
   list: {
     gap: spacing.md,
     paddingHorizontal: spacing.md,
+    paddingVertical: ZOOM_ROOM,
   },
   footer: {
-    width: CARD_WIDTH / 2,
-    height: POSTER_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -147,7 +159,6 @@ const styles = StyleSheet.create({
   },
   arrow: {
     position: "absolute",
-    top: POSTER_HEIGHT / 2 - ARROW_SIZE / 2,
     width: ARROW_SIZE,
     height: ARROW_SIZE,
     borderRadius: ARROW_SIZE / 2,

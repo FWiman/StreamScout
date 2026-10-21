@@ -8,6 +8,9 @@ export const colors = {
   accent: "#e5484d",
   rating: "#f5c451",
   overlay: "rgba(11, 13, 18, 0.85)",
+  /** Bakgrundsfärgen helt genomskinlig – för gradienter som tonar ut mot bakgrunden. */
+  backgroundClear: "rgba(11, 13, 18, 0)",
+  glass: "rgba(255, 255, 255, 0.16)",
 } as const;
 
 export const spacing = {

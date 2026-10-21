@@ -1,0 +1,150 @@
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { useMediaList, useTrailer, type ListKind } from "@/api/queries";
+import { imageUrl } from "@/api/tmdb";
+import type { MediaType } from "@/api/types";
+import { useIsWide } from "@/hooks/useIsWide";
+import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
+import { Button } from "./Button";
+
+interface Props {
+  kind: ListKind;
+  type: MediaType;
+  /** Liten etikett ovanför titeln, t.ex. "Trendar just nu". */
+  label: string;
+}
+
+/**
+ * Stor toppsektion med bakgrundsbild från första titeln i listan.
+ * Delar cache med raden för samma lista, så den kostar inget extra anrop.
+ */
+export function Hero({ kind, type, label }: Props) {
+  const { items } = useMediaList(kind, type);
+  const item = items.find((i) => i.backdropPath);
+  const trailer = useTrailer(type, item?.id);
+
+  const isWide = useIsWide();
+  const { width } = useWindowDimensions();
+  const height = isWide
+    ? Math.min(Math.max(width * 0.42, 380), 600)
+    : Math.max(width * 1.2, 400);
+
+  if (!item) return <View style={{ height }} />;
+
+  // Dator: liggande bakgrundsbild. Telefon: stående affisch, som fyller skärmen bättre.
+  const backdrop = isWide
+    ? imageUrl(item.backdropPath, "original")
+    : imageUrl(item.posterPath ?? item.backdropPath, "w780");
+  const meta = [item.year, item.voteAverage > 0 ? `★ ${item.voteAverage.toFixed(1)}` : null]
+    .filter(Boolean)
+    .join("  ·  ");
+
+  return (
+    <View style={[styles.hero, { height }]}>
+      <Image source={backdrop} style={StyleSheet.absoluteFill} contentFit="cover" transition={300} />
+
+      {/* Tonar ut bilden mot bakgrunden så texten går att läsa */}
+      <LinearGradient
+        colors={[colors.backgroundClear, colors.background]}
+        locations={[isWide ? 0.55 : 0.35, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      {isWide && (
+        <LinearGradient
+          colors={[colors.overlay, colors.backgroundClear]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0.7, y: 0 }}
+          style={StyleSheet.absoluteFill}
+        />
+      )}
+
+      <View style={styles.contentWrap}>
+        <View style={[styles.content, isWide && styles.contentWide]}>
+          <Text style={styles.label}>{label}</Text>
+          <Text style={[styles.title, isWide && styles.titleWide]} numberOfLines={2}>
+            {item.title}
+          </Text>
+          {meta.length > 0 && <Text style={styles.meta}>{meta}</Text>}
+          {isWide && item.overview.length > 0 && (
+            <Text style={styles.overview} numberOfLines={3}>
+              {item.overview}
+            </Text>
+          )}
+          <View style={styles.buttons}>
+            {trailer.data && (
+              <Button
+                label="Se trailer"
+                icon="play"
+                size={isWide ? "lg" : "md"}
+                onPress={() => WebBrowser.openBrowserAsync(trailer.data!)}
+              />
+            )}
+            <Button
+              label="Mer info"
+              icon="information-circle-outline"
+              variant="secondary"
+              size={isWide ? "lg" : "md"}
+              onPress={() => router.push(`/title/${item.type}/${item.id}`)}
+            />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  hero: {
+    width: "100%",
+    backgroundColor: colors.surface,
+    justifyContent: "flex-end",
+  },
+  contentWrap: {
+    width: "100%",
+    maxWidth: MAX_CONTENT_WIDTH,
+    alignSelf: "center",
+  },
+  content: {
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  contentWide: {
+    maxWidth: 600,
+    paddingBottom: spacing.xl,
+  },
+  label: {
+    color: colors.accent,
+    fontSize: 13,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  title: {
+    color: colors.text,
+    fontSize: 30,
+    fontWeight: "800",
+    letterSpacing: -0.5,
+  },
+  titleWide: {
+    fontSize: 48,
+    lineHeight: 54,
+  },
+  meta: {
+    color: colors.textMuted,
+    fontSize: 15,
+  },
+  overview: {
+    color: colors.text,
+    fontSize: 16,
+    lineHeight: 24,
+    opacity: 0.9,
+  },
+  buttons: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+});

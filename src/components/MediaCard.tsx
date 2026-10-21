@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useRef } from "react";
+import { Animated, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { imageUrl } from "@/api/tmdb";
 import type { MediaItem } from "@/api/types";
 import { colors, spacing } from "@/theme";
@@ -12,17 +13,33 @@ interface Props {
 
 /** Affisch med titel och betyg. Trycker man öppnas detaljsidan. */
 export function MediaCard({ item, width = 130 }: Props) {
-  const poster = imageUrl(item.posterPath, "w342");
+  const poster = imageUrl(item.posterPath, width > 160 ? "w500" : "w342");
+
+  // Zoomar affischen lite när muspekaren är över kortet (bara på dator).
+  const scale = useRef(new Animated.Value(1)).current;
+  const zoom = (to: number) =>
+    Animated.timing(scale, {
+      toValue: to,
+      duration: 180,
+      useNativeDriver: Platform.OS !== "web",
+    }).start();
 
   // Bredden sätts på en yttre View: på webben följer inte en style-funktion med
   // genom <Link asChild>, och då blir korten olika breda.
   return (
     <View style={{ width }}>
       <Link href={`/title/${item.type}/${item.id}`} asChild>
-        <Pressable accessibilityRole="link" accessibilityLabel={item.title}>
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel={item.title}
+          onHoverIn={() => zoom(1.05)}
+          onHoverOut={() => zoom(1)}
+        >
           {({ pressed }) => (
             <View style={[styles.card, pressed && styles.pressed]}>
-              <View style={[styles.posterFrame, { width, height: width * 1.5 }]}>
+              <Animated.View
+                style={[styles.posterFrame, { width, height: width * 1.5, transform: [{ scale }] }]}
+              >
                 {poster ? (
                   <Image source={poster} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} />
                 ) : (
@@ -35,7 +52,7 @@ export function MediaCard({ item, width = 130 }: Props) {
                     <Text style={styles.ratingText}>★ {item.voteAverage.toFixed(1)}</Text>
                   </View>
                 )}
-              </View>
+              </Animated.View>
               <Text style={styles.title} numberOfLines={1}>
                 {item.title}
               </Text>

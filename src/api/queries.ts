@@ -68,10 +68,12 @@ export function useDetails(type: MediaType, id: number) {
   });
 }
 
-export function useTrailer(type: MediaType, id: number) {
+/** `id` kan vara undefined medan titeln fortfarande laddas – då väntar hämtningen. */
+export function useTrailer(type: MediaType, id: number | undefined) {
   return useQuery({
     queryKey: ["trailer", type, id],
-    queryFn: () => getTrailerUrl(type, id),
+    queryFn: () => getTrailerUrl(type, id!),
+    enabled: id !== undefined,
   });
 }
 

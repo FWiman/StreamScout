@@ -8,38 +8,50 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { useSearch } from "@/api/queries";
 import { MediaCard } from "@/components/MediaCard";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useIsWide } from "@/hooks/useIsWide";
 import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
 
-const CARD_MIN_WIDTH = 120;
-
 export default function SearchScreen() {
-  const [query, setQuery] = useState("");
+  const isWide = useIsWide();
+  // På datorn skrivs sökningen i toppmenyn och kommer hit som ?q=…
+  const { q } = useLocalSearchParams<{ q?: string }>();
+  const [localQuery, setLocalQuery] = useState(q ?? "");
+  const query = isWide ? q ?? "" : localQuery;
+
   const debouncedQuery = useDebouncedValue(query);
   const { data, isFetching, isError } = useSearch(debouncedQuery);
 
   // Räkna ut hur många kolumner som får plats, så rutnätet fungerar både på mobil och webb.
   const { width } = useWindowDimensions();
+  const cardMinWidth = isWide ? 160 : 120;
   const contentWidth = Math.min(width, MAX_CONTENT_WIDTH) - spacing.md * 2;
-  const columns = Math.max(2, Math.floor((contentWidth + spacing.md) / (CARD_MIN_WIDTH + spacing.md)));
+  const columns = Math.max(2, Math.floor((contentWidth + spacing.md) / (cardMinWidth + spacing.md)));
   const cardWidth = (contentWidth - spacing.md * (columns - 1)) / columns;
 
   const hasQuery = debouncedQuery.trim().length > 1;
 
   return (
     <View style={styles.container}>
-      <TextInput
-        value={query}
-        onChangeText={setQuery}
-        placeholder="Sök filmer och serier…"
-        placeholderTextColor={colors.textMuted}
-        style={styles.input}
-        autoCorrect={false}
-        returnKeyType="search"
-        clearButtonMode="while-editing"
-      />
+      {isWide ? (
+        <Text style={styles.heading}>
+          {hasQuery ? `Sökresultat för "${debouncedQuery.trim()}"` : "Sök med fältet högst upp"}
+        </Text>
+      ) : (
+        <TextInput
+          value={localQuery}
+          onChangeText={setLocalQuery}
+          placeholder="Sök filmer och serier…"
+          placeholderTextColor={colors.textMuted}
+          style={styles.input}
+          autoCorrect={false}
+          returnKeyType="search"
+          clearButtonMode="while-editing"
+        />
+      )}
 
       {isFetching && <ActivityIndicator color={colors.textMuted} style={styles.message} />}
       {isError && <Text style={styles.message}>Något gick fel. Försök igen.</Text>}
@@ -68,6 +80,13 @@ const styles = StyleSheet.create({
     maxWidth: MAX_CONTENT_WIDTH,
     alignSelf: "center",
     backgroundColor: colors.background,
+  },
+  heading: {
+    color: colors.text,
+    fontSize: 22,
+    fontWeight: "700",
+    margin: spacing.md,
+    marginTop: spacing.lg,
   },
   input: {
     margin: spacing.md,
