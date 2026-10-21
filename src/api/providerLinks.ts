@@ -23,6 +23,10 @@ const SEARCH_URLS: [match: string, url: SearchUrl][] = [
   ["svt play", (q) => `https://www.svtplay.se/sok?q=${q}`],
   ["youtube", (q) => `https://www.youtube.com/results?search_query=${q}`],
   ["google play", (q) => `https://play.google.com/store/search?q=${q}&c=movies`],
+  ["viaplay", (q) => `https://viaplay.se/search#search=${q}`],
+  ["sf anytime", (q) => `https://www.sfanytime.com/sv/search?query=${q}`],
+  ["tele2", (q) => `https://www.tele2play.se/search?q=${q}`],
+  ["crunchyroll", (q) => `https://www.crunchyroll.com/search?q=${q}`],
 ];
 
 /**
