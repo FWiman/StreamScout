@@ -12,6 +12,7 @@ import { Footer } from "@/components/Footer";
 import { MediaRow } from "@/components/MediaRow";
 import { MetaLine } from "@/components/MetaLine";
 import { ProviderLogos } from "@/components/ProviderLogos";
+import { WatchlistButton } from "@/components/WatchlistButton";
 import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors, spacing } from "@/theme";
@@ -145,28 +146,27 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
             </View>
           )}
 
-          {(firstStream || trailer.data) && (
-            <View style={styles.buttons}>
-              {/* Huvudknapp: titta direkt hos första tjänsten som har titeln i abonnemanget */}
-              {firstStream && streamUrl && (
-                <Button
-                  label={`Se på ${firstStream.name}`}
-                  icon="play"
-                  size={isWide ? "lg" : "md"}
-                  onPress={() => Linking.openURL(streamUrl)}
-                />
-              )}
-              {trailer.data && (
-                <Button
-                  label="Trailer"
-                  icon={firstStream ? "film-outline" : "play"}
-                  variant={firstStream ? "secondary" : "primary"}
-                  size={isWide ? "lg" : "md"}
-                  onPress={() => WebBrowser.openBrowserAsync(trailer.data!)}
-                />
-              )}
-            </View>
-          )}
+          <View style={styles.buttons}>
+            {/* Huvudknapp: titta direkt hos första tjänsten som har titeln i abonnemanget */}
+            {firstStream && streamUrl && (
+              <Button
+                label={`Se på ${firstStream.name}`}
+                icon="play"
+                size={isWide ? "lg" : "md"}
+                onPress={() => Linking.openURL(streamUrl)}
+              />
+            )}
+            {trailer.data && (
+              <Button
+                label="Trailer"
+                icon={firstStream ? "film-outline" : "play"}
+                variant={firstStream ? "secondary" : "primary"}
+                size={isWide ? "lg" : "md"}
+                onPress={() => WebBrowser.openBrowserAsync(trailer.data!)}
+              />
+            )}
+            <WatchlistButton item={item} size={isWide ? "lg" : "md"} />
+          </View>
 
           {/* Mobil och mellanstora skärmar: tjänsterna före beskrivningen, eftersom det är det viktigaste */}
           {!showAside && providersCard}
@@ -273,6 +273,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
   overview: {

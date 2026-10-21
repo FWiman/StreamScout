@@ -1,18 +1,45 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useWatchlist } from "@/api/watchlist";
 import { authErrorMessage, useAuth } from "@/auth/AuthProvider";
 import { AuthForm } from "@/components/AuthForm";
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
+import { WatchlistGrid } from "@/components/WatchlistGrid";
 import { useGutter } from "@/hooks/useGutter";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { colors, spacing } from "@/theme";
 
-/** Kontosidan: inloggningsformulär för utloggade, profil för inloggade. */
+/**
+ * Min lista: inloggad ser man sina sparade titlar och sitt konto,
+ * utloggad ser man inloggningsformuläret.
+ */
 export default function AccountScreen() {
   const gutter = useGutter();
   const { user, loading } = useAuth();
+  const { data } = useWatchlist();
+
+  if (isSupabaseConfigured && !loading && user) {
+    return (
+      <Screen>
+        <View style={styles.signedIn}>
+          <View style={[styles.listHeader, { paddingHorizontal: gutter }]}>
+            <Text style={styles.heading}>Min lista</Text>
+            {data && data.length > 0 && (
+              <Text style={styles.count}>
+                {data.length} {data.length === 1 ? "titel" : "titlar"}
+              </Text>
+            )}
+          </View>
+          <WatchlistGrid />
+          <View style={[styles.page, { paddingHorizontal: gutter }]}>
+            <Profile email={user.email ?? ""} createdAt={user.created_at} provider={user.app_metadata.provider} />
+          </View>
+        </View>
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
@@ -21,8 +48,6 @@ export default function AccountScreen() {
           <NotConfigured />
         ) : loading ? (
           <ActivityIndicator color={colors.textMuted} style={styles.loading} />
-        ) : user ? (
-          <Profile email={user.email ?? ""} createdAt={user.created_at} provider={user.app_metadata.provider} />
         ) : (
           <AuthForm />
         )}
@@ -67,13 +92,6 @@ function Profile({ email, createdAt, provider }: { email: string; createdAt: str
         </View>
       </View>
 
-      <View style={styles.placeholder}>
-        <Ionicons name="bookmark-outline" size={22} color={colors.textMuted} />
-        <Text style={styles.placeholderText}>
-          Snart kan du spara filmer och serier i din egen lista här – och se den på alla dina enheter.
-        </Text>
-      </View>
-
       {error && <Text style={styles.error}>{error}</Text>}
       <Button label="Logga ut" icon="log-out-outline" variant="outline" block loading={busy} onPress={onSignOut} />
     </View>
@@ -97,6 +115,24 @@ const styles = StyleSheet.create({
   page: {
     paddingTop: spacing.lg,
     alignItems: "center",
+  },
+  signedIn: {
+    gap: spacing.lg,
+    paddingTop: spacing.lg,
+  },
+  listHeader: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: spacing.sm,
+  },
+  heading: {
+    color: colors.text,
+    fontSize: 28,
+    fontWeight: "800",
+  },
+  count: {
+    color: colors.textMuted,
+    fontSize: 15,
   },
   loading: {
     marginTop: spacing.xl,
@@ -144,22 +180,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   muted: {
-    color: colors.textMuted,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  placeholder: {
-    flexDirection: "row",
-    gap: spacing.sm,
-    padding: spacing.md,
-    borderRadius: 12,
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderStyle: "dashed",
-  },
-  placeholderText: {
-    flex: 1,
     color: colors.textMuted,
     fontSize: 14,
     lineHeight: 20,

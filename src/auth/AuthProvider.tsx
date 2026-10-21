@@ -1,7 +1,7 @@
 import type { Session, User } from "@supabase/supabase-js";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Platform } from "react-native";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
@@ -18,14 +18,21 @@ interface AuthContextValue {
   signUp: (email: string, password: string) => Promise<boolean>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  /** Skickar ett mejl med en länk för att välja nytt lösenord. */
+  resetPassword: (email: string) => Promise<void>;
+  /** Byter lösenord för den inloggade användaren (t.ex. efter återställningslänken). */
+  updatePassword: (password: string) => Promise<void>;
 }
+
+/** Google-inloggning visas först när den är uppsatt i Supabase (EXPO_PUBLIC_AUTH_GOOGLE=true i .env). */
+export const GOOGLE_ENABLED = process.env.EXPO_PUBLIC_AUTH_GOOGLE === "true";
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** Dit Supabase skickar tillbaka användaren efter Google eller e-postbekräftelse. */
-function redirectUrl() {
+/** Dit Supabase skickar tillbaka användaren efter Google, e-postbekräftelse eller lösenordsåterställning. */
+function redirectUrl(path = "/account") {
   // Webb: http://localhost:8081/account  ·  Expo Go: exp://…/--/account  ·  App: streamwatch://account
-  return Linking.createURL("/account");
+  return Linking.createURL(path);
 }
 
 /** Supabases felmeddelanden på svenska. */
@@ -42,6 +49,9 @@ export function authErrorMessage(error: unknown): string {
   if (lower.includes("rate limit") || lower.includes("too many"))
     return "För många försök. Vänta en stund och försök igen.";
   if (lower.includes("network") || lower.includes("fetch")) return "Ingen kontakt med servern. Kontrollera nätet.";
+  if (lower.includes("code verifier") || lower.includes("auth session missing") || lower.includes("expired"))
+    return "Länken har gått ut eller öppnades på en annan enhet. Begär en ny och öppna den i samma webbläsare/app.";
+  if (lower.includes("should be different")) return "Det nya lösenordet måste skilja sig från det gamla.";
   return `Något gick fel: ${message}`;
 }
 
@@ -59,6 +69,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data } = supabase.auth.onAuthStateChange((_event, newSession) => setSession(newSession));
     return () => data.subscription.unsubscribe();
+  }, []);
+
+  // Mobil: länkar från mejl (bekräftelse, återställning) öppnar appen med ?code=… i adressen.
+  // Webben sköter detta automatiskt (detectSessionInUrl i supabase.ts).
+  const handledCodes = useRef(new Set<string>());
+  useEffect(() => {
+    if (!isSupabaseConfigured || Platform.OS === "web") return;
+
+    const handleUrl = async (url: string | null) => {
+      if (!url) return;
+      const code = Linking.parse(url).queryParams?.code;
+      if (typeof code !== "string" || handledCodes.current.has(code)) return;
+      handledCodes.current.add(code);
+      await supabase.auth.exchangeCodeForSession(code).catch(() => {
+        // Ogiltig eller gammal länk – kontosidan visar inloggningsformuläret som vanligt.
+      });
+    };
+
+    Linking.getInitialURL().then(handleUrl);
+    const subscription = Linking.addEventListener("url", ({ url }) => handleUrl(url));
+    return () => subscription.remove();
   }, []);
 
   const value = useMemo<AuthContextValue>(
@@ -100,7 +131,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { queryParams } = Linking.parse(result.url);
         if (typeof queryParams?.error_description === "string") throw new Error(queryParams.error_description);
         const code = queryParams?.code;
-        if (typeof code === "string") {
+        if (typeof code === "string" && !handledCodes.current.has(code)) {
+          handledCodes.current.add(code);
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
           if (exchangeError) throw exchangeError;
         }
@@ -108,6 +140,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       async signOut() {
         const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+      },
+
+      async resetPassword(email) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: redirectUrl("/reset-password"),
+        });
+        if (error) throw error;
+      },
+
+      async updatePassword(password) {
+        const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
       },
     }),

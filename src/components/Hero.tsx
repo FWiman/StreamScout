@@ -11,6 +11,7 @@ import { useIsWide } from "@/hooks/useIsWide";
 import { colors, spacing } from "@/theme";
 import { Button } from "./Button";
 import { MetaLine } from "./MetaLine";
+import { WatchlistButton } from "./WatchlistButton";
 
 interface Props {
   kind: ListKind;
@@ -99,6 +100,7 @@ export function Hero({ kind, type, label }: Props) {
               size={isWide ? "lg" : "md"}
               onPress={() => router.push(`/title/${item.type}/${item.id}`)}
             />
+            <WatchlistButton item={item} size={isWide ? "lg" : "md"} />
           </View>
         </View>
       </View>
@@ -149,6 +151,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
     marginTop: spacing.sm,
   },

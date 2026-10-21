@@ -28,6 +28,7 @@ const DROPDOWN_LIMIT = 6;
 export function TopNav() {
   const pathname = usePathname();
   const gutter = useGutter();
+  const { user } = useAuth();
   const { q } = useGlobalSearchParams<{ q?: string }>();
   const onSearchPage = pathname === "/search";
 
@@ -110,6 +111,11 @@ export function TopNav() {
               </Link>
             );
           })}
+          {user && (
+            <Link href="/account" style={[styles.link, pathname === "/account" && styles.linkActive]}>
+              Min lista
+            </Link>
+          )}
         </View>
 
         <View style={styles.searchArea}>

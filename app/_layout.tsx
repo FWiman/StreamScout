@@ -39,6 +39,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="title/[type]/[id]" options={{ title: "", headerShown: !isWide }} />
           <Stack.Screen name="about" options={{ title: "Om StreamWatch", headerShown: !isWide }} />
+          <Stack.Screen name="reset-password" options={{ title: "Nytt lösenord", headerShown: !isWide }} />
         </Stack>
       </View>
       </AuthProvider>

@@ -9,6 +9,8 @@ App för att hitta filmer/serier och se var de streamas i Sverige. En Expo-kodba
 - `expo-image` för bilder, `@expo/vector-icons` (Ionicons) för ikoner
 - TMDB API v3, språk `sv-SE`, region `SE`
 - Supabase för konton (e-post/lösenord + Google): klient i `src/lib/supabase.ts`, `useAuth()` från `src/auth/AuthProvider.tsx`. Sessionslagring: webbläsarens localStorage på webben, expo-sqlite localStorage på mobil (`sessionStorage.native.ts`)
+- Supabase-projekt `streamwatch` (ref `zhodxslqoycsohosqlrg`, eu-north-1). Tabell `public.watchlist` med RLS (select/insert/delete för egna rader). Klientkod i `src/api/watchlist.ts` (`useWatchlist`, `useToggleWatchlist`, `useIsInWatchlist`). Schemaändringar görs som migrationer – kör alltid säkerhetsråden efteråt
+- Google-knappen visas bara när `EXPO_PUBLIC_AUTH_GOOGLE=true`
 
 ## Konventioner
 - All TMDB-kommunikation går via `src/api/tmdb.ts`; komponenter använder hooks i `src/api/queries.ts`

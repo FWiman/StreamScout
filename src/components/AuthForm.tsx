@@ -1,15 +1,27 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState, type ComponentProps } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { authErrorMessage, useAuth } from "@/auth/AuthProvider";
+import { authErrorMessage, GOOGLE_ENABLED, useAuth } from "@/auth/AuthProvider";
 import { colors, noFocusOutline, spacing } from "@/theme";
 import { Button } from "./Button";
 
-type Mode = "signIn" | "signUp";
+type Mode = "signIn" | "signUp" | "reset";
 
-/** Inloggning och registrering: Google eller e-post + lösenord. */
+const TITLES: Record<Mode, string> = {
+  signIn: "Logga in",
+  signUp: "Skapa konto",
+  reset: "Glömt lösenordet?",
+};
+
+const SUBTITLES: Record<Mode, string> = {
+  signIn: "Välkommen tillbaka! Logga in för att se din lista.",
+  signUp: "Med ett konto kan du spara filmer och serier i din lista och se den på alla dina enheter.",
+  reset: "Skriv in din e-postadress så skickar vi en länk där du kan välja ett nytt lösenord.",
+};
+
+/** Inloggning, registrering och "glömt lösenord". */
 export function AuthForm() {
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   const [mode, setMode] = useState<Mode>("signIn");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,12 +30,15 @@ export function AuthForm() {
   const [notice, setNotice] = useState<string | null>(null);
 
   const isSignUp = mode === "signUp";
-  const canSubmit = email.trim().length > 3 && password.length >= 6;
+  const isReset = mode === "reset";
+  const validEmail = email.trim().length > 3 && email.includes("@");
+  const canSubmit = isReset ? validEmail : validEmail && password.length >= 6;
 
   const switchMode = (next: Mode) => {
     setMode(next);
     setError(null);
     setNotice(null);
+    setPassword("");
   };
 
   const submit = async () => {
@@ -32,7 +47,12 @@ export function AuthForm() {
     setError(null);
     setNotice(null);
     try {
-      if (isSignUp) {
+      if (isReset) {
+        await resetPassword(email);
+        setNotice(
+          `Om det finns ett konto för ${email.trim()} har vi skickat en länk dit. Öppna den på den här enheten för att välja ett nytt lösenord.`
+        );
+      } else if (isSignUp) {
         const needsConfirmation = await signUp(email, password);
         if (needsConfirmation) {
           setNotice(`Nästan klart! Vi har skickat en bekräftelselänk till ${email.trim()}. Öppna den för att aktivera kontot.`);
@@ -62,28 +82,27 @@ export function AuthForm() {
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>{isSignUp ? "Skapa konto" : "Logga in"}</Text>
-      <Text style={styles.subtitle}>
-        {isSignUp
-          ? "Med ett konto kan du spara filmer och serier i din lista och se den på alla dina enheter."
-          : "Välkommen tillbaka! Logga in för att se din lista."}
-      </Text>
+      <Text style={styles.title}>{TITLES[mode]}</Text>
+      <Text style={styles.subtitle}>{SUBTITLES[mode]}</Text>
 
-      <Button
-        label="Fortsätt med Google"
-        icon="logo-google"
-        variant="outline"
-        block
-        loading={busy === "google"}
-        disabled={busy !== null}
-        onPress={google}
-      />
-
-      <View style={styles.divider}>
-        <View style={styles.line} />
-        <Text style={styles.dividerText}>eller med e-post</Text>
-        <View style={styles.line} />
-      </View>
+      {GOOGLE_ENABLED && !isReset && (
+        <>
+          <Button
+            label="Fortsätt med Google"
+            icon="logo-google"
+            variant="outline"
+            block
+            loading={busy === "google"}
+            disabled={busy !== null}
+            onPress={google}
+          />
+          <View style={styles.divider}>
+            <View style={styles.line} />
+            <Text style={styles.dividerText}>eller med e-post</Text>
+            <View style={styles.line} />
+          </View>
+        </>
+      )}
 
       <Field
         icon="mail-outline"
@@ -93,45 +112,67 @@ export function AuthForm() {
         keyboardType="email-address"
         autoComplete="email"
         textContentType="emailAddress"
+        onSubmitEditing={isReset ? submit : undefined}
       />
-      <Field
-        icon="lock-closed-outline"
-        value={password}
-        onChangeText={setPassword}
-        placeholder={isSignUp ? "Lösenord (minst 6 tecken)" : "Lösenord"}
-        secureTextEntry
-        autoComplete={isSignUp ? "new-password" : "current-password"}
-        textContentType={isSignUp ? "newPassword" : "password"}
-        onSubmitEditing={submit}
-      />
+      {!isReset && (
+        <Field
+          icon="lock-closed-outline"
+          value={password}
+          onChangeText={setPassword}
+          placeholder={isSignUp ? "Lösenord (minst 6 tecken)" : "Lösenord"}
+          secureTextEntry
+          autoComplete={isSignUp ? "new-password" : "current-password"}
+          textContentType={isSignUp ? "newPassword" : "password"}
+          onSubmitEditing={submit}
+        />
+      )}
 
-      {error && (
-        <View style={[styles.message, styles.errorBox]}>
-          <Ionicons name="alert-circle" size={18} color={colors.accent} />
-          <Text style={styles.messageText}>{error}</Text>
-        </View>
+      {mode === "signIn" && (
+        <Pressable onPress={() => switchMode("reset")} accessibilityRole="button" hitSlop={8} style={styles.forgot}>
+          <Text style={styles.forgotText}>Glömt lösenordet?</Text>
+        </Pressable>
       )}
-      {notice && (
-        <View style={[styles.message, styles.noticeBox]}>
-          <Ionicons name="mail-unread-outline" size={18} color={colors.success} />
-          <Text style={styles.messageText}>{notice}</Text>
-        </View>
-      )}
+
+      {error && <FormMessage kind="error" text={error} />}
+      {notice && <FormMessage kind="notice" text={notice} />}
 
       <Button
-        label={isSignUp ? "Skapa konto" : "Logga in"}
+        label={isReset ? "Skicka länk" : TITLES[mode]}
         block
         loading={busy === "email"}
         disabled={!canSubmit || busy !== null}
         onPress={submit}
       />
 
-      <Pressable onPress={() => switchMode(isSignUp ? "signIn" : "signUp")} accessibilityRole="button" hitSlop={8}>
-        <Text style={styles.switch}>
-          {isSignUp ? "Har du redan ett konto? " : "Inget konto? "}
-          <Text style={styles.switchLink}>{isSignUp ? "Logga in" : "Skapa ett gratis"}</Text>
-        </Text>
-      </Pressable>
+      {isReset ? (
+        <Pressable onPress={() => switchMode("signIn")} accessibilityRole="button" hitSlop={8}>
+          <Text style={styles.switch}>
+            <Text style={styles.switchLink}>← Tillbaka till inloggningen</Text>
+          </Text>
+        </Pressable>
+      ) : (
+        <Pressable onPress={() => switchMode(isSignUp ? "signIn" : "signUp")} accessibilityRole="button" hitSlop={8}>
+          <Text style={styles.switch}>
+            {isSignUp ? "Har du redan ett konto? " : "Inget konto? "}
+            <Text style={styles.switchLink}>{isSignUp ? "Logga in" : "Skapa ett gratis"}</Text>
+          </Text>
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
+/** Fel- eller bekräftelseruta i formulär. */
+export function FormMessage({ kind, text }: { kind: "error" | "notice"; text: string }) {
+  const isError = kind === "error";
+  return (
+    <View style={[styles.message, isError ? styles.errorBox : styles.noticeBox]}>
+      <Ionicons
+        name={isError ? "alert-circle" : "checkmark-circle"}
+        size={18}
+        color={isError ? colors.accent : colors.success}
+      />
+      <Text style={styles.messageText}>{text}</Text>
     </View>
   );
 }
@@ -140,7 +181,8 @@ type FieldProps = ComponentProps<typeof TextInput> & {
   icon: ComponentProps<typeof Ionicons>["name"];
 };
 
-function Field({ icon, style, ...props }: FieldProps) {
+/** Textfält med ikon och fokusram – används i alla kontoformulär. */
+export function Field({ icon, style, ...props }: FieldProps) {
   const [focused, setFocused] = useState(false);
   return (
     <View style={[styles.field, focused && styles.fieldFocused]}>
@@ -234,6 +276,15 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 14,
     lineHeight: 20,
+  },
+  forgot: {
+    alignSelf: "flex-end",
+    marginTop: -spacing.xs,
+  },
+  forgotText: {
+    color: colors.textMuted,
+    fontSize: 14,
+    textDecorationLine: "underline",
   },
   switch: {
     color: colors.textMuted,

@@ -60,7 +60,13 @@ Inloggning sköts av [Supabase](https://supabase.com) (gratisnivån räcker). Ut
    `https://<ditt-projekt>.supabase.co/auth/v1/callback` (står även i Supabase under Google-inställningarna).
 3. I Supabase: *Authentication → Sign In / Providers → Google* – slå på och klistra in *Client ID* och *Client secret*.
 
+När Google är uppsatt: sätt `EXPO_PUBLIC_AUTH_GOOGLE=true` i `.env` så visas knappen.
+
 > När appen ska ut i App Store: Apple kräver *Logga in med Apple* om appen erbjuder Google-inloggning.
+
+### Databas
+
+Tabellen `watchlist` (Min lista) har Row Level Security: varje användare kan bara läsa, lägga till och ta bort sina egna rader. Titel och bilder sparas med raden så att listan visas utan extra TMDB-anrop.
 
 ## Struktur
 
@@ -82,7 +88,9 @@ src/
 
 - [x] Grund: Expo Router, TMDB, trendande/topprankat, sök, detaljsida, trailers, streamingtjänster i Sverige
 - [x] Konton och inloggning (e-post + Google via Supabase)
-- [ ] Watchlist som synkas mellan webb och app
+- [x] Watchlist (Min lista) som synkas mellan webb och app
+- [x] Glömt lösenord
+- [ ] Logga in med Google och Apple
 - [ ] Egen backend som döljer TMDB-nyckeln
 - [ ] Filtrera på streamingtjänst ("vad finns på Netflix?")
 - [ ] Publicera webben (t.ex. EAS Hosting eller Vercel)
