@@ -12,6 +12,13 @@ export interface MediaItem {
   year: string | null;
 }
 
+/** En sida ur en lista från TMDB. */
+export interface MediaPage {
+  items: MediaItem[];
+  page: number;
+  totalPages: number;
+}
+
 export interface MediaDetails extends MediaItem {
   genres: string[];
   /** Speltid i minuter (filmer) eller avsnittslängd (serier). */

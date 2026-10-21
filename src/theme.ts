@@ -7,6 +7,7 @@ export const colors = {
   textMuted: "#9aa3b5",
   accent: "#e5484d",
   rating: "#f5c451",
+  overlay: "rgba(11, 13, 18, 0.85)",
 } as const;
 
 export const spacing = {

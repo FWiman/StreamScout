@@ -1,6 +1,7 @@
 import type {
   MediaDetails,
   MediaItem,
+  MediaPage,
   MediaType,
   TmdbDetailsResult,
   TmdbMediaResult,
@@ -80,24 +81,30 @@ function toProviders(list: TmdbProvider[] | undefined): WatchProvider[] {
   return (list ?? []).map((p) => ({ id: p.provider_id, name: p.provider_name, logoPath: p.logo_path }));
 }
 
-// ---- Listor ----
+// ---- Listor (sidindelade, 20 titlar per sida) ----
 
-export async function getTrending(type: MediaType) {
-  return toMediaList(await tmdbFetch<TmdbPage<TmdbMediaResult>>(`/trending/${type}/week`), type);
+/** TMDB ger aldrig ut fler än 500 sidor. */
+const MAX_PAGES = 500;
+
+async function getListPage(path: string, type: MediaType, page: number, params: Params = {}) {
+  const raw = await tmdbFetch<TmdbPage<TmdbMediaResult>>(path, { ...params, page });
+  return {
+    items: toMediaList(raw, type),
+    page: raw.page,
+    totalPages: Math.min(raw.total_pages, MAX_PAGES),
+  } satisfies MediaPage;
 }
 
-export async function getTopRated(type: MediaType) {
-  return toMediaList(
-    await tmdbFetch<TmdbPage<TmdbMediaResult>>(`/${type}/top_rated`, { region: REGION }),
-    type
-  );
+export function getTrending(type: MediaType, page = 1) {
+  return getListPage(`/trending/${type}/week`, type, page);
 }
 
-export async function getPopular(type: MediaType) {
-  return toMediaList(
-    await tmdbFetch<TmdbPage<TmdbMediaResult>>(`/${type}/popular`, { region: REGION }),
-    type
-  );
+export function getTopRated(type: MediaType, page = 1) {
+  return getListPage(`/${type}/top_rated`, type, page, { region: REGION });
+}
+
+export function getPopular(type: MediaType, page = 1) {
+  return getListPage(`/${type}/popular`, type, page, { region: REGION });
 }
 
 export async function searchMedia(query: string) {
