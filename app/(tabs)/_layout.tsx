@@ -1,13 +1,15 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import type { ComponentProps } from "react";
+import type { ColorValue } from "react-native";
 import { colors } from "@/theme";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
 function tabIcon(name: IconName) {
-  return ({ color, size }: { color: string; size: number }) => (
-    <Ionicons name={name} color={color} size={size} />
+  // Flikmenyn skickar en ColorValue; vi sätter alltid strängfärger i screenOptions nedan.
+  return ({ color, size }: { color: ColorValue; size: number }) => (
+    <Ionicons name={name} color={color as string} size={size} />
   );
 }
 
