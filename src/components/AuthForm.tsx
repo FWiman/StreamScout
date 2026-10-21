@@ -1,7 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState, type ComponentProps } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { authErrorMessage, GOOGLE_ENABLED, useAuth } from "@/auth/AuthProvider";
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import * as AppleAuthentication from "expo-apple-authentication";
+import { APPLE_ENABLED, authErrorMessage, GOOGLE_ENABLED, SignInCancelled, useAuth } from "@/auth/AuthProvider";
 import { colors, noFocusOutline, spacing } from "@/theme";
 import { Button } from "./Button";
 
@@ -21,11 +22,11 @@ const SUBTITLES: Record<Mode, string> = {
 
 /** Inloggning, registrering och "glömt lösenord". */
 export function AuthForm() {
-  const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithApple, resetPassword } = useAuth();
   const [mode, setMode] = useState<Mode>("signIn");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState<"email" | "google" | null>(null);
+  const [busy, setBusy] = useState<"email" | "google" | "apple" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -68,34 +69,64 @@ export function AuthForm() {
     }
   };
 
-  const google = async () => {
-    setBusy("google");
+  const social = async (provider: "google" | "apple") => {
+    setBusy(provider);
     setError(null);
     try {
-      await signInWithGoogle();
+      await (provider === "google" ? signInWithGoogle() : signInWithApple());
     } catch (e) {
-      setError(authErrorMessage(e));
+      // Avbröt man själv visas inget fel.
+      if (!(e instanceof SignInCancelled)) setError(authErrorMessage(e));
     } finally {
       setBusy(null);
     }
   };
+
+  const showSocial = (GOOGLE_ENABLED || APPLE_ENABLED) && !isReset;
 
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{TITLES[mode]}</Text>
       <Text style={styles.subtitle}>{SUBTITLES[mode]}</Text>
 
-      {GOOGLE_ENABLED && !isReset && (
+      {showSocial && (
         <>
-          <Button
-            label="Fortsätt med Google"
-            icon="logo-google"
-            variant="outline"
-            block
-            loading={busy === "google"}
-            disabled={busy !== null}
-            onPress={google}
-          />
+          {APPLE_ENABLED &&
+            (Platform.OS === "ios" ? (
+              // Apple kräver sin egen knapp i iOS-appar.
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={
+                  isSignUp
+                    ? AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP
+                    : AppleAuthentication.AppleAuthenticationButtonType.CONTINUE
+                }
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+                cornerRadius={8}
+                style={styles.appleButton}
+                onPress={() => social("apple")}
+              />
+            ) : (
+              <Button
+                label="Fortsätt med Apple"
+                icon="logo-apple"
+                variant="outline"
+                block
+                loading={busy === "apple"}
+                disabled={busy !== null}
+                onPress={() => social("apple")}
+              />
+            ))}
+          {GOOGLE_ENABLED && (
+            <Button
+              label="Fortsätt med Google"
+              icon="logo-google"
+              variant="outline"
+              block
+              loading={busy === "google"}
+              disabled={busy !== null}
+              onPress={() => social("google")}
+            />
+          )}
           <View style={styles.divider}>
             <View style={styles.line} />
             <Text style={styles.dividerText}>eller med e-post</Text>
@@ -221,6 +252,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     marginBottom: spacing.xs,
+  },
+  appleButton: {
+    width: "100%",
+    height: 48,
   },
   divider: {
     flexDirection: "row",

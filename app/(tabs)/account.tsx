@@ -87,7 +87,7 @@ function Profile({ email, createdAt, provider }: { email: string; createdAt: str
           </Text>
           <Text style={styles.muted}>
             Medlem sedan {since}
-            {provider === "google" ? " · inloggad med Google" : ""}
+            {provider === "google" ? " · inloggad med Google" : provider === "apple" ? " · inloggad med Apple" : ""}
           </Text>
         </View>
       </View>

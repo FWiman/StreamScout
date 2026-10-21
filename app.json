@@ -8,10 +8,13 @@
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0b0d12",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fwiman.streamwatch",
+      "usesAppleSignIn": true
     },
     "android": {
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.fwiman.streamwatch"
     },
     "web": {
       "bundler": "metro",
@@ -22,7 +25,8 @@
       "expo-status-bar",
       "expo-image",
       "expo-web-browser",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-apple-authentication"
     ]
   }
 }

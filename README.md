@@ -53,16 +53,30 @@ Inloggning sköts av [Supabase](https://supabase.com) (gratisnivån räcker). Ut
    - `exp://**` (Expo Go)
    - `streamwatch://**` (den riktiga appen)
 
-### Logga in med Google
+### Logga in med Google (gratis)
 
-1. Gå till [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials), skapa ett projekt och konfigurera *OAuth consent screen* (extern, appnamn StreamWatch).
-2. Skapa *OAuth client ID* av typen **Web application**. Under *Authorized redirect URIs*, lägg till
-   `https://<ditt-projekt>.supabase.co/auth/v1/callback` (står även i Supabase under Google-inställningarna).
-3. I Supabase: *Authentication → Sign In / Providers → Google* – slå på och klistra in *Client ID* och *Client secret*.
+1. Öppna [Google Cloud Console](https://console.cloud.google.com/) och skapa ett projekt, t.ex. *StreamWatch*.
+2. Gå till **Google Auth Platform** (sök på "OAuth" i sökfältet):
+   - **Branding:** appnamn *StreamWatch* och din e-post som supportadress.
+   - **Audience:** *External*. Medan appen är i läget *Testing* kan bara de testanvändare du lägger till logga in – lägg till dig själv, eller tryck *Publish app* när du vill att alla ska kunna.
+   - **Clients → Create client:** typ **Web application**, namn *StreamWatch Supabase*.
+     - *Authorized JavaScript origins:* `http://localhost:8081`
+     - *Authorized redirect URIs:* `https://zhodxslqoycsohosqlrg.supabase.co/auth/v1/callback`
+3. Kopiera **Client ID** och **Client secret** till Supabase: [Authentication → Sign In / Providers → Google](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/providers). Slå på och spara.
+4. Sätt `EXPO_PUBLIC_AUTH_GOOGLE=true` i `.env` och starta om servern.
 
-När Google är uppsatt: sätt `EXPO_PUBLIC_AUTH_GOOGLE=true` i `.env` så visas knappen.
+### Logga in med Apple
 
-> När appen ska ut i App Store: Apple kräver *Logga in med Apple* om appen erbjuder Google-inloggning.
+**På iPhone (gratis, testas i Expo Go):**
+
+1. I Supabase: [Authentication → Sign In / Providers → Apple](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/providers) – slå på och skriv under *Client IDs*:
+   `host.exp.Exponent,com.fwiman.streamwatch`
+   (`host.exp.Exponent` är Expo Go, den andra är den riktiga appen). Fälten för *Secret Key* lämnas tomma.
+2. Sätt `EXPO_PUBLIC_AUTH_APPLE=true` i `.env` och starta om servern.
+
+**På webb och Android** krävs ett [Apple Developer-konto](https://developer.apple.com/programs/) (99 USD/år) för att skapa ett *Services ID* och en signeringsnyckel. Följ [Supabases guide](https://supabase.com/docs/guides/auth/social-login/auth-apple) och sätt sedan `EXPO_PUBLIC_AUTH_APPLE_WEB=true`. Apple kräver att nyckeln förnyas var 6:e månad.
+
+> App Store kräver *Logga in med Apple* om appen erbjuder Google-inloggning – därför finns båda.
 
 ### Databas
 
@@ -90,7 +104,7 @@ src/
 - [x] Konton och inloggning (e-post + Google via Supabase)
 - [x] Watchlist (Min lista) som synkas mellan webb och app
 - [x] Glömt lösenord
-- [ ] Logga in med Google och Apple
+- [x] Logga in med Google och Apple (Apple på webb/Android kräver Apple Developer-konto)
 - [ ] Egen backend som döljer TMDB-nyckeln
 - [ ] Filtrera på streamingtjänst ("vad finns på Netflix?")
 - [ ] Publicera webben (t.ex. EAS Hosting eller Vercel)

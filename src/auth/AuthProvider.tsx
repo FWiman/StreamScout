@@ -1,4 +1,5 @@
-import type { Session, User } from "@supabase/supabase-js";
+import type { Provider, Session, User } from "@supabase/supabase-js";
+import * as AppleAuthentication from "expo-apple-authentication";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -17,6 +18,8 @@ interface AuthContextValue {
   /** Returnerar true om användaren måste bekräfta sin e-post innan inloggning. */
   signUp: (email: string, password: string) => Promise<boolean>;
   signInWithGoogle: () => Promise<void>;
+  /** iPhone: Apples egen inloggning (Face ID). Webb/Android: Apples inloggningssida. */
+  signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
   /** Skickar ett mejl med en länk för att välja nytt lösenord. */
   resetPassword: (email: string) => Promise<void>;
@@ -26,6 +29,23 @@ interface AuthContextValue {
 
 /** Google-inloggning visas först när den är uppsatt i Supabase (EXPO_PUBLIC_AUTH_GOOGLE=true i .env). */
 export const GOOGLE_ENABLED = process.env.EXPO_PUBLIC_AUTH_GOOGLE === "true";
+
+/**
+ * Apple-inloggning:
+ * - iPhone (EXPO_PUBLIC_AUTH_APPLE=true): Apples inbyggda inloggning. Gratis, fungerar i Expo Go.
+ * - Webb/Android (EXPO_PUBLIC_AUTH_APPLE_WEB=true): kräver Services ID + nyckel från ett betalt Apple Developer-konto.
+ */
+export const APPLE_ENABLED =
+  Platform.OS === "ios"
+    ? process.env.EXPO_PUBLIC_AUTH_APPLE === "true"
+    : process.env.EXPO_PUBLIC_AUTH_APPLE_WEB === "true";
+
+/** Felet som betyder att användaren själv avbröt Apple-inloggningen – inget att visa. */
+export class SignInCancelled extends Error {
+  constructor() {
+    super("cancelled");
+  }
+}
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -40,6 +60,8 @@ export function authErrorMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   const lower = message.toLowerCase();
   if (lower.includes("invalid login credentials")) return "Fel e-post eller lösenord.";
+  if (lower.includes("provider is not enabled") || lower.includes("unsupported provider"))
+    return "Den här inloggningen är inte påslagen i Supabase än.";
   if (lower.includes("email not confirmed")) return "Bekräfta din e-post först – kolla inkorgen.";
   if (lower.includes("already registered") || lower.includes("already been registered"))
     return "Det finns redan ett konto med den e-postadressen.";
@@ -92,6 +114,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.remove();
   }, []);
 
+  /**
+   * Inloggning via en extern sida (Google, Apple på webb/Android).
+   * Webb: hela sidan skickas dit och tillbaka. Mobil: vi öppnar sidan i ett
+   * inloggningsfönster och växlar koden vi får tillbaka mot en session.
+   */
+  const signInWithOAuthProvider = async (provider: Provider) => {
+    const redirectTo = redirectUrl();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo, skipBrowserRedirect: Platform.OS !== "web" },
+    });
+    if (error) throw error;
+    if (Platform.OS === "web" || !data.url) return;
+
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+    if (result.type !== "success") throw new SignInCancelled();
+
+    const { queryParams } = Linking.parse(result.url);
+    if (typeof queryParams?.error_description === "string") throw new Error(queryParams.error_description);
+    const code = queryParams?.code;
+    if (typeof code === "string" && !handledCodes.current.has(code)) {
+      handledCodes.current.add(code);
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      if (exchangeError) throw exchangeError;
+    }
+  };
+
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
@@ -115,26 +164,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
 
       async signInWithGoogle() {
-        const redirectTo = redirectUrl();
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          // Webb: hela sidan skickas till Google och tillbaka.
-          // Mobil: vi öppnar Google själva i ett inloggningsfönster och tar emot svaret nedan.
-          options: { redirectTo, skipBrowserRedirect: Platform.OS !== "web" },
+        await signInWithOAuthProvider("google");
+      },
+
+      async signInWithApple() {
+        if (Platform.OS !== "ios") {
+          await signInWithOAuthProvider("apple");
+          return;
+        }
+
+        // iPhone: Apples egen inloggningsruta. Vi får en ID-token som Supabase verifierar.
+        let credential: AppleAuthentication.AppleAuthenticationCredential;
+        try {
+          credential = await AppleAuthentication.signInAsync({
+            requestedScopes: [
+              AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+              AppleAuthentication.AppleAuthenticationScope.EMAIL,
+            ],
+          });
+        } catch (e) {
+          if ((e as { code?: string }).code === "ERR_REQUEST_CANCELED") throw new SignInCancelled();
+          throw e;
+        }
+        if (!credential.identityToken) throw new Error("Apple skickade ingen inloggningstoken.");
+
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: "apple",
+          token: credential.identityToken,
         });
         if (error) throw error;
-        if (Platform.OS === "web" || !data.url) return;
 
-        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-        if (result.type !== "success") return; // användaren avbröt
-
-        const { queryParams } = Linking.parse(result.url);
-        if (typeof queryParams?.error_description === "string") throw new Error(queryParams.error_description);
-        const code = queryParams?.code;
-        if (typeof code === "string" && !handledCodes.current.has(code)) {
-          handledCodes.current.add(code);
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-          if (exchangeError) throw exchangeError;
+        // Apple skickar namnet bara första gången – spara det på kontot.
+        const name = [credential.fullName?.givenName, credential.fullName?.familyName].filter(Boolean).join(" ");
+        if (name) {
+          await supabase.auth.updateUser({
+            data: {
+              full_name: name,
+              given_name: credential.fullName?.givenName,
+              family_name: credential.fullName?.familyName,
+            },
+          });
         }
       },
 
