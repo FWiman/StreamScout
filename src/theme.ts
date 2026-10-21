@@ -14,6 +14,8 @@ export const colors = {
   backgroundClear: "rgba(11, 13, 18, 0)",
   glass: "rgba(255, 255, 255, 0.16)",
   shadow: "#000000",
+  /** Bakgrund för markerad/hovrad rad. */
+  highlight: "rgba(255, 255, 255, 0.09)",
 } as const;
 
 export const spacing = {

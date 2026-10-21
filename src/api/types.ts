@@ -57,7 +57,11 @@ export interface TmdbMediaResult {
   overview?: string;
   poster_path?: string | null;
   backdrop_path?: string | null;
+  original_title?: string;
+  original_name?: string;
   vote_average?: number;
+  vote_count?: number;
+  popularity?: number;
   release_date?: string;
   first_air_date?: string;
 }

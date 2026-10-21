@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   showAllActive: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.highlight,
   },
   showAllText: {
     color: colors.text,

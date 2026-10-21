@@ -112,6 +112,45 @@ export function getRecommendations(type: MediaType, id: number, page = 1) {
   return getListPage(`/${type}/${id}/recommendations`, type, page);
 }
 
+function normalize(text: string) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // ta bort accenter: "amélie" → "amelie"
+    .trim();
+}
+
+/**
+ * TMDB sorterar sökträffar efter hur exakt texten matchar, inte efter popularitet,
+ * så en okänd film som heter exakt "Inter" hamnar före Interstellar. Vi sorterar om
+ * sidan: hur väl titeln matchar + hur känd titeln är (popularitet och antal röster).
+ */
+function rankSearchResults(results: TmdbMediaResult[], query: string) {
+  const q = normalize(query);
+
+  const matchScore = (raw: TmdbMediaResult) => {
+    const titles = [raw.title, raw.name, raw.original_title, raw.original_name]
+      .filter((t): t is string => Boolean(t))
+      .map(normalize);
+    let best = 0;
+    for (const t of titles) {
+      if (t === q) best = Math.max(best, 3);
+      else if (t.startsWith(q)) best = Math.max(best, 2);
+      else if (t.split(/[\s:\-]+/).some((word) => word.startsWith(q))) best = Math.max(best, 1.5);
+      else if (t.includes(q)) best = Math.max(best, 0.5);
+    }
+    return best;
+  };
+
+  const fameScore = (raw: TmdbMediaResult) =>
+    Math.log10(1 + (raw.popularity ?? 0)) + 0.75 * Math.log10(1 + (raw.vote_count ?? 0));
+
+  return results
+    .map((raw, index) => ({ raw, score: matchScore(raw) + fameScore(raw) - index * 0.01 }))
+    .sort((a, b) => b.score - a.score)
+    .map(({ raw }) => raw);
+}
+
 export type SearchFilter = "all" | MediaType;
 
 /**
@@ -125,9 +164,10 @@ export async function searchMedia(query: string, filter: SearchFilter = "all", p
     include_adult: "false",
     page,
   });
+  const ranked = { ...raw, results: rankSearchResults(raw.results, query) };
   return {
     // Titlar utan affisch är nästan alltid okända eller felaktiga poster – hoppa över dem.
-    items: toMediaList(raw, filter === "all" ? undefined : filter).filter((i) => i.posterPath),
+    items: toMediaList(ranked, filter === "all" ? undefined : filter).filter((i) => i.posterPath),
     page: raw.page,
     totalPages: Math.min(raw.total_pages, MAX_PAGES),
   };

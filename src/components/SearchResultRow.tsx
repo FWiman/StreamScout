@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   rowActive: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.highlight,
   },
   rowPressed: {
     opacity: 0.7,
