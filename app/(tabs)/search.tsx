@@ -1,10 +1,9 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -14,11 +13,14 @@ import {
 } from "react-native";
 import { useSearch } from "@/api/queries";
 import type { SearchFilter } from "@/api/tmdb";
+import type { MediaItem } from "@/api/types";
 import { MediaCard } from "@/components/MediaCard";
 import { MediaRow } from "@/components/MediaRow";
+import { SearchResultRow } from "@/components/SearchResultRow";
+import { TopResult } from "@/components/TopResult";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useIsWide } from "@/hooks/useIsWide";
-import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
+import { colors, MAX_CONTENT_WIDTH, noFocusOutline, spacing } from "@/theme";
 
 const FILTERS: { value: SearchFilter; label: string }[] = [
   { value: "all", label: "Alla" },
@@ -40,12 +42,15 @@ export default function SearchScreen() {
   const { items, isPending, isFetching, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useSearch(debouncedQuery, filter);
 
-  // Räkna ut hur många kolumner som får plats, så rutnätet fungerar både på mobil och webb.
+  // Dator: rutnät med affischer. Telefon: lista med rader (lättare att skumma med tummen).
   const { width } = useWindowDimensions();
-  const cardMinWidth = isWide ? 160 : 105;
   const contentWidth = Math.min(width, MAX_CONTENT_WIDTH) - spacing.md * 2;
-  const columns = Math.max(3, Math.floor((contentWidth + spacing.md) / (cardMinWidth + spacing.md)));
+  const columns = isWide ? Math.max(3, Math.floor((contentWidth + spacing.md) / (160 + spacing.md))) : 1;
   const cardWidth = (contentWidth - spacing.md * (columns - 1)) / columns;
+
+  // Första träffen visas stort överst, resten under.
+  const [topResult, ...rest] = hasQuery ? items : [];
+  const openTitle = (item: MediaItem) => router.push(`/title/${item.type}/${item.id}`);
 
   const header = (
     <View style={styles.header}>
@@ -63,7 +68,7 @@ export default function SearchScreen() {
             onBlur={() => setFocused(false)}
             placeholder="Sök filmer och serier"
             placeholderTextColor={colors.textMuted}
-            style={styles.input}
+            style={[styles.input, noFocusOutline]}
             autoCorrect={false}
             returnKeyType="search"
           />
@@ -99,6 +104,9 @@ export default function SearchScreen() {
       {hasQuery && !isFetching && !isError && items.length === 0 && (
         <Text style={styles.message}>Inga träffar för "{debouncedQuery}". Prova ett annat stavsätt.</Text>
       )}
+
+      {topResult && <TopResult item={topResult} wide={isWide} />}
+      {rest.length > 0 && <Text style={styles.subheading}>Fler resultat</Text>}
     </View>
   );
 
@@ -121,14 +129,20 @@ export default function SearchScreen() {
       <FlatList
         key={columns} // FlatList kräver ny nyckel när antalet kolumner ändras
         style={styles.list}
-        data={hasQuery ? items : []}
+        data={rest}
         numColumns={columns}
         keyExtractor={(item) => `${item.type}-${item.id}`}
-        renderItem={({ item }) => <MediaCard item={item} width={cardWidth} showType={filter === "all"} />}
+        renderItem={({ item }) =>
+          isWide ? (
+            <MediaCard item={item} width={cardWidth} showType={filter === "all"} />
+          ) : (
+            <SearchResultRow item={item} onPress={() => openTitle(item)} />
+          )
+        }
         ListHeaderComponent={header}
         ListFooterComponent={footer}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.grid}
+        columnWrapperStyle={columns > 1 ? styles.row : undefined}
+        contentContainerStyle={[styles.grid, !isWide && styles.listMobile]}
         onEndReached={() => {
           if (hasQuery && hasNextPage && !isFetchingNextPage) fetchNextPage();
         }}
@@ -159,6 +173,16 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
   },
+  subheading: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: "700",
+    marginTop: spacing.sm,
+  },
+  listMobile: {
+    gap: 0,
+    paddingHorizontal: spacing.sm,
+  },
   heading: {
     color: colors.text,
     fontSize: 24,
@@ -183,7 +207,6 @@ const styles = StyleSheet.create({
     height: "100%",
     color: colors.text,
     fontSize: 16,
-    ...Platform.select({ web: { outlineWidth: 0 }, default: {} }),
   },
   filters: {
     flexDirection: "row",

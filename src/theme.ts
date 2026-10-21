@@ -1,3 +1,5 @@
+import { Platform, type TextStyle } from "react-native";
+
 export const colors = {
   background: "#0b0d12",
   surface: "#161a22",
@@ -11,6 +13,7 @@ export const colors = {
   /** Bakgrundsfärgen helt genomskinlig – för gradienter som tonar ut mot bakgrunden. */
   backgroundClear: "rgba(11, 13, 18, 0)",
   glass: "rgba(255, 255, 255, 0.16)",
+  shadow: "#000000",
 } as const;
 
 export const spacing = {
@@ -23,3 +26,10 @@ export const spacing = {
 
 /** Maxbredd för innehåll på stora skärmar (webben). */
 export const MAX_CONTENT_WIDTH = 1200;
+
+/**
+ * Tar bort webbläsarens fokusram på textfält (den ritas som en kantig rektangel
+ * även när fältet har rundade hörn). Fältets egen kant visar fokus i stället.
+ * `outlineStyle: "none"` finns inte i React Natives typer men stöds på webben.
+ */
+export const noFocusOutline = (Platform.OS === "web" ? { outlineStyle: "none" } : {}) as unknown as TextStyle;
