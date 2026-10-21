@@ -1,20 +1,15 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useDetails, useTrailer, useWatchProviders } from "@/api/queries";
 import { imageUrl } from "@/api/tmdb";
 import type { MediaType } from "@/api/types";
+import { Button } from "@/components/Button";
+import { MediaRow } from "@/components/MediaRow";
 import { ProviderLogos } from "@/components/ProviderLogos";
+import { useIsWide } from "@/hooks/useIsWide";
 import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
 
 function isMediaType(value: unknown): value is MediaType {
@@ -28,13 +23,21 @@ export default function TitleScreen() {
   if (!isMediaType(params.type) || !Number.isFinite(id)) {
     return <Message text="Ogiltig länk." />;
   }
-  return <TitleDetails type={params.type} id={id} />;
+  // `key` gör att sidan börjar om från toppen när man går vidare till en rekommendation.
+  return <TitleDetails key={`${params.type}-${id}`} type={params.type} id={id} />;
+}
+
+function formatRuntime(minutes: number) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h > 0 ? `${h} h ${m} min` : `${m} min`;
 }
 
 function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const details = useDetails(type, id);
   const trailer = useTrailer(type, id);
   const providers = useWatchProviders(type, id);
+  const isWide = useIsWide();
   const { width } = useWindowDimensions();
 
   if (details.isPending) return <Message loading />;
@@ -43,12 +46,11 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const item = details.data;
   const backdrop = imageUrl(item.backdropPath, "w1280");
   const poster = imageUrl(item.posterPath, "w500");
-  const wide = width >= 700;
-  const backdropHeight = Math.min(width, MAX_CONTENT_WIDTH) * (wide ? 0.4 : 0.56);
+  const backdropHeight = isWide ? Math.min(Math.max(width * 0.4, 360), 540) : width * 0.62;
 
   const meta = [
     item.year,
-    item.runtime ? `${item.runtime} min` : null,
+    item.runtime ? formatRuntime(item.runtime) : null,
     item.voteAverage > 0 ? `★ ${item.voteAverage.toFixed(1)}` : null,
   ].filter(Boolean);
 
@@ -58,63 +60,83 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
       <Stack.Screen options={{ title: item.title }} />
-      <View style={styles.inner}>
+
+      {/* Bakgrundsbild i full bredd som tonar ut mot sidan */}
+      <View style={[styles.backdrop, { height: backdropHeight }]}>
         {backdrop && (
-          <Image source={backdrop} style={{ width: "100%", height: backdropHeight }} contentFit="cover" />
+          <Image source={backdrop} style={StyleSheet.absoluteFill} contentFit="cover" transition={300} />
+        )}
+        <LinearGradient
+          colors={[colors.backgroundClear, colors.background]}
+          locations={[0.4, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+      </View>
+
+      <View style={[styles.body, isWide && styles.bodyWide, { marginTop: isWide ? -160 : -60 }]}>
+        {poster && (
+          <Image
+            source={poster}
+            style={isWide ? styles.posterWide : styles.poster}
+            contentFit="cover"
+            transition={200}
+          />
         )}
 
-        <View style={[styles.body, wide && styles.bodyWide]}>
-          {poster && wide && <Image source={poster} style={styles.poster} contentFit="cover" />}
+        <View style={styles.info}>
+          <Text style={[styles.title, isWide && styles.titleWide]}>{item.title}</Text>
+          {item.tagline && <Text style={styles.tagline}>{item.tagline}</Text>}
+          {meta.length > 0 && <Text style={styles.meta}>{meta.join("  ·  ")}</Text>}
 
-          <View style={styles.info}>
-            <Text style={styles.title}>{item.title}</Text>
-            {item.tagline && <Text style={styles.tagline}>{item.tagline}</Text>}
-            {meta.length > 0 && <Text style={styles.meta}>{meta.join("  ·  ")}</Text>}
+          {item.genres.length > 0 && (
+            <View style={styles.genres}>
+              {item.genres.map((g) => (
+                <Text key={g} style={styles.genre}>
+                  {g}
+                </Text>
+              ))}
+            </View>
+          )}
 
-            {item.genres.length > 0 && (
-              <View style={styles.genres}>
-                {item.genres.map((g) => (
-                  <Text key={g} style={styles.genre}>
-                    {g}
-                  </Text>
-                ))}
-              </View>
-            )}
-
-            {trailer.data && (
-              <Pressable
-                style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          {trailer.data && (
+            <View style={styles.buttons}>
+              <Button
+                label="Se trailer"
+                icon="play"
+                size={isWide ? "lg" : "md"}
                 onPress={() => WebBrowser.openBrowserAsync(trailer.data!)}
-                accessibilityRole="button"
-              >
-                <Ionicons name="play" size={18} color="#fff" />
-                <Text style={styles.buttonText}>Se trailer</Text>
-              </Pressable>
-            )}
+              />
+            </View>
+          )}
 
-            {item.overview ? (
-              <Text style={styles.overview}>{item.overview}</Text>
-            ) : (
-              <Text style={styles.muted}>Ingen beskrivning finns.</Text>
-            )}
+          {item.overview ? (
+            <Text style={[styles.overview, isWide && styles.overviewWide]}>{item.overview}</Text>
+          ) : (
+            <Text style={styles.muted}>Ingen beskrivning finns.</Text>
+          )}
 
-            <View style={styles.providers}>
-              <Text style={styles.sectionTitle}>Var kan jag se den?</Text>
-              {providers.isPending ? (
-                <ActivityIndicator color={colors.textMuted} style={{ alignSelf: "flex-start" }} />
-              ) : p && hasProviders ? (
-                <>
+          <View style={styles.providers}>
+            <Text style={styles.sectionTitle}>Var kan jag se den?</Text>
+            {providers.isPending ? (
+              <ActivityIndicator color={colors.textMuted} style={styles.alignStart} />
+            ) : p && hasProviders ? (
+              <>
+                <View style={styles.providerGroups}>
                   <ProviderLogos label="Streama" providers={p.stream} />
                   <ProviderLogos label="Hyr" providers={p.rent} />
                   <ProviderLogos label="Köp" providers={p.buy} />
-                  <Text style={styles.attribution}>Tjänsteinformation från JustWatch via TMDB.</Text>
-                </>
-              ) : (
-                <Text style={styles.muted}>Finns inte på någon svensk tjänst just nu.</Text>
-              )}
-            </View>
+                </View>
+                <Text style={styles.attribution}>Tjänsteinformation från JustWatch via TMDB.</Text>
+              </>
+            ) : (
+              <Text style={styles.muted}>Finns inte på någon svensk tjänst just nu.</Text>
+            )}
           </View>
         </View>
+      </View>
+
+      <View style={styles.more}>
+        <MediaRow title="Mer som detta" kind="recommendations" type={type} id={id} />
       </View>
     </ScrollView>
   );
@@ -137,23 +159,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: spacing.xl,
   },
-  inner: {
+  backdrop: {
     width: "100%",
-    maxWidth: MAX_CONTENT_WIDTH,
+    backgroundColor: colors.surface,
   },
   body: {
+    width: "100%",
+    maxWidth: MAX_CONTENT_WIDTH,
     padding: spacing.md,
     gap: spacing.lg,
   },
   bodyWide: {
     flexDirection: "row",
     alignItems: "flex-start",
+    gap: spacing.xl,
   },
   poster: {
-    width: 220,
-    height: 330,
+    width: 120,
+    height: 180,
     borderRadius: 10,
-    marginTop: -120,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  posterWide: {
+    width: 260,
+    height: 390,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -165,10 +196,17 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 28,
     fontWeight: "800",
+    letterSpacing: -0.5,
+  },
+  titleWide: {
+    fontSize: 44,
+    lineHeight: 50,
+    marginTop: 110,
   },
   tagline: {
     color: colors.textMuted,
     fontStyle: "italic",
+    fontSize: 16,
     marginTop: -spacing.sm,
   },
   meta: {
@@ -184,37 +222,42 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 13,
     backgroundColor: colors.surfaceRaised,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 999,
     overflow: "hidden",
   },
-  button: {
+  buttons: {
     flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
     gap: spacing.sm,
-    backgroundColor: colors.accent,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  pressed: {
-    opacity: 0.8,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "700",
   },
   overview: {
     color: colors.text,
     fontSize: 16,
     lineHeight: 24,
   },
+  overviewWide: {
+    fontSize: 17,
+    lineHeight: 27,
+    maxWidth: 760,
+  },
   providers: {
     gap: spacing.md,
     marginTop: spacing.sm,
+    padding: spacing.md,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignSelf: "stretch",
+    maxWidth: 760,
+  },
+  providerGroups: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xl,
   },
   sectionTitle: {
     color: colors.text,
@@ -227,6 +270,14 @@ const styles = StyleSheet.create({
   },
   muted: {
     color: colors.textMuted,
+  },
+  alignStart: {
+    alignSelf: "flex-start",
+  },
+  more: {
+    width: "100%",
+    maxWidth: MAX_CONTENT_WIDTH,
+    marginTop: spacing.lg,
   },
   center: {
     flex: 1,

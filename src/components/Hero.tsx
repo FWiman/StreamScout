@@ -36,7 +36,7 @@ export function Hero({ kind, type, label }: Props) {
 
   // Dator: liggande bakgrundsbild. Telefon: stående affisch, som fyller skärmen bättre.
   const backdrop = isWide
-    ? imageUrl(item.backdropPath, "original")
+    ? imageUrl(item.backdropPath, "w1280")
     : imageUrl(item.posterPath ?? item.backdropPath, "w780");
   const meta = [item.year, item.voteAverage > 0 ? `★ ${item.voteAverage.toFixed(1)}` : null]
     .filter(Boolean)

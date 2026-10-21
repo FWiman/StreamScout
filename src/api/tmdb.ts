@@ -107,6 +107,11 @@ export function getPopular(type: MediaType, page = 1) {
   return getListPage(`/${type}/popular`, type, page, { region: REGION });
 }
 
+/** Titlar som liknar en viss film eller serie. */
+export function getRecommendations(type: MediaType, id: number, page = 1) {
+  return getListPage(`/${type}/${id}/recommendations`, type, page);
+}
+
 export async function searchMedia(query: string) {
   const trimmed = query.trim();
   if (!trimmed) return [];

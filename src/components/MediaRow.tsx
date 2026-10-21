@@ -22,6 +22,8 @@ interface Props {
   title: string;
   kind: ListKind;
   type: MediaType;
+  /** Krävs för `recommendations`. */
+  id?: number;
 }
 
 const CARD_WIDTH = 130;
@@ -34,9 +36,9 @@ const ZOOM_ROOM = spacing.sm;
  * En horisontell rad med affischer som hämtar fler titlar när man närmar sig slutet.
  * På bredare webbskärmar visas pilar, eftersom mushjulet bara scrollar i höjdled.
  */
-export function MediaRow({ title, kind, type }: Props) {
+export function MediaRow({ title, kind, type, id }: Props) {
   const { items, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useMediaList(kind, type);
+    useMediaList(kind, type, id);
 
   const listRef = useRef<FlatList<MediaItem>>(null);
   const [offset, setOffset] = useState(0);
@@ -65,6 +67,9 @@ export function MediaRow({ title, kind, type }: Props) {
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (showArrows) setOffset(e.nativeEvent.contentOffset.x);
   };
+
+  // En tom lista (t.ex. inga rekommendationer) visas inte alls.
+  if (!isPending && !isError && items.length === 0) return null;
 
   return (
     <View style={styles.section}>

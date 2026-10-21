@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import {
   getDetails,
   getPopular,
+  getRecommendations,
   getTopRated,
   getTrailerUrl,
   getTrending,
@@ -13,22 +14,25 @@ import type { MediaItem, MediaType } from "./types";
 
 // React Query cachar svaren, så samma lista hämtas inte om och om igen.
 
-export type ListKind = "trending" | "popular" | "topRated";
+/** `recommendations` kräver ett titel-id ("mer som detta"). */
+export type ListKind = "trending" | "popular" | "topRated" | "recommendations";
 
 const listFetchers = {
-  trending: getTrending,
-  popular: getPopular,
-  topRated: getTopRated,
+  trending: (type: MediaType, page: number) => getTrending(type, page),
+  popular: (type: MediaType, page: number) => getPopular(type, page),
+  topRated: (type: MediaType, page: number) => getTopRated(type, page),
+  recommendations: (type: MediaType, page: number, id?: number) => getRecommendations(type, id!, page),
 } as const;
 
 /**
  * En lista som hämtar nästa sida när man närmar sig slutet (`fetchNextPage`).
  * `items` är alla hämtade sidor ihopslagna, utan dubbletter.
  */
-export function useMediaList(kind: ListKind, type: MediaType) {
+export function useMediaList(kind: ListKind, type: MediaType, id?: number) {
   const query = useInfiniteQuery({
-    queryKey: ["list", kind, type],
-    queryFn: ({ pageParam }) => listFetchers[kind](type, pageParam),
+    queryKey: ["list", kind, type, id],
+    queryFn: ({ pageParam }) => listFetchers[kind](type, pageParam, id),
+    enabled: kind !== "recommendations" || id !== undefined,
     initialPageParam: 1,
     getNextPageParam: (last) => (last.page < last.totalPages ? last.page + 1 : undefined),
   });
