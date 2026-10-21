@@ -93,7 +93,7 @@ export function MediaRow({ title, kind, type }: Props) {
                 <View style={[styles.footer, { width: cardWidth / 2, height: posterHeight }]}>
                   <ActivityIndicator color={colors.textMuted} />
                 </View>
-              ) : null
+              ) : undefined
             }
           />
 
