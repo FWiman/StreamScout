@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { AuthProvider } from "@/auth/AuthProvider";
 import { TopNav } from "@/components/TopNav";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors } from "@/theme";
@@ -23,6 +24,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthProvider>
       <StatusBar style="light" />
       <View style={styles.root}>
         {/* Dator: en gemensam toppmeny för alla sidor. Telefon: varje navigator har sin egen rubrik. */}
@@ -39,6 +41,7 @@ export default function RootLayout() {
           <Stack.Screen name="about" options={{ title: "Om StreamWatch", headerShown: !isWide }} />
         </Stack>
       </View>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

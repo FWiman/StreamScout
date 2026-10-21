@@ -41,6 +41,27 @@ npm start        # visar en QR-kod – skanna med Expo Go på telefonen
 
 Telefonen och datorn måste vara på samma wifi. Om Expo Go säger att versionen inte stöds, testa på webben så länge eller kör `npx expo start --tunnel`.
 
+## Konton (Supabase)
+
+Inloggning sköts av [Supabase](https://supabase.com) (gratisnivån räcker). Utan nycklar fungerar appen ändå – kontosidan visar då bara en förklaring.
+
+1. **Skapa ett projekt** på [supabase.com](https://supabase.com/dashboard) – välj regionen *North EU (Stockholm)*.
+2. **Kopiera nycklarna** från *Project Settings → API* (eller knappen *Connect*) till `.env`:
+   `EXPO_PUBLIC_SUPABASE_URL` och `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Starta om `npm run web` / `npm start`.
+3. **Tillåt omdirigeringar** under *Authentication → URL Configuration → Redirect URLs*, lägg till:
+   - `http://localhost:8081/**` (webben lokalt)
+   - `exp://**` (Expo Go)
+   - `streamwatch://**` (den riktiga appen)
+
+### Logga in med Google
+
+1. Gå till [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials), skapa ett projekt och konfigurera *OAuth consent screen* (extern, appnamn StreamWatch).
+2. Skapa *OAuth client ID* av typen **Web application**. Under *Authorized redirect URIs*, lägg till
+   `https://<ditt-projekt>.supabase.co/auth/v1/callback` (står även i Supabase under Google-inställningarna).
+3. I Supabase: *Authentication → Sign In / Providers → Google* – slå på och klistra in *Client ID* och *Client secret*.
+
+> När appen ska ut i App Store: Apple kräver *Logga in med Apple* om appen erbjuder Google-inloggning.
+
 ## Struktur
 
 ```
@@ -51,6 +72,8 @@ src/
   api/tmdb.ts           Alla anrop till TMDB
   api/queries.ts        React Query-hooks med cachning
   api/types.ts          Typer
+  auth/AuthProvider.tsx Inloggning (useAuth)
+  lib/supabase.ts       Supabase-klienten
   components/           Återanvändbara komponenter
   theme.ts              Färger och avstånd
 ```
@@ -58,7 +81,7 @@ src/
 ## Färdplan
 
 - [x] Grund: Expo Router, TMDB, trendande/topprankat, sök, detaljsida, trailers, streamingtjänster i Sverige
-- [ ] Konton och inloggning
+- [x] Konton och inloggning (e-post + Google via Supabase)
 - [ ] Watchlist som synkas mellan webb och app
 - [ ] Egen backend som döljer TMDB-nyckeln
 - [ ] Filtrera på streamingtjänst ("vad finns på Netflix?")

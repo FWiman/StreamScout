@@ -8,6 +8,7 @@ App för att hitta filmer/serier och se var de streamas i Sverige. En Expo-kodba
 - `@tanstack/react-query` för datahämtning och cache
 - `expo-image` för bilder, `@expo/vector-icons` (Ionicons) för ikoner
 - TMDB API v3, språk `sv-SE`, region `SE`
+- Supabase för konton (e-post/lösenord + Google): klient i `src/lib/supabase.ts`, `useAuth()` från `src/auth/AuthProvider.tsx`. Sessionslagring: webbläsarens localStorage på webben, expo-sqlite localStorage på mobil (`sessionStorage.native.ts`)
 
 ## Konventioner
 - All TMDB-kommunikation går via `src/api/tmdb.ts`; komponenter använder hooks i `src/api/queries.ts`
@@ -27,4 +28,5 @@ App för att hitta filmer/serier och se var de streamas i Sverige. En Expo-kodba
 - `npm run lint` – ESLint
 
 ## Hemligheter
-`.env` innehåller `EXPO_PUBLIC_TMDB_API_KEY` och är gitignorerad. `EXPO_PUBLIC_`-variabler hamnar i klientkoden; planen är att flytta TMDB-anrop till en backend.
+`.env` innehåller `EXPO_PUBLIC_TMDB_API_KEY`, `EXPO_PUBLIC_SUPABASE_URL` och `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` och är gitignorerad. `EXPO_PUBLIC_`-variabler hamnar i klientkoden; planen är att flytta TMDB-anrop till en backend.
+Supabase-nyckeln är publik med avsikt – all data måste skyddas med Row Level Security i databasen.

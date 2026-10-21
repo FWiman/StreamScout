@@ -3,6 +3,7 @@ import { Link, router, useGlobalSearchParams, usePathname } from "expo-router";
 import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSearch } from "@/api/queries";
+import { useAuth } from "@/auth/AuthProvider";
 import type { MediaItem } from "@/api/types";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useGutter } from "@/hooks/useGutter";
@@ -181,8 +182,33 @@ export function TopNav() {
             </View>
           )}
         </View>
+
+        <AccountButton active={pathname === "/account"} />
       </View>
     </View>
+  );
+}
+
+/** "Logga in" för utloggade, en rund bokstavsikon för inloggade. Leder till kontosidan. */
+function AccountButton({ active }: { active: boolean }) {
+  const { user, loading } = useAuth();
+  if (loading) return <View style={styles.avatar} />;
+
+  if (!user) {
+    return (
+      <Link href="/account" style={[styles.signIn, active && styles.signInActive]}>
+        Logga in
+      </Link>
+    );
+  }
+
+  const initial = (user.email ?? "?").charAt(0).toUpperCase();
+  return (
+    <Link href="/account" accessibilityLabel="Mitt konto">
+      <View style={[styles.avatar, styles.avatarSignedIn, active && styles.avatarActive]}>
+        <Text style={styles.avatarText}>{initial}</Text>
+      </View>
+    </Link>
   );
 }
 
@@ -217,6 +243,37 @@ const styles = StyleSheet.create({
     color: colors.text,
     borderBottomWidth: 2,
     borderBottomColor: colors.accent,
+  },
+  signIn: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: "700",
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 20,
+    backgroundColor: colors.accent,
+  },
+  signInActive: {
+    opacity: 0.85,
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  avatarSignedIn: {
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarActive: {
+    borderWidth: 2,
+    borderColor: colors.text,
+  },
+  avatarText: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "800",
   },
   searchArea: {
     width: 360,

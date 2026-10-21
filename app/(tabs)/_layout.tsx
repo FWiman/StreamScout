@@ -43,6 +43,7 @@ export default function TabLayout() {
       <Tabs.Screen name="movies" options={{ title: "Filmer", tabBarIcon: tabIcon("film") }} />
       <Tabs.Screen name="series" options={{ title: "Serier", tabBarIcon: tabIcon("tv") }} />
       <Tabs.Screen name="search" options={{ title: "Sök", tabBarIcon: tabIcon("search") }} />
+      <Tabs.Screen name="account" options={{ title: "Konto", tabBarIcon: tabIcon("person-circle-outline") }} />
     </Tabs>
   );
 }

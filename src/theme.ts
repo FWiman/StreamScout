@@ -8,6 +8,9 @@ export const colors = {
   text: "#f2f4f8",
   textMuted: "#9aa3b5",
   accent: "#e5484d",
+  accentSoft: "rgba(229, 72, 77, 0.12)",
+  success: "#3dd68c",
+  successSoft: "rgba(61, 214, 140, 0.12)",
   rating: "#f5c451",
   overlay: "rgba(11, 13, 18, 0.85)",
   /** Bakgrundsfärgen helt genomskinlig – för gradienter som tonar ut mot bakgrunden. */
