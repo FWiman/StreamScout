@@ -48,7 +48,7 @@ async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
 
 // ---- Hjälpfunktioner ----
 
-export type ImageSize = "w92" | "w185" | "w342" | "w500" | "w780" | "w1280" | "original";
+export type ImageSize = "w92" | "w185" | "w300" | "w342" | "w500" | "w780" | "w1280" | "original";
 
 export function imageUrl(path: string | null | undefined, size: ImageSize = "w342") {
   return path ? `${IMAGE_URL}/${size}${path}` : null;

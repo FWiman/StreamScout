@@ -47,6 +47,9 @@ export function Hero({ kind, type, label }: Props) {
       {/* Förankra i överkant: ansikten och titlar sitter oftast högt upp i bilden */}
       <Image
         source={backdrop}
+        // En liten version laddar direkt och byts mot den skarpa när den är klar.
+        placeholder={isWide ? imageUrl(item.backdropPath, "w300") : imageUrl(item.posterPath, "w92")}
+        placeholderContentFit="cover"
         style={StyleSheet.absoluteFill}
         contentFit="cover"
         contentPosition="top"

@@ -4,6 +4,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useDetails, useTrailer, useWatchProviders } from "@/api/queries";
+import { providerUrl } from "@/api/providerLinks";
 import { imageUrl } from "@/api/tmdb";
 import type { MediaType } from "@/api/types";
 import { Button } from "@/components/Button";
@@ -51,10 +52,38 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const backdrop = imageUrl(item.backdropPath, "w1280");
   const poster = imageUrl(item.posterPath, "w500");
   const backdropHeight = isWide ? Math.min(Math.max(width * 0.4, 360), 540) : width * 0.62;
-
-
   const p = providers.data;
   const hasProviders = p && (p.stream.length > 0 || p.rent.length > 0 || p.buy.length > 0);
+  const firstStream = p?.stream[0];
+  const streamUrl = firstStream ? providerUrl(firstStream.name, item.title, p?.link ?? null) : null;
+  // Tredje kolumn bara när det finns plats för affisch, text och panel bredvid varandra.
+  const showAside = isWide && width >= 1200;
+
+  const providersCard = (
+    <View style={[styles.providers, showAside && styles.providersAside]}>
+      <Text style={styles.sectionTitle}>Var kan jag se den?</Text>
+      {providers.isPending ? (
+        <ActivityIndicator color={colors.textMuted} style={styles.alignStart} />
+      ) : p && hasProviders ? (
+        <>
+          <Text style={styles.hint}>Tryck på en tjänst för att öppna den.</Text>
+          <View style={[styles.providerGroups, showAside && styles.providerGroupsAside]}>
+            <ProviderLogos label="Streama" providers={p.stream} title={item.title} fallbackUrl={p.link} />
+            <ProviderLogos label="Hyr" providers={p.rent} title={item.title} fallbackUrl={p.link} />
+            <ProviderLogos label="Köp" providers={p.buy} title={item.title} fallbackUrl={p.link} />
+          </View>
+          {p.link && (
+            <Text style={styles.allOffers} onPress={() => Linking.openURL(p.link!)} accessibilityRole="link">
+              Se alla erbjudanden och priser →
+            </Text>
+          )}
+          <Text style={styles.attribution}>Tjänsteinformation från JustWatch via TMDB.</Text>
+        </>
+      ) : (
+        <Text style={styles.muted}>Finns inte på någon svensk tjänst just nu.</Text>
+      )}
+    </View>
+  );
 
   return (
     <ScrollView
@@ -69,6 +98,9 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
         {backdrop && (
           <Image
             source={backdrop}
+            // En liten version laddar direkt och byts mot den skarpa när den är klar.
+            placeholder={imageUrl(item.backdropPath, "w300")}
+            placeholderContentFit="cover"
             style={StyleSheet.absoluteFill}
             contentFit="cover"
             contentPosition="top"
@@ -113,51 +145,41 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
             </View>
           )}
 
-          {trailer.data && (
+          {(firstStream || trailer.data) && (
             <View style={styles.buttons}>
-              <Button
-                label="Se trailer"
-                icon="play"
-                size={isWide ? "lg" : "md"}
-                onPress={() => WebBrowser.openBrowserAsync(trailer.data!)}
-              />
+              {/* Huvudknapp: titta direkt hos första tjänsten som har titeln i abonnemanget */}
+              {firstStream && streamUrl && (
+                <Button
+                  label={`Se på ${firstStream.name}`}
+                  icon="play"
+                  size={isWide ? "lg" : "md"}
+                  onPress={() => Linking.openURL(streamUrl)}
+                />
+              )}
+              {trailer.data && (
+                <Button
+                  label="Trailer"
+                  icon={firstStream ? "film-outline" : "play"}
+                  variant={firstStream ? "secondary" : "primary"}
+                  size={isWide ? "lg" : "md"}
+                  onPress={() => WebBrowser.openBrowserAsync(trailer.data!)}
+                />
+              )}
             </View>
           )}
+
+          {/* Mobil och mellanstora skärmar: tjänsterna före beskrivningen, eftersom det är det viktigaste */}
+          {!showAside && providersCard}
 
           {item.overview ? (
             <Text style={[styles.overview, isWide && styles.overviewWide]}>{item.overview}</Text>
           ) : (
             <Text style={styles.muted}>Ingen beskrivning finns.</Text>
           )}
-
-          <View style={styles.providers}>
-            <Text style={styles.sectionTitle}>Var kan jag se den?</Text>
-            {providers.isPending ? (
-              <ActivityIndicator color={colors.textMuted} style={styles.alignStart} />
-            ) : p && hasProviders ? (
-              <>
-                <Text style={styles.hint}>Tryck på en tjänst för att öppna den.</Text>
-                <View style={styles.providerGroups}>
-                  <ProviderLogos label="Streama" providers={p.stream} title={item.title} fallbackUrl={p.link} />
-                  <ProviderLogos label="Hyr" providers={p.rent} title={item.title} fallbackUrl={p.link} />
-                  <ProviderLogos label="Köp" providers={p.buy} title={item.title} fallbackUrl={p.link} />
-                </View>
-                {p.link && (
-                  <Text
-                    style={styles.allOffers}
-                    onPress={() => Linking.openURL(p.link!)}
-                    accessibilityRole="link"
-                  >
-                    Se alla erbjudanden och priser →
-                  </Text>
-                )}
-                <Text style={styles.attribution}>Tjänsteinformation från JustWatch via TMDB.</Text>
-              </>
-            ) : (
-              <Text style={styles.muted}>Finns inte på någon svensk tjänst just nu.</Text>
-            )}
-          </View>
         </View>
+
+        {/* Stora skärmar: tjänsterna i en egen kolumn till höger, synlig utan att scrolla */}
+        {showAside && <View style={styles.aside}>{providersCard}</View>}
       </View>
 
       <View style={styles.more}>
@@ -262,6 +284,18 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 27,
     maxWidth: 760,
+  },
+  aside: {
+    width: 340,
+    marginTop: 110,
+  },
+  providersAside: {
+    maxWidth: undefined,
+    marginTop: 0,
+  },
+  providerGroupsAside: {
+    flexDirection: "column",
+    gap: spacing.md,
   },
   providers: {
     gap: spacing.md,
