@@ -129,6 +129,7 @@ export default function SearchScreen() {
       <FlatList
         key={columns} // FlatList kräver ny nyckel när antalet kolumner ändras
         style={styles.list}
+        showsVerticalScrollIndicator={false}
         data={rest}
         numColumns={columns}
         keyExtractor={(item) => `${item.type}-${item.id}`}

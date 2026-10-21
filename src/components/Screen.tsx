@@ -11,7 +11,11 @@ interface Props {
 /** Gemensam scrollbar sidbakgrund som centrerar innehållet på breda skärmar. */
 export function Screen({ children, hero }: Props) {
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, !hero && styles.padTop]}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={[styles.content, !hero && styles.padTop]}
+      showsVerticalScrollIndicator={false}
+    >
       {hero}
       <View style={styles.inner}>{children}</View>
     </ScrollView>

@@ -58,7 +58,11 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const hasProviders = p && (p.stream.length > 0 || p.rent.length > 0 || p.buy.length > 0);
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
       <Stack.Screen options={{ title: item.title }} />
 
       {/* Bakgrundsbild i full bredd som tonar ut mot sidan */}

@@ -1,0 +1,14 @@
+# Använd alltid LF som radslut i repot, oavsett operativsystem.
+# Git konverterar automatiskt – inga fler "LF will be replaced by CRLF"-varningar.
+* text=auto eol=lf
+
+# Binära filer ska aldrig konverteras
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.mp4 binary
