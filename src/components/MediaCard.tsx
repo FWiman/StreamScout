@@ -14,33 +14,37 @@ interface Props {
 export function MediaCard({ item, width = 130 }: Props) {
   const poster = imageUrl(item.posterPath, "w342");
 
+  // Bredden sätts på en yttre View: på webben följer inte en style-funktion med
+  // genom <Link asChild>, och då blir korten olika breda.
   return (
-    <Link href={`/title/${item.type}/${item.id}`} asChild>
-      <Pressable
-        style={({ pressed }) => [styles.card, { width }, pressed && styles.pressed]}
-        accessibilityRole="link"
-        accessibilityLabel={item.title}
-      >
-        <View style={[styles.posterFrame, { width, height: width * 1.5 }]}>
-          {poster ? (
-            <Image source={poster} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} />
-          ) : (
-            <Text style={styles.placeholder} numberOfLines={3}>
-              {item.title}
-            </Text>
-          )}
-          {item.voteAverage > 0 && (
-            <View style={styles.rating}>
-              <Text style={styles.ratingText}>★ {item.voteAverage.toFixed(1)}</Text>
+    <View style={{ width }}>
+      <Link href={`/title/${item.type}/${item.id}`} asChild>
+        <Pressable accessibilityRole="link" accessibilityLabel={item.title}>
+          {({ pressed }) => (
+            <View style={[styles.card, pressed && styles.pressed]}>
+              <View style={[styles.posterFrame, { width, height: width * 1.5 }]}>
+                {poster ? (
+                  <Image source={poster} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} />
+                ) : (
+                  <Text style={styles.placeholder} numberOfLines={3}>
+                    {item.title}
+                  </Text>
+                )}
+                {item.voteAverage > 0 && (
+                  <View style={styles.rating}>
+                    <Text style={styles.ratingText}>★ {item.voteAverage.toFixed(1)}</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.title} numberOfLines={1}>
+                {item.title}
+              </Text>
+              {item.year && <Text style={styles.year}>{item.year}</Text>}
             </View>
           )}
-        </View>
-        <Text style={styles.title} numberOfLines={1}>
-          {item.title}
-        </Text>
-        {item.year && <Text style={styles.year}>{item.year}</Text>}
-      </Pressable>
-    </Link>
+        </Pressable>
+      </Link>
+    </View>
   );
 }
 
