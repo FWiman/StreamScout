@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link, router, useGlobalSearchParams, usePathname } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSearch } from "@/api/queries";
 import type { MediaItem } from "@/api/types";
@@ -32,7 +32,8 @@ export function TopNav() {
   const [focused, setFocused] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const inputRef = useRef<TextInput>(null);
+  // ComponentRef ger rätt instanstyp för fältet (ändrades i React Native 0.87).
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   const blurTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const debounced = useDebouncedValue(query, 200).trim();
