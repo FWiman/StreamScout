@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useDetails, useTrailer, useWatchProviders } from "@/api/queries";
 import { imageUrl } from "@/api/tmdb";
 import type { MediaType } from "@/api/types";
@@ -132,11 +132,21 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
               <ActivityIndicator color={colors.textMuted} style={styles.alignStart} />
             ) : p && hasProviders ? (
               <>
+                <Text style={styles.hint}>Tryck på en tjänst för att öppna den.</Text>
                 <View style={styles.providerGroups}>
-                  <ProviderLogos label="Streama" providers={p.stream} />
-                  <ProviderLogos label="Hyr" providers={p.rent} />
-                  <ProviderLogos label="Köp" providers={p.buy} />
+                  <ProviderLogos label="Streama" providers={p.stream} title={item.title} fallbackUrl={p.link} />
+                  <ProviderLogos label="Hyr" providers={p.rent} title={item.title} fallbackUrl={p.link} />
+                  <ProviderLogos label="Köp" providers={p.buy} title={item.title} fallbackUrl={p.link} />
                 </View>
+                {p.link && (
+                  <Text
+                    style={styles.allOffers}
+                    onPress={() => Linking.openURL(p.link!)}
+                    accessibilityRole="link"
+                  >
+                    Se alla erbjudanden och priser →
+                  </Text>
+                )}
                 <Text style={styles.attribution}>Tjänsteinformation från JustWatch via TMDB.</Text>
               </>
             ) : (
@@ -270,6 +280,16 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 18,
     fontWeight: "700",
+  },
+  hint: {
+    color: colors.textMuted,
+    fontSize: 13,
+    marginTop: -spacing.sm,
+  },
+  allOffers: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "600",
   },
   attribution: {
     color: colors.textMuted,
