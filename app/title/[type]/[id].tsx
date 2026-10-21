@@ -7,7 +7,9 @@ import { useDetails, useTrailer, useWatchProviders } from "@/api/queries";
 import { imageUrl } from "@/api/tmdb";
 import type { MediaType } from "@/api/types";
 import { Button } from "@/components/Button";
+import { Footer } from "@/components/Footer";
 import { MediaRow } from "@/components/MediaRow";
+import { MetaLine } from "@/components/MetaLine";
 import { ProviderLogos } from "@/components/ProviderLogos";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
@@ -48,11 +50,6 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const poster = imageUrl(item.posterPath, "w500");
   const backdropHeight = isWide ? Math.min(Math.max(width * 0.4, 360), 540) : width * 0.62;
 
-  const meta = [
-    item.year,
-    item.runtime ? formatRuntime(item.runtime) : null,
-    item.voteAverage > 0 ? `★ ${item.voteAverage.toFixed(1)}` : null,
-  ].filter(Boolean);
 
   const p = providers.data;
   const hasProviders = p && (p.stream.length > 0 || p.rent.length > 0 || p.buy.length > 0);
@@ -96,7 +93,11 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
         <View style={styles.info}>
           <Text style={[styles.title, isWide && styles.titleWide]}>{item.title}</Text>
           {item.tagline && <Text style={styles.tagline}>{item.tagline}</Text>}
-          {meta.length > 0 && <Text style={styles.meta}>{meta.join("  ·  ")}</Text>}
+          <MetaLine
+            parts={[item.type === "movie" ? "Film" : "Serie", item.year, item.runtime ? formatRuntime(item.runtime) : null]}
+            rating={item.voteAverage}
+            size={isWide ? 16 : 15}
+          />
 
           {item.genres.length > 0 && (
             <View style={styles.genres}>
@@ -148,6 +149,7 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
       <View style={styles.more}>
         <MediaRow title="Mer som detta" kind="recommendations" type={type} id={id} />
       </View>
+      <Footer />
     </ScrollView>
   );
 }
@@ -167,7 +169,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     alignItems: "center",
-    paddingBottom: spacing.xl,
   },
   backdrop: {
     width: "100%",
@@ -218,10 +219,6 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     fontSize: 16,
     marginTop: -spacing.sm,
-  },
-  meta: {
-    color: colors.textMuted,
-    fontSize: 15,
   },
   genres: {
     flexDirection: "row",

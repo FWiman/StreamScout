@@ -15,6 +15,7 @@ import { useSearch } from "@/api/queries";
 import type { SearchFilter } from "@/api/tmdb";
 import type { MediaItem } from "@/api/types";
 import { MediaCard } from "@/components/MediaCard";
+import { Footer } from "@/components/Footer";
 import { MediaRow } from "@/components/MediaRow";
 import { SearchResultRow } from "@/components/SearchResultRow";
 import { TopResult } from "@/components/TopResult";
@@ -119,9 +120,12 @@ export default function SearchScreen() {
       </Text>
       <MediaRow title="Trendande filmer" kind="trending" type="movie" />
       <MediaRow title="Trendande serier" kind="trending" type="tv" />
+      <Footer />
     </View>
   ) : isFetchingNextPage ? (
     <ActivityIndicator color={colors.textMuted} style={styles.footer} />
+  ) : !hasNextPage && items.length > 0 ? (
+    <Footer />
   ) : undefined;
 
   return (

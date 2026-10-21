@@ -6,7 +6,8 @@ import { imageUrl } from "@/api/tmdb";
 import type { MediaItem } from "@/api/types";
 import { colors, spacing } from "@/theme";
 import { Button } from "./Button";
-import { mediaMeta } from "./SearchResultRow";
+import { MetaLine } from "./MetaLine";
+import { mediaParts } from "./SearchResultRow";
 
 /** Stort kort för den bästa sökträffen. */
 export function TopResult({ item, wide }: { item: MediaItem; wide: boolean }) {
@@ -44,7 +45,7 @@ export function TopResult({ item, wide }: { item: MediaItem; wide: boolean }) {
           <Text style={[styles.title, wide && styles.titleWide]} numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={styles.meta}>{mediaMeta(item)}</Text>
+          <MetaLine parts={mediaParts(item)} rating={item.voteAverage} size={14} />
           {item.overview.length > 0 && (
             <Text style={styles.overview} numberOfLines={wide ? 3 : 2}>
               {item.overview}
@@ -98,10 +99,6 @@ const styles = StyleSheet.create({
   },
   titleWide: {
     fontSize: 32,
-  },
-  meta: {
-    color: colors.textMuted,
-    fontSize: 14,
   },
   overview: {
     color: colors.text,

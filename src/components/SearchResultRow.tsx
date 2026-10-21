@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { imageUrl } from "@/api/tmdb";
 import type { MediaItem } from "@/api/types";
 import { colors, spacing } from "@/theme";
+import { MetaLine } from "./MetaLine";
 
 interface Props {
   item: MediaItem;
@@ -15,14 +16,9 @@ interface Props {
   compact?: boolean;
 }
 
-export function mediaMeta(item: MediaItem) {
-  return [
-    item.type === "movie" ? "Film" : "Serie",
-    item.year,
-    item.voteAverage > 0 ? `★ ${item.voteAverage.toFixed(1)}` : null,
-  ]
-    .filter(Boolean)
-    .join("  ·  ");
+/** Fakta som visas under titeln i sökresultat (betyget läggs till av MetaLine). */
+export function mediaParts(item: MediaItem) {
+  return [item.type === "movie" ? "Film" : "Serie", item.year];
 }
 
 /** En sökträff som rad: liten affisch, titel och fakta. */
@@ -52,9 +48,7 @@ export function SearchResultRow({ item, onPress, active = false, compact = false
         <Text style={[styles.title, compact && styles.titleCompact]} numberOfLines={1}>
           {item.title}
         </Text>
-        <Text style={styles.meta} numberOfLines={1}>
-          {mediaMeta(item)}
-        </Text>
+        <MetaLine parts={mediaParts(item)} rating={item.voteAverage} size={13} />
         {!compact && item.overview.length > 0 && (
           <Text style={styles.overview} numberOfLines={2}>
             {item.overview}
@@ -101,10 +95,6 @@ const styles = StyleSheet.create({
   },
   titleCompact: {
     fontSize: 15,
-  },
-  meta: {
-    color: colors.textMuted,
-    fontSize: 13,
   },
   overview: {
     color: colors.textMuted,

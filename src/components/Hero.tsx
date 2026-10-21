@@ -9,6 +9,7 @@ import type { MediaType } from "@/api/types";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
 import { Button } from "./Button";
+import { MetaLine } from "./MetaLine";
 
 interface Props {
   kind: ListKind;
@@ -38,9 +39,6 @@ export function Hero({ kind, type, label }: Props) {
   const backdrop = isWide
     ? imageUrl(item.backdropPath, "w1280")
     : imageUrl(item.posterPath ?? item.backdropPath, "w780");
-  const meta = [item.year, item.voteAverage > 0 ? `★ ${item.voteAverage.toFixed(1)}` : null]
-    .filter(Boolean)
-    .join("  ·  ");
 
   return (
     <View style={[styles.hero, { height }]}>
@@ -74,7 +72,7 @@ export function Hero({ kind, type, label }: Props) {
           <Text style={[styles.title, isWide && styles.titleWide]} numberOfLines={2}>
             {item.title}
           </Text>
-          {meta.length > 0 && <Text style={styles.meta}>{meta}</Text>}
+          <MetaLine parts={[item.type === "movie" ? "Film" : "Serie", item.year]} rating={item.voteAverage} />
           {isWide && item.overview.length > 0 && (
             <Text style={styles.overview} numberOfLines={3}>
               {item.overview}
@@ -138,10 +136,6 @@ const styles = StyleSheet.create({
   titleWide: {
     fontSize: 48,
     lineHeight: 54,
-  },
-  meta: {
-    color: colors.textMuted,
-    fontSize: 15,
   },
   overview: {
     color: colors.text,

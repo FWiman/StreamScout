@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { colors, MAX_CONTENT_WIDTH, spacing } from "@/theme";
+import { Footer } from "./Footer";
 
 interface Props {
   children: ReactNode;
@@ -8,7 +9,7 @@ interface Props {
   hero?: ReactNode;
 }
 
-/** Gemensam scrollbar sidbakgrund som centrerar innehållet på breda skärmar. */
+/** Gemensam scrollbar sidbakgrund som centrerar innehållet på breda skärmar, med sidfot. */
 export function Screen({ children, hero }: Props) {
   return (
     <ScrollView
@@ -18,6 +19,7 @@ export function Screen({ children, hero }: Props) {
     >
       {hero}
       <View style={styles.inner}>{children}</View>
+      <Footer />
     </ScrollView>
   );
 }
@@ -29,7 +31,6 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: "center",
-    paddingBottom: spacing.xl,
   },
   padTop: {
     paddingTop: spacing.md,
