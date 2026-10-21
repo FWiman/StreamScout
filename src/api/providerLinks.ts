@@ -27,7 +27,15 @@ const SEARCH_URLS: [match: string, url: SearchUrl][] = [
   ["sf anytime", (q) => `https://www.sfanytime.com/sv/search?query=${q}`],
   ["tele2", (q) => `https://www.tele2play.se/search?q=${q}`],
   ["crunchyroll", (q) => `https://www.crunchyroll.com/search?q=${q}`],
+  // TMDB har kallat tjänsten både "HBO Max" och "Max" – se även exakt namn nedan.
+  ["hbo", (q) => `https://play.hbomax.com/search/result?q=${q}`],
+  ["tv4 play", (q) => `https://www.tv4play.se/sok/${q}`],
 ];
+
+/** Tjänster vars namn är för kort för att matcha på en del av namnet. */
+const EXACT_NAMES: Record<string, SearchUrl> = {
+  max: (q) => `https://play.hbomax.com/search/result?q=${q}`,
+};
 
 /**
  * Var ett tryck på en tjänsts logga ska leda.
@@ -36,8 +44,11 @@ const SEARCH_URLS: [match: string, url: SearchUrl][] = [
  * @param fallbackUrl TMDB:s sida med alla tjänster för titeln
  */
 export function providerUrl(providerName: string, title: string, fallbackUrl: string | null) {
-  const name = providerName.toLowerCase();
+  const name = providerName.toLowerCase().trim();
+  const query = encodeURIComponent(title);
+  const exact = EXACT_NAMES[name];
+  if (exact) return exact(query);
   const match = SEARCH_URLS.find(([key]) => name.includes(key));
-  if (match) return match[1](encodeURIComponent(title));
+  if (match) return match[1](query);
   return fallbackUrl;
 }
