@@ -15,6 +15,11 @@ Du behöver:
 
 Kör i terminalen (PowerShell eller VS Code-terminalen):
 
+> **Första gången i PowerShell?** Får du felet *"running scripts is disabled on this system"* när du kör `npm`, tillåt skript för ditt konto en gång:
+> ```powershell
+> Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+> ```
+
 ```powershell
 git clone https://github.com/FWiman/StreamWatch.git
 cd StreamWatch
