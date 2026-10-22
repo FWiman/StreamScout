@@ -1,6 +1,8 @@
-# StreamWatch – project context for Claude
+# StreamScout – project context for Claude
 
 ## About the project
+The app was renamed from StreamWatch to StreamScout (another iOS app is called StreamWatch). Internal names that weren't worth changing still say streamwatch: the Supabase project, Google Cloud project, local folder.
+
 App for finding movies/TV shows and seeing where they stream in Sweden. One Expo codebase (SDK 57 – the same version Expo Go in the App Store supports; upgrade once Expo Go supports newer) that builds for web, iOS and Android. The owner develops on Windows.
 
 **Language:** the whole project – UI text, code, comments, commit messages and docs – is in English. The owner writes in Swedish in chat, so reply to them in Swedish.
@@ -11,9 +13,9 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - `expo-image` for images, `@expo/vector-icons` (Ionicons) for icons
 - TMDB API v3, language `en-US`, region `SE` (Swedish streaming services)
 - Supabase for accounts (email/password, Google, Apple): client in `src/lib/supabase.ts`, `useAuth()` from `src/auth/AuthProvider.tsx`. Session storage: the browser's localStorage on web, expo-sqlite localStorage on mobile (`sessionStorage.native.ts`)
-- Supabase project `streamwatch` (ref `zhodxslqoycsohosqlrg`, eu-north-1). Table `public.watchlist` with RLS (select/insert/delete on own rows). Client code in `src/api/watchlist.ts` (`useWatchlist`, `useToggleWatchlist`, `useIsInWatchlist`). Schema changes are done as migrations – always run the security advisors afterwards
+- Supabase project `streamwatch` – the app's old name, kept internally (ref `zhodxslqoycsohosqlrg`, eu-north-1). Table `public.watchlist` with RLS (select/insert/delete on own rows). Client code in `src/api/watchlist.ts` (`useWatchlist`, `useToggleWatchlist`, `useIsInWatchlist`). Schema changes are done as migrations – always run the security advisors afterwards
 - Supabase Auth rejects redirect URLs with an IP-address host (verified), even if allow-listed. Expo Go uses `exp://<LAN IP>:8081`, so `oauthRedirectUrl()` in AuthProvider swaps the host for `localhost` on iOS (the auth session intercepts by scheme). Email links can't reach Expo Go; test them on web
-- Sign-in buttons are controlled by `.env`: `EXPO_PUBLIC_AUTH_GOOGLE`, `EXPO_PUBLIC_AUTH_APPLE` (iOS native via expo-apple-authentication + `signInWithIdToken`; Expo Go lacks the native module (verified), so it only works in a development/production build – the button is hidden when `isAvailableAsync()` is false) and `EXPO_PUBLIC_AUTH_APPLE_WEB` (OAuth on web/Android, needs an Apple Developer account). Bundle ID / package: `com.fwiman.streamwatch`
+- Sign-in buttons are controlled by `.env`: `EXPO_PUBLIC_AUTH_GOOGLE`, `EXPO_PUBLIC_AUTH_APPLE` (iOS native via expo-apple-authentication + `signInWithIdToken`; Expo Go lacks the native module (verified), so it only works in a development/production build – the button is hidden when `isAvailableAsync()` is false) and `EXPO_PUBLIC_AUTH_APPLE_WEB` (OAuth on web/Android, needs an Apple Developer account). Bundle ID / package: `com.fwiman.streamscout`
 
 ## Conventions
 - All TMDB communication goes through `src/api/tmdb.ts`; components use the hooks in `src/api/queries.ts`. `tmdbFetch` calls the Supabase Edge Function `tmdb` (`supabase/functions/tmdb/index.ts`, deployed with verify_jwt false, key in the secret `TMDB_API_KEY`). New TMDB endpoints must be added to its `ALLOWED_PATHS` and the function redeployed

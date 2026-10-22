@@ -13,7 +13,7 @@ const LINKS = [
   { href: "/", label: "Home" },
   { href: "/movies", label: "Movies" },
   { href: "/series", label: "TV Shows" },
-  { href: "/about", label: "About StreamWatch" },
+  { href: "/about", label: "About StreamScout" },
   { href: "/privacy", label: "Privacy policy" },
 ] as const;
 
@@ -58,7 +58,7 @@ export function Footer() {
         </View>
       </View>
 
-      <Text style={styles.copyright}>© {year} StreamWatch</Text>
+      <Text style={styles.copyright}>© {year} StreamScout</Text>
     </View>
   );
 }

@@ -24,9 +24,9 @@ const css = `
   ::selection { background: ${colors.accent}; color: ${colors.text}; }
 `;
 
-if (typeof document !== "undefined" && !document.getElementById("streamwatch-global-css")) {
+if (typeof document !== "undefined" && !document.getElementById("streamscout-global-css")) {
   const style = document.createElement("style");
-  style.id = "streamwatch-global-css";
+  style.id = "streamscout-global-css";
   style.textContent = css;
   document.head.appendChild(style);
 }

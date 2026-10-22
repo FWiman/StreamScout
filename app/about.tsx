@@ -32,12 +32,12 @@ export default function AboutScreen() {
   const gutter = useGutter();
   return (
     <Screen>
-      <Stack.Screen options={{ title: "About StreamWatch" }} />
+      <Stack.Screen options={{ title: "About StreamScout" }} />
 
       <View style={[styles.page, { marginHorizontal: gutter }]}>
         <Logo size={28} />
         <Text style={styles.lead}>
-          StreamWatch helps you find movies and TV shows and see where you can stream, rent or buy them in
+          StreamScout helps you find movies and TV shows and see where you can stream, rent or buy them in
           Sweden – on the web and on your phone.
         </Text>
 
@@ -63,7 +63,7 @@ export default function AboutScreen() {
 
         <Section title="Privacy">
           <Text style={styles.text}>
-            You can browse StreamWatch without an account. If you create one, we store your email address and the
+            You can browse StreamScout without an account. If you create one, we store your email address and the
             titles in My List – nothing else – with{" "}
             <ExternalLink url="https://supabase.com">Supabase</ExternalLink> in the EU (Stockholm). Your searches are
             sent to TMDB to fetch results. Trailers open on YouTube, which has its own terms.

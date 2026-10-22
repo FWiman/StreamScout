@@ -52,14 +52,14 @@ export default function PrivacyScreen() {
         <Text style={styles.updated}>Last updated {LAST_UPDATED}</Text>
 
         <P>
-          StreamWatch is a hobby project run by a private individual in Sweden, who is responsible for the personal
+          StreamScout is a hobby project run by a private individual in Sweden, who is responsible for the personal
           data described here. Questions? Email{" "}
           <ExternalLink url={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</ExternalLink>.
         </P>
 
         <Section title="Without an account">
           <P>
-            You can browse and search StreamWatch without an account. We don&apos;t use analytics, advertising or
+            You can browse and search StreamScout without an account. We don&apos;t use analytics, advertising or
             tracking cookies, and we don&apos;t build profiles of visitors. Searches and page views are sent through
             our server to The Movie Database (TMDB) to fetch titles – without any information about who you are.
           </P>

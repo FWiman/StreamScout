@@ -1,4 +1,4 @@
-# StreamWatch
+# StreamScout
 
 Find movies and TV shows and see where to stream them in Sweden. One codebase for **web, iOS and Android**, built with [Expo](https://expo.dev) (SDK 57), Expo Router and TypeScript. Data comes from [TMDB](https://www.themoviedb.org/).
 
@@ -21,8 +21,8 @@ Run in the terminal (PowerShell or the VS Code terminal):
 > ```
 
 ```powershell
-git clone https://github.com/FWiman/StreamWatch.git
-cd StreamWatch
+git clone https://github.com/FWiman/StreamScout.git
+cd StreamScout
 npm install
 npm run setup
 copy .env.example .env
@@ -51,17 +51,17 @@ Sign-in is handled by [Supabase](https://supabase.com) (the free tier is enough)
 3. **Allow redirects** under *Authentication → URL Configuration → Redirect URLs*, add:
    - `http://localhost:8081/**` (local web)
    - `exp://**` (Expo Go)
-   - `streamwatch://**` (the real app)
+   - `streamscout://**` (the real app)
 
 > **Expo Go and IP addresses:** Supabase rejects redirect URLs that contain an IP address, even if they're on the list – and Expo Go's URLs contain your computer's IP (`exp://192.168.x.x:8081`). The app works around this for Google/Apple sign-in on iPhone. Email links (confirmation, password reset) can't open in Expo Go for the same reason – test those on the web, or in a real build of the app.
 
 ### Sign in with Google (free)
 
-1. Open [Google Cloud Console](https://console.cloud.google.com/) and create a project, e.g. *StreamWatch*.
+1. Open [Google Cloud Console](https://console.cloud.google.com/) and create a project, e.g. *StreamScout*.
 2. Go to **Google Auth Platform** (search for "OAuth" in the search bar):
-   - **Branding:** app name *StreamWatch* and your email as the support address.
+   - **Branding:** app name *StreamScout* and your email as the support address.
    - **Audience:** *External*. While the app is in *Testing* mode, only the test users you add can sign in – add yourself, or press *Publish app* when you want everyone to be able to.
-   - **Clients → Create client:** type **Web application**, name *StreamWatch Supabase*.
+   - **Clients → Create client:** type **Web application**, name *StreamScout Supabase*.
      - *Authorized JavaScript origins:* `http://localhost:8081`
      - *Authorized redirect URIs:* `https://zhodxslqoycsohosqlrg.supabase.co/auth/v1/callback`
 3. Copy the **Client ID** and **Client secret** into Supabase: [Authentication → Sign In / Providers → Google](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/providers). Enable it and save.
@@ -72,7 +72,7 @@ Sign-in is handled by [Supabase](https://supabase.com) (the free tier is enough)
 **On iPhone:** Expo Go does **not** include Apple's native sign-in module, so the Apple button is hidden there (a small "Dev:" note explains why). It works in a real build of the app (a development build via EAS Build), which in practice needs an [Apple Developer account](https://developer.apple.com/programs/) to install on a phone.
 
 1. In Supabase: [Authentication → Sign In / Providers → Apple](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/providers) – enable it and enter under *Client IDs*:
-   `com.fwiman.streamwatch`. Leave the *Secret Key* fields empty (they're only needed for web).
+   `com.fwiman.streamscout`. Leave the *Secret Key* fields empty (they're only needed for web).
 2. Set `EXPO_PUBLIC_AUTH_APPLE=true` in `.env` and restart the server.
 
 **On web and Android** you need an [Apple Developer account](https://developer.apple.com/programs/) (USD 99/year) to create a *Services ID* and a signing key. Follow [Supabase's guide](https://supabase.com/docs/guides/auth/social-login/auth-apple) and then set `EXPO_PUBLIC_AUTH_APPLE_WEB=true`. Apple requires the key to be renewed every 6 months.
@@ -104,12 +104,12 @@ The website is hosted on [EAS Hosting](https://docs.expo.dev/eas/hosting/introdu
 
 1. `npm install --global eas-cli` and `eas login` (the same account as in Expo Go).
 2. `eas init` – links the project to your Expo account (adds a project ID to `app.json`; commit it).
-3. `npm run deploy:web` – builds the site with the keys in your `.env` and publishes it. The first time you choose a name, e.g. `streamwatch`, which gives `https://streamwatch.expo.app`.
+3. `npm run deploy:web` – builds the site with the keys in your `.env` and publishes it. The first time you choose a name, e.g. `streamscout`, which gives `https://streamscout.expo.app`.
 
 **Then point the services to the new address** (replace with yours):
 
-- Supabase → [Authentication → URL Configuration](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/url-configuration): *Site URL* `https://streamwatch.expo.app`, and add `https://streamwatch.expo.app/**` under *Redirect URLs* (keep the localhost ones for development).
-- Google Cloud → your OAuth client: add `https://streamwatch.expo.app` under *Authorized JavaScript origins*. Under *Audience*, press **Publish app** so anyone can sign in with Google, not just test users.
+- Supabase → [Authentication → URL Configuration](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/url-configuration): *Site URL* `https://streamscout.expo.app`, and add `https://streamscout.expo.app/**` under *Redirect URLs* (keep the localhost ones for development).
+- Google Cloud → your OAuth client: add `https://streamscout.expo.app` under *Authorized JavaScript origins*. Under *Audience*, press **Publish app** so anyone can sign in with Google, not just test users.
 
 **Emails to real users:** Supabase's built-in email only sends to members of your Supabase project, and very few per hour. To send confirmation and password emails to everyone, connect your own SMTP service under [Authentication → Emails → SMTP Settings](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/smtp), e.g. [Resend](https://resend.com) (free up to 3,000 emails/month – needs a domain of your own to send from).
 

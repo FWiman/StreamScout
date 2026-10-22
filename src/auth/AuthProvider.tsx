@@ -53,7 +53,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 /** Where Supabase sends the user back after Google, email confirmation or password reset. */
 function redirectUrl(path = "/account") {
-  // Web: http://localhost:8081/account  ·  Expo Go: exp://…/--/account  ·  App: streamwatch://account
+  // Web: http://localhost:8081/account  ·  Expo Go: exp://…/--/account  ·  App: streamscout://account
   return Linking.createURL(path);
 }
 
@@ -67,7 +67,7 @@ function redirectUrl(path = "/account") {
  * On iOS the auth session catches the redirect by its scheme ("exp") before loading it, so
  * the host doesn't matter: swap the IP for "localhost", which Supabase accepts. Expo Go then
  * never opens that URL – we read the code from it and exchange it for a session.
- * (Real app builds use streamwatch://… and are unaffected.)
+ * (Real app builds use streamscout://… and are unaffected.)
  */
 function oauthRedirectUrl() {
   const url = redirectUrl();

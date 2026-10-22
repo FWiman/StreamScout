@@ -1,20 +1,20 @@
 {
   "expo": {
-    "name": "StreamWatch",
-    "slug": "streamwatch",
-    "scheme": "streamwatch",
+    "name": "StreamScout",
+    "slug": "streamscout",
+    "scheme": "streamscout",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0b0d12",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fwiman.streamwatch",
+      "bundleIdentifier": "com.fwiman.streamscout",
       "usesAppleSignIn": true
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "package": "com.fwiman.streamwatch",
+      "package": "com.fwiman.streamscout",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#8b5cf6"
@@ -24,8 +24,8 @@
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/favicon.png",
-      "name": "StreamWatch",
-      "shortName": "StreamWatch",
+      "name": "StreamScout",
+      "shortName": "StreamScout",
       "description": "Find movies and TV shows and see where to stream them in Sweden.",
       "themeColor": "#0b0d12",
       "backgroundColor": "#0b0d12",
