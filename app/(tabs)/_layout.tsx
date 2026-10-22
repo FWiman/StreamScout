@@ -2,6 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import type { ComponentProps } from "react";
 import type { ColorValue } from "react-native";
+import { HeaderAccountButton } from "@/components/HeaderAccountButton";
 import { Logo } from "@/components/Logo";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors } from "@/theme";
@@ -29,6 +30,8 @@ export default function TabLayout() {
         headerShown: !isWide,
         headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.text,
+        // Phone: account/sign-in lives top right, like the avatar in the desktop top nav.
+        headerRight: () => <HeaderAccountButton />,
         tabBarStyle: isWide
           ? { display: "none" }
           : { backgroundColor: colors.surface, borderTopColor: colors.border },
@@ -43,7 +46,7 @@ export default function TabLayout() {
       <Tabs.Screen name="movies" options={{ title: "Movies", tabBarIcon: tabIcon("film") }} />
       <Tabs.Screen name="series" options={{ title: "TV Shows", tabBarIcon: tabIcon("tv") }} />
       <Tabs.Screen name="search" options={{ title: "Search", tabBarIcon: tabIcon("search") }} />
-      <Tabs.Screen name="account" options={{ title: "My List", tabBarIcon: tabIcon("bookmark-outline") }} />
+      <Tabs.Screen name="my-list" options={{ title: "My List", tabBarIcon: tabIcon("bookmark-outline") }} />
     </Tabs>
   );
 }

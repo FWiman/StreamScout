@@ -1,45 +1,32 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { useWatchlist } from "@/api/watchlist";
 import { authErrorMessage, useAuth } from "@/auth/AuthProvider";
 import { AuthForm } from "@/components/AuthForm";
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
-import { WatchlistGrid } from "@/components/WatchlistGrid";
 import { useGutter } from "@/hooks/useGutter";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { colors, spacing } from "@/theme";
 
 /**
- * My List: signed in you see your saved titles and your account,
- * signed out you see the sign-in form.
+ * Account: signed out you see the sign-in form, signed in your profile.
+ * When you sign in after coming here from somewhere else (e.g. "My List" on a title),
+ * we go back there.
  */
 export default function AccountScreen() {
   const gutter = useGutter();
+  const router = useRouter();
   const { user, loading } = useAuth();
-  const { data } = useWatchlist();
 
-  if (isSupabaseConfigured && !loading && user) {
-    return (
-      <Screen>
-        <View style={styles.signedIn}>
-          <View style={[styles.listHeader, { paddingHorizontal: gutter }]}>
-            <Text style={styles.heading}>My List</Text>
-            {data && data.length > 0 && (
-              <Text style={styles.count}>
-                {data.length} {data.length === 1 ? "title" : "titles"}
-              </Text>
-            )}
-          </View>
-          <WatchlistGrid />
-          <View style={[styles.page, { paddingHorizontal: gutter }]}>
-            <Profile email={user.email ?? ""} createdAt={user.created_at} provider={user.app_metadata.provider} />
-          </View>
-        </View>
-      </Screen>
-    );
-  }
+  const wasSignedIn = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (loading) return;
+    const signedIn = !!user;
+    if (wasSignedIn.current === false && signedIn && router.canGoBack()) router.back();
+    wasSignedIn.current = signedIn;
+  }, [user, loading, router]);
 
   return (
     <Screen>
@@ -48,6 +35,8 @@ export default function AccountScreen() {
           <NotConfigured />
         ) : loading ? (
           <ActivityIndicator color={colors.textMuted} style={styles.loading} />
+        ) : user ? (
+          <Profile email={user.email ?? ""} createdAt={user.created_at} provider={user.app_metadata.provider} />
         ) : (
           <AuthForm />
         )}
@@ -116,24 +105,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     alignItems: "center",
   },
-  signedIn: {
-    gap: spacing.lg,
-    paddingTop: spacing.lg,
-  },
-  listHeader: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    gap: spacing.sm,
-  },
-  heading: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: "800",
-  },
-  count: {
-    color: colors.textMuted,
-    fontSize: 15,
-  },
   loading: {
     marginTop: spacing.xl,
   },
@@ -185,7 +156,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   error: {
-    color: colors.accent,
+    color: colors.danger,
     fontSize: 14,
   },
 });

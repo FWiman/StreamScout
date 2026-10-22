@@ -215,7 +215,7 @@ export function FormMessage({ kind, text }: { kind: "error" | "notice"; text: st
       <Ionicons
         name={isError ? "alert-circle" : "checkmark-circle"}
         size={18}
-        color={isError ? colors.accent : colors.success}
+        color={isError ? colors.danger : colors.success}
       />
       <Text style={styles.messageText}>{text}</Text>
     </View>
@@ -314,8 +314,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   errorBox: {
-    borderColor: colors.accent,
-    backgroundColor: colors.accentSoft,
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerSoft,
   },
   noticeBox: {
     borderColor: colors.success,

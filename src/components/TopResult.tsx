@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   label: {
-    color: colors.accent,
+    color: colors.accentText,
     fontSize: 12,
     fontWeight: "800",
     textTransform: "uppercase",

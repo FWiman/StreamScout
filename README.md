@@ -89,6 +89,7 @@ The `watchlist` table (My List) uses Row Level Security: each user can only read
 app/                    Screens – the file name becomes the URL (Expo Router)
   (tabs)/               Tabs: Home, Movies, TV Shows, Search, My List
   title/[type]/[id].tsx Title page: info, trailer, Swedish streaming services
+  account.tsx           Sign in / profile (phone: the icon top right)
 src/
   api/tmdb.ts           All TMDB requests
   api/queries.ts        React Query hooks with caching

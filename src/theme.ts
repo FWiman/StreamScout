@@ -7,8 +7,14 @@ export const colors = {
   border: "#2a3040",
   text: "#f2f4f8",
   textMuted: "#9aa3b5",
-  accent: "#e5484d",
-  accentSoft: "rgba(229, 72, 77, 0.12)",
+  /** Brand color: buttons, active tabs, focus rings, avatar. */
+  accent: "#8b5cf6",
+  accentSoft: "rgba(139, 92, 246, 0.14)",
+  /** Lighter brand color for text on dark backgrounds (better contrast than `accent`). */
+  accentText: "#a78bfa",
+  /** Errors and warnings – kept red so they don't look like brand elements. */
+  danger: "#e5484d",
+  dangerSoft: "rgba(229, 72, 77, 0.12)",
   success: "#3dd68c",
   successSoft: "rgba(61, 214, 140, 0.12)",
   rating: "#f5c451",

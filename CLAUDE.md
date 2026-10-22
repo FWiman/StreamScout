@@ -18,7 +18,8 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 ## Conventions
 - All TMDB communication goes through `src/api/tmdb.ts`; components use the hooks in `src/api/queries.ts`
 - TMDB responses are normalized to `MediaItem`/`MediaDetails` (`src/api/types.ts`) – components should never see raw TMDB fields
-- Colors and spacing come from `src/theme.ts`, no hard-coded colors in components
+- Colors and spacing come from `src/theme.ts`, no hard-coded colors in components. Brand color is violet (`accent`, `accentText` for text on dark); errors use `danger` (red) – never `accent`
+- Navigation: "My List" (`app/(tabs)/my-list.tsx`) only shows the list; sign-in/profile is `app/account.tsx`, reached from the avatar in `TopNav` (desktop) or `HeaderAccountButton` top right (phone)
 - Import from `src` with the `@/` alias
 - Wording: "Movies", "TV Shows", "My List"; "Movie"/"TV Show" as type labels
 - Everything must work on web, iOS and Android – avoid web- or native-only APIs without a fallback

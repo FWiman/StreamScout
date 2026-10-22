@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
   label: {
-    color: colors.accent,
+    color: colors.accentText,
     fontSize: 13,
     fontWeight: "800",
     textTransform: "uppercase",

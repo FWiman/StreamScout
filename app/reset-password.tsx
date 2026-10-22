@@ -50,7 +50,7 @@ export default function ResetPasswordScreen() {
             <>
               <Text style={styles.title}>Password changed</Text>
               <FormMessage kind="notice" text="Done! You're signed in with your new password." />
-              <Button label="Go to My List" icon="bookmark" block onPress={() => router.replace("/account")} />
+              <Button label="Go to My List" icon="bookmark" block onPress={() => router.replace("/my-list")} />
             </>
           ) : !user ? (
             <>
@@ -59,7 +59,7 @@ export default function ResetPasswordScreen() {
                 The link has expired, has already been used, or was opened on a different device than the one you
                 requested it on. Request a new one under "Forgot password?" and open it in the same browser or app.
               </Text>
-              <Button label="Back to sign in" block onPress={() => router.replace("/account")} />
+              <Button label="Back to sign in" block onPress={() => router.replace("/my-list")} />
             </>
           ) : (
             <>
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   hint: {
-    color: colors.accent,
+    color: colors.danger,
     fontSize: 13,
     marginTop: -spacing.sm,
   },

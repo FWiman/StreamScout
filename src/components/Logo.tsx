@@ -34,6 +34,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   accent: {
-    color: colors.accent,
+    color: colors.accentText,
   },
 });

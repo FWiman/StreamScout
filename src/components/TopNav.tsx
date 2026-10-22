@@ -112,7 +112,7 @@ export function TopNav() {
             );
           })}
           {user && (
-            <Link href="/account" style={[styles.link, pathname === "/account" && styles.linkActive]}>
+            <Link href="/my-list" style={[styles.link, pathname === "/my-list" && styles.linkActive]}>
               My List
             </Link>
           )}

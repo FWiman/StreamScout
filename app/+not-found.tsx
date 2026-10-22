@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   link: {
-    color: colors.accent,
+    color: colors.accentText,
     fontSize: 16,
   },
 });
