@@ -1,3 +1,5 @@
+// Must come first: gives iOS/Android the WebCrypto functions supabase-js uses for PKCE.
+import "./cryptoPolyfill";
 import { createClient } from "@supabase/supabase-js";
 import { AppState, Platform } from "react-native";
 import { authStorage } from "./sessionStorage";
