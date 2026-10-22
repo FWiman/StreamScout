@@ -16,7 +16,7 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - Sign-in buttons are controlled by `.env`: `EXPO_PUBLIC_AUTH_GOOGLE`, `EXPO_PUBLIC_AUTH_APPLE` (iOS native via expo-apple-authentication + `signInWithIdToken`; Expo Go lacks the native module (verified), so it only works in a development/production build – the button is hidden when `isAvailableAsync()` is false) and `EXPO_PUBLIC_AUTH_APPLE_WEB` (OAuth on web/Android, needs an Apple Developer account). Bundle ID / package: `com.fwiman.streamwatch`
 
 ## Conventions
-- All TMDB communication goes through `src/api/tmdb.ts`; components use the hooks in `src/api/queries.ts`
+- All TMDB communication goes through `src/api/tmdb.ts`; components use the hooks in `src/api/queries.ts`. `tmdbFetch` calls the Supabase Edge Function `tmdb` (`supabase/functions/tmdb/index.ts`, deployed with verify_jwt false, key in the secret `TMDB_API_KEY`). New TMDB endpoints must be added to its `ALLOWED_PATHS` and the function redeployed
 - TMDB responses are normalized to `MediaItem`/`MediaDetails` (`src/api/types.ts`) – components should never see raw TMDB fields
 - Colors and spacing come from `src/theme.ts`, no hard-coded colors in components. Brand color is violet (`accent`, `accentText` for text on dark); errors use `danger` (red) – never `accent`
 - Navigation: "My List" (`app/(tabs)/my-list.tsx`) only shows the list; sign-in/profile is `app/account.tsx`, reached from the avatar in `TopNav` (desktop) or `HeaderAccountButton` top right (phone)
@@ -34,5 +34,5 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - `npm run lint` – ESLint
 
 ## Secrets
-`.env` contains `EXPO_PUBLIC_TMDB_API_KEY`, `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and is gitignored. `EXPO_PUBLIC_` variables end up in the client code; the plan is to move TMDB requests to a backend.
+`.env` contains `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and is gitignored. `EXPO_PUBLIC_` variables end up in the client code, so the TMDB key lives only as a Supabase secret; `EXPO_PUBLIC_TMDB_API_KEY` is a local-dev fallback used only when no Supabase URL is set.
 The Supabase key is publishable on purpose – all data must be protected with Row Level Security in the database.

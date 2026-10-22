@@ -21,25 +21,39 @@ const LANGUAGE = "en-US";
 /** Country for streaming services – the app shows what's available in Sweden. */
 const REGION = "SE";
 
-const API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY;
+/**
+ * Requests go through our Supabase Edge Function (supabase/functions/tmdb), which adds the
+ * TMDB key on the server – so the key isn't in the app. EXPO_PUBLIC_TMDB_API_KEY is only a
+ * fallback for local development without Supabase; leave it empty otherwise.
+ */
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const PROXY_URL = SUPABASE_URL ? `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/tmdb` : null;
+const DIRECT_API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY;
 
 type Params = Record<string, string | number | undefined>;
 
-async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
-  if (!API_KEY) {
+function buildUrl(path: string, params: Params) {
+  let url: URL;
+  if (PROXY_URL) {
+    url = new URL(PROXY_URL);
+    url.searchParams.set("path", path);
+  } else if (DIRECT_API_KEY) {
+    url = new URL(BASE_URL + path);
+    url.searchParams.set("api_key", DIRECT_API_KEY);
+  } else {
     throw new Error(
-      "TMDB key missing. Copy .env.example to .env and fill in EXPO_PUBLIC_TMDB_API_KEY."
+      "No way to reach TMDB. Add EXPO_PUBLIC_SUPABASE_URL to .env (or EXPO_PUBLIC_TMDB_API_KEY for local development)."
     );
   }
-
-  const url = new URL(BASE_URL + path);
-  url.searchParams.set("api_key", API_KEY);
   url.searchParams.set("language", LANGUAGE);
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined) url.searchParams.set(key, String(value));
   }
+  return url.toString();
+}
 
-  const response = await fetch(url.toString());
+async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
+  const response = await fetch(buildUrl(path, params));
   if (!response.ok) {
     throw new Error(`TMDB responded ${response.status} for ${path}`);
   }

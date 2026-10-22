@@ -28,7 +28,7 @@ npm run setup
 copy .env.example .env
 ```
 
-Then open `.env` and paste your TMDB key after `EXPO_PUBLIC_TMDB_API_KEY=`.
+Then fill in the Supabase keys in `.env` (see *Accounts* below). TMDB requests go through the app's own backend (see *TMDB backend*). To try the app without Supabase, you can instead paste a TMDB key after `EXPO_PUBLIC_TMDB_API_KEY=` – it's then built into the app, so only do that locally.
 
 > `npm run setup` installs the remaining packages in the versions that match Expo SDK 57. It only needs to run once.
 
@@ -79,6 +79,15 @@ Sign-in is handled by [Supabase](https://supabase.com) (the free tier is enough)
 
 > The App Store requires *Sign in with Apple* if the app offers Google sign-in – that's why both are there.
 
+### TMDB backend (Edge Function)
+
+The app never talks to TMDB directly. It calls the Supabase Edge Function `tmdb` ([supabase/functions/tmdb/index.ts](supabase/functions/tmdb/index.ts)), which adds the TMDB key on the server and only allows the read-only endpoints the app uses.
+
+1. In Supabase: [Edge Functions → Secrets](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/functions/secrets) – add `TMDB_API_KEY` with your TMDB key (the v3 *API Key* or the long *API Read Access Token* – both work).
+2. Leave `EXPO_PUBLIC_TMDB_API_KEY` empty in `.env` and restart with `npx expo start --clear`.
+
+To deploy a changed function: `npx supabase functions deploy tmdb --no-verify-jwt --project-ref zhodxslqoycsohosqlrg` (it must allow requests without a signed-in user).
+
 ### Database
 
 The `watchlist` table (My List) uses Row Level Security: each user can only read, add and remove their own rows. Title and images are stored with the row so the list shows up without extra TMDB requests.
@@ -90,8 +99,9 @@ app/                    Screens – the file name becomes the URL (Expo Router)
   (tabs)/               Tabs: Home, Movies, TV Shows, Search, My List
   title/[type]/[id].tsx Title page: info, trailer, Swedish streaming services
   account.tsx           Sign in / profile (phone: the icon top right)
+supabase/functions/tmdb/ Edge Function that proxies TMDB and holds the key
 src/
-  api/tmdb.ts           All TMDB requests
+  api/tmdb.ts           All TMDB requests (via the Edge Function)
   api/queries.ts        React Query hooks with caching
   api/watchlist.ts      My List (Supabase)
   api/types.ts          Types
@@ -108,7 +118,7 @@ src/
 - [x] Watchlist (My List) synced between web and app
 - [x] Forgot password
 - [x] Sign in with Google and Apple (Apple on web/Android needs an Apple Developer account)
-- [ ] Own backend that hides the TMDB key
+- [x] Own backend that hides the TMDB key (Supabase Edge Function)
 - [ ] Filter by streaming service ("what's on Netflix?")
 - [ ] Publish the website (e.g. EAS Hosting or Vercel)
 - [ ] Publish on the App Store and Google Play (EAS Build)
