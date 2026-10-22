@@ -110,11 +110,16 @@ export function AuthForm() {
       <Text style={styles.title}>{TITLES[mode]}</Text>
       <Text style={styles.subtitle}>{SUBTITLES[mode]}</Text>
 
+      {__DEV__ && APPLE_ENABLED && !appleAvailable && !isReset && (
+        // Expo Go doesn't include Apple's native sign-in module – it needs a development build.
+        <Text style={styles.devNote}>Dev: Sign in with Apple isn't available in this build (e.g. Expo Go).</Text>
+      )}
+
       {showSocial && (
         <>
           {showApple && (
-            // Our own button in Apple's style: the native AppleAuthenticationButton
-            // isn't available in Expo Go ("Unimplemented component").
+            // Our own button in Apple's style (the native AppleAuthenticationButton
+            // can't render where the native module is missing, e.g. in Expo Go).
             <Button
               label={isSignUp ? "Sign up with Apple" : "Continue with Apple"}
               icon="logo-apple"
@@ -255,6 +260,11 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 26,
     fontWeight: "800",
+  },
+  devNote: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontStyle: "italic",
   },
   subtitle: {
     color: colors.textMuted,

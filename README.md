@@ -69,11 +69,10 @@ Sign-in is handled by [Supabase](https://supabase.com) (the free tier is enough)
 
 ### Sign in with Apple
 
-**On iPhone (free, testable in Expo Go):**
+**On iPhone:** Expo Go does **not** include Apple's native sign-in module, so the Apple button is hidden there (a small "Dev:" note explains why). It works in a real build of the app (a development build via EAS Build), which in practice needs an [Apple Developer account](https://developer.apple.com/programs/) to install on a phone.
 
 1. In Supabase: [Authentication → Sign In / Providers → Apple](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/providers) – enable it and enter under *Client IDs*:
-   `host.exp.Exponent,com.fwiman.streamwatch`
-   (`host.exp.Exponent` is Expo Go, the other is the real app). Leave the *Secret Key* fields empty.
+   `com.fwiman.streamwatch`. Leave the *Secret Key* fields empty (they're only needed for web).
 2. Set `EXPO_PUBLIC_AUTH_APPLE=true` in `.env` and restart the server.
 
 **On web and Android** you need an [Apple Developer account](https://developer.apple.com/programs/) (USD 99/year) to create a *Services ID* and a signing key. Follow [Supabase's guide](https://supabase.com/docs/guides/auth/social-login/auth-apple) and then set `EXPO_PUBLIC_AUTH_APPLE_WEB=true`. Apple requires the key to be renewed every 6 months.
