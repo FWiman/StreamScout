@@ -88,9 +88,32 @@ The app never talks to TMDB directly. It calls the Supabase Edge Function `tmdb`
 
 To deploy a changed function: `npx supabase functions deploy tmdb --no-verify-jwt --project-ref zhodxslqoycsohosqlrg` (it must allow requests without a signed-in user).
 
+### Deleting an account
+
+Account → *Delete account* calls the database function `delete_own_account()` ([supabase/migrations](supabase/migrations)), which deletes the signed-in user; My List goes with it. The app stores and GDPR require this.
+
 ### Database
 
 The `watchlist` table (My List) uses Row Level Security: each user can only read, add and remove their own rows. Title and images are stored with the row so the list shows up without extra TMDB requests.
+
+## Publishing the website
+
+The website is hosted on [EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/) (free tier) with your Expo account.
+
+**First time:**
+
+1. `npm install --global eas-cli` and `eas login` (the same account as in Expo Go).
+2. `eas init` – links the project to your Expo account (adds a project ID to `app.json`; commit it).
+3. `npm run deploy:web` – builds the site with the keys in your `.env` and publishes it. The first time you choose a name, e.g. `streamwatch`, which gives `https://streamwatch.expo.app`.
+
+**Then point the services to the new address** (replace with yours):
+
+- Supabase → [Authentication → URL Configuration](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/url-configuration): *Site URL* `https://streamwatch.expo.app`, and add `https://streamwatch.expo.app/**` under *Redirect URLs* (keep the localhost ones for development).
+- Google Cloud → your OAuth client: add `https://streamwatch.expo.app` under *Authorized JavaScript origins*. Under *Audience*, press **Publish app** so anyone can sign in with Google, not just test users.
+
+**Emails to real users:** Supabase's built-in email only sends to members of your Supabase project, and very few per hour. To send confirmation and password emails to everyone, connect your own SMTP service under [Authentication → Emails → SMTP Settings](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/smtp), e.g. [Resend](https://resend.com) (free up to 3,000 emails/month – needs a domain of your own to send from).
+
+**Updating the site:** run `npm run deploy:web` again.
 
 ## Structure
 
@@ -99,7 +122,9 @@ app/                    Screens – the file name becomes the URL (Expo Router)
   (tabs)/               Tabs: Home, Movies, TV Shows, Search, My List
   title/[type]/[id].tsx Title page: info, trailer, Swedish streaming services
   account.tsx           Sign in / profile (phone: the icon top right)
+  privacy.tsx           Privacy policy
 supabase/functions/tmdb/ Edge Function that proxies TMDB and holds the key
+supabase/migrations/    Database changes (SQL)
 src/
   api/tmdb.ts           All TMDB requests (via the Edge Function)
   api/queries.ts        React Query hooks with caching
@@ -120,7 +145,9 @@ src/
 - [x] Sign in with Google and Apple (Apple on web/Android needs an Apple Developer account)
 - [x] Own backend that hides the TMDB key (Supabase Edge Function)
 - [x] Filter by streaming service ("what's on Netflix?") on the Movies and TV Shows pages
-- [ ] Publish the website (e.g. EAS Hosting or Vercel)
+- [x] Ready to publish: delete account, privacy policy, icons
+- [ ] Publish the website on EAS Hosting (see *Publishing the website*)
+- [ ] Own SMTP for emails to real users (needs a domain)
 - [ ] Publish on the App Store and Google Play (EAS Build)
 
 ## Attribution

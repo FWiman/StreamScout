@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/movies", label: "Movies" },
   { href: "/series", label: "TV Shows" },
   { href: "/about", label: "About StreamWatch" },
+  { href: "/privacy", label: "Privacy policy" },
 ] as const;
 
 /** Text required word for word by TMDB's terms of use. */

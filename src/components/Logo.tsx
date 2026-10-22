@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "@/theme";
 
-/** The StreamWatch logo: red badge with a play symbol, plus the name. */
+/** The StreamWatch logo: violet badge with a play symbol, plus the name. */
 export function Logo({ size = 22 }: { size?: number }) {
   const badge = size * 1.35;
   return (

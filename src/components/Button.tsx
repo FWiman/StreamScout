@@ -7,7 +7,7 @@ interface Props {
   label: string;
   onPress: () => void;
   icon?: ComponentProps<typeof Ionicons>["name"];
-  variant?: "primary" | "secondary" | "outline" | "light";
+  variant?: "primary" | "secondary" | "outline" | "light" | "danger";
   size?: "md" | "lg";
   /** Shows a spinner and can't be pressed. */
   loading?: boolean;
@@ -85,6 +85,9 @@ const styles = StyleSheet.create({
   },
   light: {
     backgroundColor: colors.light,
+  },
+  danger: {
+    backgroundColor: colors.danger,
   },
   pressed: {
     opacity: 0.8,

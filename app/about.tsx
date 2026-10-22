@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { Stack } from "expo-router";
+import { Link, Stack } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -68,6 +68,9 @@ export default function AboutScreen() {
             <ExternalLink url="https://supabase.com">Supabase</ExternalLink> in the EU (Stockholm). Your searches are
             sent to TMDB to fetch results. Trailers open on YouTube, which has its own terms.
           </Text>
+          <Link href="/privacy" style={styles.link}>
+            Read the full privacy policy
+          </Link>
         </Section>
 
         <Section title="Open source">

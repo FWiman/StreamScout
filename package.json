@@ -11,7 +11,8 @@
     "ios": "expo start --ios",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
-    "build:web": "expo export --platform web"
+    "build:web": "expo export --platform web",
+    "deploy:web": "expo export --platform web && eas deploy --prod"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.17",

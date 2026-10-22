@@ -14,11 +14,22 @@
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "package": "com.fwiman.streamwatch"
+      "package": "com.fwiman.streamwatch",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#8b5cf6"
+      }
     },
     "web": {
       "bundler": "metro",
-      "output": "single"
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "StreamWatch",
+      "shortName": "StreamWatch",
+      "description": "Find movies and TV shows and see where to stream them in Sweden.",
+      "themeColor": "#0b0d12",
+      "backgroundColor": "#0b0d12",
+      "lang": "en"
     },
     "plugins": [
       "expo-router",
@@ -27,6 +38,8 @@
       "expo-web-browser",
       "expo-sqlite",
       "expo-apple-authentication"
-    ]
+    ],
+    "description": "Find movies and TV shows and see where to stream them in Sweden.",
+    "icon": "./assets/icon.png"
   }
 }

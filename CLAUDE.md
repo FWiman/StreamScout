@@ -29,6 +29,10 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - React Native (0.86+) has strict types: write refs as `useRef<ComponentRef<typeof TextInput>>(null)` (not `useRef<TextInput>`), and `ListFooterComponent` etc. take `undefined`, not `null`
 - Install packages with `npx expo install <package>` (not `npm install`) so versions match the SDK. Don't change SDK version without checking which one Expo Go in the App Store supports
 
+## Publishing
+- Web: EAS Hosting, `npm run deploy:web` (exports with the local `.env`, then `eas deploy --prod`). App store releases are on hold (owner's decision – costs)
+- Account deletion: RPC `public.delete_own_account()` (SECURITY DEFINER, deletes `auth.uid()`; the advisor warning about it is intended). Privacy policy in `app/privacy.tsx` – keep it in sync when data handling changes
+
 ## Commands
 - `npm run web` / `npm start` – dev server
 - `npm run typecheck` – TypeScript

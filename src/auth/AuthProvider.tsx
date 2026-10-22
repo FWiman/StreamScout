@@ -21,6 +21,8 @@ interface AuthContextValue {
   /** iPhone: Apple's native sign-in (Face ID). Web/Android: Apple's sign-in page. */
   signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
+  /** Permanently deletes the signed-in user's account and My List, then signs out. */
+  deleteAccount: () => Promise<void>;
   /** Sends an email with a link to choose a new password. */
   resetPassword: (email: string) => Promise<void>;
   /** Changes the signed-in user's password (e.g. after the reset link). */
@@ -228,6 +230,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async signOut() {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
+      },
+
+      async deleteAccount() {
+        // Database function that deletes auth.uid(); the watchlist goes with it (cascade).
+        const { error } = await supabase.rpc("delete_own_account");
+        if (error) throw error;
+        // The session no longer exists on the server – just clear it on this device.
+        await supabase.auth.signOut({ scope: "local" });
       },
 
       async resetPassword(email) {

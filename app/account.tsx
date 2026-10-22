@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "expo-router";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { Link, useRouter } from "expo-router";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { authErrorMessage, useAuth } from "@/auth/AuthProvider";
 import { AuthForm } from "@/components/AuthForm";
 import { Button } from "@/components/Button";
@@ -46,8 +46,10 @@ export default function AccountScreen() {
 }
 
 function Profile({ email, createdAt, provider }: { email: string; createdAt: string; provider?: string }) {
-  const { signOut } = useAuth();
+  const { signOut, deleteAccount } = useAuth();
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const since = new Date(createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long" });
@@ -61,6 +63,17 @@ function Profile({ email, createdAt, provider }: { email: string; createdAt: str
     } catch (e) {
       setError(authErrorMessage(e));
       setBusy(false);
+    }
+  };
+
+  const onDelete = async () => {
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteAccount();
+    } catch (e) {
+      setError(authErrorMessage(e));
+      setDeleting(false);
     }
   };
 
@@ -83,6 +96,28 @@ function Profile({ email, createdAt, provider }: { email: string; createdAt: str
 
       {error && <Text style={styles.error}>{error}</Text>}
       <Button label="Sign out" icon="log-out-outline" variant="outline" block loading={busy} onPress={onSignOut} />
+
+      <View style={styles.dangerZone}>
+        {confirmDelete ? (
+          <>
+            <Text style={styles.dangerTitle}>Delete your account?</Text>
+            <Text style={styles.muted}>
+              Your account and everything in My List are deleted permanently. This can't be undone.
+            </Text>
+            <View style={styles.dangerButtons}>
+              <Button label="Cancel" variant="outline" disabled={deleting} onPress={() => setConfirmDelete(false)} />
+              <Button label="Delete permanently" variant="danger" loading={deleting} onPress={onDelete} />
+            </View>
+          </>
+        ) : (
+          <Pressable onPress={() => setConfirmDelete(true)} accessibilityRole="button" hitSlop={6}>
+            <Text style={styles.dangerLink}>Delete account</Text>
+          </Pressable>
+        )}
+        <Link href="/privacy" style={styles.privacyLink}>
+          Privacy policy
+        </Link>
+      </View>
     </View>
   );
 }
@@ -154,6 +189,31 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 14,
     lineHeight: 20,
+  },
+  dangerZone: {
+    gap: spacing.sm,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  dangerTitle: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  dangerButtons: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  dangerLink: {
+    color: colors.danger,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  privacyLink: {
+    color: colors.textMuted,
+    fontSize: 14,
   },
   error: {
     color: colors.danger,
