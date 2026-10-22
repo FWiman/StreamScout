@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState, type ComponentProps } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { APPLE_ENABLED, authErrorMessage, GOOGLE_ENABLED, SignInCancelled, useAuth } from "@/auth/AuthProvider";
@@ -19,6 +19,25 @@ const SUBTITLES: Record<Mode, string> = {
   signUp: "With an account you can save movies and shows to your list and see it on all your devices.",
   reset: "Enter your email address and we'll send you a link to choose a new password.",
 };
+
+/**
+ * Whether Sign in with Apple can be used here. On iOS we ask the device (it's missing
+ * on e.g. older iOS versions); elsewhere it goes via OAuth and is controlled by .env only.
+ */
+function useAppleAvailable() {
+  const [available, setAvailable] = useState(Platform.OS !== "ios");
+  useEffect(() => {
+    if (Platform.OS !== "ios") return;
+    let active = true;
+    AppleAuthentication.isAvailableAsync()
+      .then((ok) => active && setAvailable(ok))
+      .catch(() => active && setAvailable(false));
+    return () => {
+      active = false;
+    };
+  }, []);
+  return available;
+}
 
 /** Sign in, sign up and "forgot password". */
 export function AuthForm() {
@@ -82,7 +101,9 @@ export function AuthForm() {
     }
   };
 
-  const showSocial = (GOOGLE_ENABLED || APPLE_ENABLED) && !isReset;
+  const appleAvailable = useAppleAvailable();
+  const showApple = APPLE_ENABLED && appleAvailable;
+  const showSocial = (GOOGLE_ENABLED || showApple) && !isReset;
 
   return (
     <View style={styles.card}>
@@ -91,31 +112,19 @@ export function AuthForm() {
 
       {showSocial && (
         <>
-          {APPLE_ENABLED &&
-            (Platform.OS === "ios" ? (
-              // Apple requires its own button in iOS apps.
-              <AppleAuthentication.AppleAuthenticationButton
-                buttonType={
-                  isSignUp
-                    ? AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP
-                    : AppleAuthentication.AppleAuthenticationButtonType.CONTINUE
-                }
-                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-                cornerRadius={8}
-                style={styles.appleButton}
-                onPress={() => social("apple")}
-              />
-            ) : (
-              <Button
-                label="Continue with Apple"
-                icon="logo-apple"
-                variant="outline"
-                block
-                loading={busy === "apple"}
-                disabled={busy !== null}
-                onPress={() => social("apple")}
-              />
-            ))}
+          {showApple && (
+            // Our own button in Apple's style: the native AppleAuthenticationButton
+            // isn't available in Expo Go ("Unimplemented component").
+            <Button
+              label={isSignUp ? "Sign up with Apple" : "Continue with Apple"}
+              icon="logo-apple"
+              variant="light"
+              block
+              loading={busy === "apple"}
+              disabled={busy !== null}
+              onPress={() => social("apple")}
+            />
+          )}
           {GOOGLE_ENABLED && (
             <Button
               label="Continue with Google"
@@ -252,10 +261,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     marginBottom: spacing.xs,
-  },
-  appleButton: {
-    width: "100%",
-    height: 48,
   },
   divider: {
     flexDirection: "row",

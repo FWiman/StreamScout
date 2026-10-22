@@ -7,7 +7,7 @@ interface Props {
   label: string;
   onPress: () => void;
   icon?: ComponentProps<typeof Ionicons>["name"];
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "light";
   size?: "md" | "lg";
   /** Shows a spinner and can't be pressed. */
   loading?: boolean;
@@ -28,6 +28,7 @@ export function Button({
 }: Props) {
   const large = size === "lg";
   const inactive = disabled || loading;
+  const contentColor = variant === "light" ? colors.onLight : colors.text;
   return (
     <Pressable
       onPress={onPress}
@@ -44,11 +45,11 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={colors.text} />
+        <ActivityIndicator size="small" color={contentColor} />
       ) : (
-        icon && <Ionicons name={icon} size={large ? 22 : 18} color={colors.text} />
+        icon && <Ionicons name={icon} size={large ? 22 : 18} color={contentColor} />
       )}
-      <Text style={[styles.label, large && styles.labelLarge]}>{label}</Text>
+      <Text style={[styles.label, large && styles.labelLarge, { color: contentColor }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -81,6 +82,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  light: {
+    backgroundColor: colors.light,
   },
   pressed: {
     opacity: 0.8,

@@ -17,6 +17,10 @@ export const colors = {
   backgroundClear: "rgba(11, 13, 18, 0)",
   glass: "rgba(255, 255, 255, 0.16)",
   shadow: "#000000",
+  /** Light button background (e.g. "Continue with Apple", per Apple's guidelines). */
+  light: "#ffffff",
+  /** Text/icon color on the light background. */
+  onLight: "#000000",
   /** Background for a highlighted/hovered row. */
   highlight: "rgba(255, 255, 255, 0.09)",
 } as const;
