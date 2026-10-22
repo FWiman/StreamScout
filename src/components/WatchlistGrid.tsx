@@ -1,9 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
-import { ActivityIndicator, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { useToggleWatchlist, useWatchlist } from "@/api/watchlist";
-import { useGutter } from "@/hooks/useGutter";
-import { useIsWide } from "@/hooks/useIsWide";
+import { useGridLayout } from "@/hooks/useGridLayout";
 import { colors, spacing } from "@/theme";
 import { Button } from "./Button";
 import { MediaCard } from "./MediaCard";
@@ -12,14 +11,7 @@ import { MediaCard } from "./MediaCard";
 export function WatchlistGrid() {
   const { data, isPending, isError, refetch } = useWatchlist();
   const toggle = useToggleWatchlist();
-  const isWide = useIsWide();
-  const gutter = useGutter();
-  const { width } = useWindowDimensions();
-
-  const contentWidth = width - gutter * 2;
-  const minCard = isWide ? 160 : 100;
-  const columns = Math.max(3, Math.floor((contentWidth + spacing.md) / (minCard + spacing.md)));
-  const cardWidth = Math.floor((contentWidth - spacing.md * (columns - 1)) / columns);
+  const { gutter, cardWidth } = useGridLayout();
 
   if (isPending) return <ActivityIndicator color={colors.textMuted} style={styles.status} />;
 

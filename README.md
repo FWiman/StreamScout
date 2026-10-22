@@ -119,7 +119,7 @@ src/
 - [x] Forgot password
 - [x] Sign in with Google and Apple (Apple on web/Android needs an Apple Developer account)
 - [x] Own backend that hides the TMDB key (Supabase Edge Function)
-- [ ] Filter by streaming service ("what's on Netflix?")
+- [x] Filter by streaming service ("what's on Netflix?") on the Movies and TV Shows pages
 - [ ] Publish the website (e.g. EAS Hosting or Vercel)
 - [ ] Publish on the App Store and Google Play (EAS Build)
 

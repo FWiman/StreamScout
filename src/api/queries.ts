@@ -1,7 +1,9 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import {
+  getByService,
   getDetails,
+  getStreamingServices,
   getPopular,
   getRecommendations,
   getTopRated,
@@ -15,14 +17,18 @@ import type { MediaItem, MediaPage, MediaType } from "./types";
 
 // React Query caches responses, so the same list isn't fetched over and over.
 
-/** `recommendations` needs a title id ("more like this"). */
-export type ListKind = "trending" | "popular" | "topRated" | "recommendations";
+/**
+ * `recommendations` needs a title id ("more like this"),
+ * `service` a streaming service's provider id ("what's on Netflix?").
+ */
+export type ListKind = "trending" | "popular" | "topRated" | "recommendations" | "service";
 
 const listFetchers = {
   trending: (type: MediaType, page: number) => getTrending(type, page),
   popular: (type: MediaType, page: number) => getPopular(type, page),
   topRated: (type: MediaType, page: number) => getTopRated(type, page),
   recommendations: (type: MediaType, page: number, id?: number) => getRecommendations(type, id!, page),
+  service: (type: MediaType, page: number, id?: number) => getByService(type, id!, page),
 } as const;
 
 /**
@@ -33,7 +39,7 @@ export function useMediaList(kind: ListKind, type: MediaType, id?: number) {
   const query = useInfiniteQuery({
     queryKey: ["list", kind, type, id],
     queryFn: ({ pageParam }) => listFetchers[kind](type, pageParam, id),
-    enabled: kind !== "recommendations" || id !== undefined,
+    enabled: (kind !== "recommendations" && kind !== "service") || id !== undefined,
     initialPageParam: 1,
     getNextPageParam: (last) => (last.page < last.totalPages ? last.page + 1 : undefined),
   });
@@ -70,6 +76,15 @@ export function useSearch(query: string, filter: SearchFilter) {
   });
   const items = useMemo(() => flattenPages(result.data?.pages), [result.data]);
   return { ...result, items };
+}
+
+/** The streaming services you can filter by. They rarely change, so they're cached for a day. */
+export function useStreamingServices(type: MediaType) {
+  return useQuery({
+    queryKey: ["services", type],
+    queryFn: () => getStreamingServices(type),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
 }
 
 export function useDetails(type: MediaType, id: number) {

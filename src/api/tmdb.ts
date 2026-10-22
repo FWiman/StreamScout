@@ -7,6 +7,7 @@ import type {
   TmdbMediaResult,
   TmdbPage,
   TmdbProvider,
+  TmdbProviderListResult,
   TmdbProvidersResult,
   TmdbVideo,
   WatchProvider,
@@ -119,6 +120,31 @@ export function getTopRated(type: MediaType, page = 1) {
 
 export function getPopular(type: MediaType, page = 1) {
   return getListPage(`/${type}/popular`, type, page, { region: REGION });
+}
+
+/**
+ * Titles included in a streaming service's subscription in Sweden (not rent/buy),
+ * most popular first.
+ */
+export function getByService(type: MediaType, providerId: number, page = 1) {
+  return getListPage(`/discover/${type}`, type, page, {
+    watch_region: REGION,
+    with_watch_providers: providerId,
+    with_watch_monetization_types: "flatrate",
+    sort_by: "popularity.desc",
+  });
+}
+
+/** How many services to offer in the filter – the rest are small niche services. */
+const MAX_SERVICES = 14;
+
+/** The biggest streaming services in Sweden, in the order TMDB/JustWatch ranks them. */
+export async function getStreamingServices(type: MediaType): Promise<WatchProvider[]> {
+  const { results } = await tmdbFetch<TmdbProviderListResult>(`/watch/providers/${type}`, {
+    watch_region: REGION,
+  });
+  const rank = (p: TmdbProviderListResult["results"][number]) => p.display_priorities?.[REGION] ?? 999;
+  return toProviders([...results].sort((a, b) => rank(a) - rank(b)).slice(0, MAX_SERVICES));
 }
 
 /** Titles similar to a given movie or TV show. */

@@ -87,6 +87,11 @@ export interface TmdbProvider {
   logo_path: string;
 }
 
+/** /watch/providers/{type}: every service available in a region. */
+export interface TmdbProviderListResult {
+  results: (TmdbProvider & { display_priorities?: Record<string, number> })[];
+}
+
 export interface TmdbProvidersResult {
   results: Record<
     string,
