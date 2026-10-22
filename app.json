@@ -40,6 +40,13 @@
       "expo-apple-authentication"
     ],
     "description": "Find movies and TV shows and see where to stream them in Sweden.",
-    "icon": "./assets/icon.png"
+    "icon": "./assets/icon.png",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ba4592fb-65de-4674-bbba-1125792756a0"
+      }
+    },
+    "owner": "wiman"
   }
 }
