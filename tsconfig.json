@@ -6,5 +6,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  // Edge Functions run on Deno on Supabase's servers, not in the app.
+  "exclude": ["node_modules", "supabase/functions"]
 }
