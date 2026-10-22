@@ -12,18 +12,18 @@ import { Logo } from "./Logo";
 import { SearchResultRow } from "./SearchResultRow";
 
 const LINKS = [
-  { href: "/", label: "Hem" },
-  { href: "/movies", label: "Filmer" },
-  { href: "/series", label: "Serier" },
+  { href: "/", label: "Home" },
+  { href: "/movies", label: "Movies" },
+  { href: "/series", label: "TV Shows" },
 ] as const;
 
-/** Antal träffar i rullgardinen. */
+/** Number of hits in the dropdown. */
 const DROPDOWN_LIMIT = 6;
 
 /**
- * Toppmeny för datorlayouten: logga, sektioner och sökfält.
- * Medan man skriver fälls en lista med de bästa träffarna ut under fältet.
- * Piltangenterna väljer, Enter öppnar, Esc stänger.
+ * Top navigation for the desktop layout: logo, sections and search field.
+ * While typing, a dropdown with the best matches opens under the field.
+ * Arrow keys select, Enter opens, Esc closes.
  */
 export function TopNav() {
   const pathname = usePathname();
@@ -36,7 +36,7 @@ export function TopNav() {
   const [focused, setFocused] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  // ComponentRef ger rätt instanstyp för fältet (ändrades i React Native 0.87).
+  // ComponentRef gives the correct instance type for the field (changed in React Native 0.87).
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   const blurTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -44,10 +44,10 @@ export function TopNav() {
   const search = useSearch(debounced, "all");
   const results = search.items.slice(0, DROPDOWN_LIMIT);
 
-  // På söksidan visas resultaten redan stort – då behövs ingen rullgardin.
+  // The search page already shows results in full – no dropdown needed there.
   const showDropdown = open && !onSearchPage && debounced.length > 1;
 
-  // Fältet töms när man lämnar söksidan; kommer man dit via en länk med ?q= fylls det i.
+  // The field clears when leaving the search page; arriving via a link with ?q= fills it in.
   useEffect(() => {
     if (onSearchPage) {
       if (q && !query) setQuery(q);
@@ -57,7 +57,7 @@ export function TopNav() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onSearchPage]);
 
-  // Ny söktext → ingen rad markerad.
+  // New query → no row highlighted.
   useEffect(() => setActive(-1), [debounced]);
 
   const onChange = (text: string) => {
@@ -88,7 +88,7 @@ export function TopNav() {
       if (open && query) setOpen(false);
       else onChange("");
     } else if (key === "ArrowDown" && showDropdown) {
-      // Sista "raden" är länken "Visa alla resultat".
+      // The last "row" is the "Show all results" link.
       setActive((i) => Math.min(i + 1, results.length));
     } else if (key === "ArrowUp" && showDropdown) {
       setActive((i) => Math.max(i - 1, -1));
@@ -98,7 +98,7 @@ export function TopNav() {
   return (
     <View style={styles.bar}>
       <View style={[styles.inner, { paddingHorizontal: gutter }]}>
-        <Link href="/" accessibilityLabel="Till startsidan">
+        <Link href="/" accessibilityLabel="Go to home page">
           <Logo />
         </Link>
 
@@ -113,7 +113,7 @@ export function TopNav() {
           })}
           {user && (
             <Link href="/account" style={[styles.link, pathname === "/account" && styles.linkActive]}>
-              Min lista
+              My List
             </Link>
           )}
         </View>
@@ -133,11 +133,11 @@ export function TopNav() {
               }}
               onBlur={() => {
                 setFocused(false);
-                // Vänta lite så att ett klick i listan hinner registreras innan den stängs.
+                // Wait a moment so a click in the dropdown registers before it closes.
                 blurTimer.current = setTimeout(() => setOpen(false), 150);
               }}
               onKeyPress={(e) => onKeyPress(e.nativeEvent.key)}
-              placeholder="Sök filmer och serier"
+              placeholder="Search movies and TV shows"
               placeholderTextColor={colors.textMuted}
               style={[styles.input, noFocusOutline]}
               returnKeyType="search"
@@ -151,7 +151,7 @@ export function TopNav() {
                   onChange("");
                   inputRef.current?.focus();
                 }}
-                accessibilityLabel="Rensa sökningen"
+                accessibilityLabel="Clear search"
                 hitSlop={8}
               >
                 <Ionicons name="close-circle" size={18} color={colors.textMuted} />
@@ -172,7 +172,7 @@ export function TopNav() {
               ))}
 
               {!search.isPending && results.length === 0 && (
-                <Text style={styles.empty}>Inga träffar för "{debounced}"</Text>
+                <Text style={styles.empty}>No results for "{debounced}"</Text>
               )}
 
               {results.length > 0 && (
@@ -181,7 +181,7 @@ export function TopNav() {
                   style={[styles.showAll, active === results.length && styles.showAllActive]}
                   accessibilityRole="link"
                 >
-                  <Text style={styles.showAllText}>Visa alla resultat för "{debounced}"</Text>
+                  <Text style={styles.showAllText}>Show all results for "{debounced}"</Text>
                   <Ionicons name="arrow-forward" size={16} color={colors.accent} />
                 </Pressable>
               )}
@@ -195,7 +195,7 @@ export function TopNav() {
   );
 }
 
-/** "Logga in" för utloggade, en rund bokstavsikon för inloggade. Leder till kontosidan. */
+/** "Sign in" when signed out, a round initial badge when signed in. Leads to the account page. */
 function AccountButton({ active }: { active: boolean }) {
   const { user, loading } = useAuth();
   if (loading) return <View style={styles.avatar} />;
@@ -203,14 +203,14 @@ function AccountButton({ active }: { active: boolean }) {
   if (!user) {
     return (
       <Link href="/account" style={[styles.signIn, active && styles.signInActive]}>
-        Logga in
+        Sign in
       </Link>
     );
   }
 
   const initial = (user.email ?? "?").charAt(0).toUpperCase();
   return (
-    <Link href="/account" accessibilityLabel="Mitt konto">
+    <Link href="/account" accessibilityLabel="My account">
       <View style={[styles.avatar, styles.avatarSignedIn, active && styles.avatarActive]}>
         <Text style={styles.avatarText}>{initial}</Text>
       </View>
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     alignItems: "center",
-    // Rullgardinen ska ligga ovanpå sidans innehåll.
+    // The dropdown must sit on top of the page content.
     zIndex: 10,
   },
   inner: {

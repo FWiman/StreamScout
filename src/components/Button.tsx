@@ -9,10 +9,10 @@ interface Props {
   icon?: ComponentProps<typeof Ionicons>["name"];
   variant?: "primary" | "secondary" | "outline";
   size?: "md" | "lg";
-  /** Visar en snurra och går inte att trycka på. */
+  /** Shows a spinner and can't be pressed. */
   loading?: boolean;
   disabled?: boolean;
-  /** Fyll hela bredden (t.ex. i formulär). */
+  /** Fill the full width (e.g. in forms). */
   block?: boolean;
 }
 

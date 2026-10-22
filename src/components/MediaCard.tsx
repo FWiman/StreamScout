@@ -9,18 +9,18 @@ import { colors, spacing } from "@/theme";
 interface Props {
   item: MediaItem;
   width?: number;
-  /** Visa "Film"/"Serie" under titeln – användbart när listan blandar båda. */
+  /** Show "Movie"/"TV Show" under the title – useful when the list mixes both. */
   showType?: boolean;
 }
 
-/** Affisch med titel och betyg. Trycker man öppnas detaljsidan. */
+/** Poster with title and rating. Tapping opens the title page. */
 export function MediaCard({ item, width = 130, showType = false }: Props) {
   const poster = imageUrl(item.posterPath, width > 160 ? "w500" : "w342");
-  const subtitle = [item.year, showType ? (item.type === "movie" ? "Film" : "Serie") : null]
+  const subtitle = [item.year, showType ? (item.type === "movie" ? "Movie" : "TV Show") : null]
     .filter(Boolean)
     .join(" · ");
 
-  // Zoomar affischen lite när muspekaren är över kortet (bara på dator).
+  // Zooms the poster slightly when the mouse is over the card (desktop only).
   const scale = useRef(new Animated.Value(1)).current;
   const zoom = (to: number) =>
     Animated.timing(scale, {
@@ -29,8 +29,8 @@ export function MediaCard({ item, width = 130, showType = false }: Props) {
       useNativeDriver: Platform.OS !== "web",
     }).start();
 
-  // Bredden sätts på en yttre View: på webben följer inte en style-funktion med
-  // genom <Link asChild>, och då blir korten olika breda.
+  // The width is set on an outer View: on the web a style function isn't passed
+  // through <Link asChild>, which would make cards different widths.
   return (
     <View style={{ width }}>
       <Link href={`/title/${item.type}/${item.id}`} asChild>

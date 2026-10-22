@@ -32,16 +32,16 @@ export default function AboutScreen() {
   const gutter = useGutter();
   return (
     <Screen>
-      <Stack.Screen options={{ title: "Om StreamWatch" }} />
+      <Stack.Screen options={{ title: "About StreamWatch" }} />
 
       <View style={[styles.page, { marginHorizontal: gutter }]}>
         <Logo size={28} />
         <Text style={styles.lead}>
-          StreamWatch hjälper dig att hitta filmer och serier och se var de går att streama, hyra eller köpa i
-          Sverige – på webben och i mobilen.
+          StreamWatch helps you find movies and TV shows and see where you can stream, rent or buy them in
+          Sweden – on the web and on your phone.
         </Text>
 
-        <Section title="Källor">
+        <Section title="Sources">
           <Pressable
             onPress={() => WebBrowser.openBrowserAsync("https://www.themoviedb.org")}
             accessibilityRole="link"
@@ -50,30 +50,33 @@ export default function AboutScreen() {
             <Image source={tmdbLogo} style={styles.tmdbLogo} contentFit="contain" />
           </Pressable>
           <Text style={styles.text}>
-            Titlar, beskrivningar, bilder, betyg och trailers kommer från{" "}
+            Titles, descriptions, images, ratings and trailers come from{" "}
             <ExternalLink url="https://www.themoviedb.org">The Movie Database (TMDB)</ExternalLink>.
           </Text>
           <Text style={[styles.text, styles.notice]}>{TMDB_NOTICE}</Text>
           <Text style={styles.text}>
-            Information om vilka tjänster en titel finns på kommer från{" "}
-            <ExternalLink url="https://www.justwatch.com/se">JustWatch</ExternalLink> via TMDB. Utbudet ändras ofta,
-            så kontrollera alltid hos tjänsten.
+            Information about which services carry a title comes from{" "}
+            <ExternalLink url="https://www.justwatch.com/se">JustWatch</ExternalLink> via TMDB. Catalogs change often,
+            so always check with the service.
           </Text>
         </Section>
 
-        <Section title="Integritet">
+        <Section title="Privacy">
           <Text style={styles.text}>
-            StreamWatch har inga konton och samlar inte in några personuppgifter. Dina sökningar skickas till TMDB för
-            att hämta resultat. Trailers öppnas hos YouTube, som har egna villkor.
+            You can browse StreamWatch without an account. If you create one, we store your email address and the
+            titles in My List – nothing else – with{" "}
+            <ExternalLink url="https://supabase.com">Supabase</ExternalLink> in the EU (Stockholm). Your searches are
+            sent to TMDB to fetch results. Trailers open on YouTube, which has its own terms.
           </Text>
         </Section>
 
-        <Section title="Öppen källkod">
+        <Section title="Open source">
           <Text style={styles.text}>
-            Appen är byggd med <ExternalLink url="https://expo.dev">Expo</ExternalLink>,{" "}
-            <ExternalLink url="https://reactnative.dev">React Native</ExternalLink> och{" "}
-            <ExternalLink url="https://tanstack.com/query">TanStack Query</ExternalLink>, som alla är licensierade
-            under MIT-licensen. Ikoner från <ExternalLink url="https://ionic.io/ionicons">Ionicons</ExternalLink> (MIT).
+            The app is built with <ExternalLink url="https://expo.dev">Expo</ExternalLink>,{" "}
+            <ExternalLink url="https://reactnative.dev">React Native</ExternalLink>,{" "}
+            <ExternalLink url="https://tanstack.com/query">TanStack Query</ExternalLink> and{" "}
+            <ExternalLink url="https://github.com/supabase/supabase-js">supabase-js</ExternalLink>, all licensed under
+            the MIT license. Icons from <ExternalLink url="https://ionic.io/ionicons">Ionicons</ExternalLink> (MIT).
           </Text>
         </Section>
       </View>

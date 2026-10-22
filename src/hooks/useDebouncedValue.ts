@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-/** Returnerar värdet först när det har stått still i `delay` millisekunder. */
+/** Returns the value only once it has stopped changing for `delay` milliseconds. */
 export function useDebouncedValue<T>(value: T, delay = 350): T {
   const [debounced, setDebounced] = useState(value);
 

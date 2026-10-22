@@ -9,18 +9,18 @@ import { Button } from "./Button";
 type Mode = "signIn" | "signUp" | "reset";
 
 const TITLES: Record<Mode, string> = {
-  signIn: "Logga in",
-  signUp: "Skapa konto",
-  reset: "Glömt lösenordet?",
+  signIn: "Sign in",
+  signUp: "Create account",
+  reset: "Forgot your password?",
 };
 
 const SUBTITLES: Record<Mode, string> = {
-  signIn: "Välkommen tillbaka! Logga in för att se din lista.",
-  signUp: "Med ett konto kan du spara filmer och serier i din lista och se den på alla dina enheter.",
-  reset: "Skriv in din e-postadress så skickar vi en länk där du kan välja ett nytt lösenord.",
+  signIn: "Welcome back! Sign in to see your list.",
+  signUp: "With an account you can save movies and shows to your list and see it on all your devices.",
+  reset: "Enter your email address and we'll send you a link to choose a new password.",
 };
 
-/** Inloggning, registrering och "glömt lösenord". */
+/** Sign in, sign up and "forgot password". */
 export function AuthForm() {
   const { signIn, signUp, signInWithGoogle, signInWithApple, resetPassword } = useAuth();
   const [mode, setMode] = useState<Mode>("signIn");
@@ -51,12 +51,12 @@ export function AuthForm() {
       if (isReset) {
         await resetPassword(email);
         setNotice(
-          `Om det finns ett konto för ${email.trim()} har vi skickat en länk dit. Öppna den på den här enheten för att välja ett nytt lösenord.`
+          `If there's an account for ${email.trim()}, we've sent a link there. Open it on this device to choose a new password.`
         );
       } else if (isSignUp) {
         const needsConfirmation = await signUp(email, password);
         if (needsConfirmation) {
-          setNotice(`Nästan klart! Vi har skickat en bekräftelselänk till ${email.trim()}. Öppna den för att aktivera kontot.`);
+          setNotice(`Almost done! We've sent a confirmation link to ${email.trim()}. Open it to activate your account.`);
           setPassword("");
         }
       } else {
@@ -75,7 +75,7 @@ export function AuthForm() {
     try {
       await (provider === "google" ? signInWithGoogle() : signInWithApple());
     } catch (e) {
-      // Avbröt man själv visas inget fel.
+      // If the user cancelled, show no error.
       if (!(e instanceof SignInCancelled)) setError(authErrorMessage(e));
     } finally {
       setBusy(null);
@@ -93,7 +93,7 @@ export function AuthForm() {
         <>
           {APPLE_ENABLED &&
             (Platform.OS === "ios" ? (
-              // Apple kräver sin egen knapp i iOS-appar.
+              // Apple requires its own button in iOS apps.
               <AppleAuthentication.AppleAuthenticationButton
                 buttonType={
                   isSignUp
@@ -107,7 +107,7 @@ export function AuthForm() {
               />
             ) : (
               <Button
-                label="Fortsätt med Apple"
+                label="Continue with Apple"
                 icon="logo-apple"
                 variant="outline"
                 block
@@ -118,7 +118,7 @@ export function AuthForm() {
             ))}
           {GOOGLE_ENABLED && (
             <Button
-              label="Fortsätt med Google"
+              label="Continue with Google"
               icon="logo-google"
               variant="outline"
               block
@@ -129,7 +129,7 @@ export function AuthForm() {
           )}
           <View style={styles.divider}>
             <View style={styles.line} />
-            <Text style={styles.dividerText}>eller med e-post</Text>
+            <Text style={styles.dividerText}>or with email</Text>
             <View style={styles.line} />
           </View>
         </>
@@ -139,7 +139,7 @@ export function AuthForm() {
         icon="mail-outline"
         value={email}
         onChangeText={setEmail}
-        placeholder="E-postadress"
+        placeholder="Email address"
         keyboardType="email-address"
         autoComplete="email"
         textContentType="emailAddress"
@@ -150,7 +150,7 @@ export function AuthForm() {
           icon="lock-closed-outline"
           value={password}
           onChangeText={setPassword}
-          placeholder={isSignUp ? "Lösenord (minst 6 tecken)" : "Lösenord"}
+          placeholder={isSignUp ? "Password (at least 6 characters)" : "Password"}
           secureTextEntry
           autoComplete={isSignUp ? "new-password" : "current-password"}
           textContentType={isSignUp ? "newPassword" : "password"}
@@ -160,7 +160,7 @@ export function AuthForm() {
 
       {mode === "signIn" && (
         <Pressable onPress={() => switchMode("reset")} accessibilityRole="button" hitSlop={8} style={styles.forgot}>
-          <Text style={styles.forgotText}>Glömt lösenordet?</Text>
+          <Text style={styles.forgotText}>Forgot password?</Text>
         </Pressable>
       )}
 
@@ -168,7 +168,7 @@ export function AuthForm() {
       {notice && <FormMessage kind="notice" text={notice} />}
 
       <Button
-        label={isReset ? "Skicka länk" : TITLES[mode]}
+        label={isReset ? "Send link" : TITLES[mode]}
         block
         loading={busy === "email"}
         disabled={!canSubmit || busy !== null}
@@ -178,14 +178,14 @@ export function AuthForm() {
       {isReset ? (
         <Pressable onPress={() => switchMode("signIn")} accessibilityRole="button" hitSlop={8}>
           <Text style={styles.switch}>
-            <Text style={styles.switchLink}>← Tillbaka till inloggningen</Text>
+            <Text style={styles.switchLink}>← Back to sign in</Text>
           </Text>
         </Pressable>
       ) : (
         <Pressable onPress={() => switchMode(isSignUp ? "signIn" : "signUp")} accessibilityRole="button" hitSlop={8}>
           <Text style={styles.switch}>
-            {isSignUp ? "Har du redan ett konto? " : "Inget konto? "}
-            <Text style={styles.switchLink}>{isSignUp ? "Logga in" : "Skapa ett gratis"}</Text>
+            {isSignUp ? "Already have an account? " : "No account? "}
+            <Text style={styles.switchLink}>{isSignUp ? "Sign in" : "Create one for free"}</Text>
           </Text>
         </Pressable>
       )}
@@ -193,7 +193,7 @@ export function AuthForm() {
   );
 }
 
-/** Fel- eller bekräftelseruta i formulär. */
+/** Error or confirmation box in forms. */
 export function FormMessage({ kind, text }: { kind: "error" | "notice"; text: string }) {
   const isError = kind === "error";
   return (
@@ -212,7 +212,7 @@ type FieldProps = ComponentProps<typeof TextInput> & {
   icon: ComponentProps<typeof Ionicons>["name"];
 };
 
-/** Textfält med ikon och fokusram – används i alla kontoformulär. */
+/** Text field with icon and focus border – used in all account forms. */
 export function Field({ icon, style, ...props }: FieldProps) {
   const [focused, setFocused] = useState(false);
   return (

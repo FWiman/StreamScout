@@ -26,9 +26,9 @@ export default function TitleScreen() {
   const id = Number(params.id);
 
   if (!isMediaType(params.type) || !Number.isFinite(id)) {
-    return <Message text="Ogiltig länk." />;
+    return <Message text="Invalid link." />;
   }
-  // `key` gör att sidan börjar om från toppen när man går vidare till en rekommendation.
+  // `key` makes the page start over from the top when you move on to a recommendation.
   return <TitleDetails key={`${params.type}-${id}`} type={params.type} id={id} />;
 }
 
@@ -47,7 +47,7 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const gutter = useGutter();
 
   if (details.isPending) return <Message loading />;
-  if (details.isError) return <Message text="Kunde inte hämta titeln." />;
+  if (details.isError) return <Message text="Couldn't load this title." />;
 
   const item = details.data;
   const backdrop = imageUrl(item.backdropPath, "w1280");
@@ -57,31 +57,31 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const hasProviders = p && (p.stream.length > 0 || p.rent.length > 0 || p.buy.length > 0);
   const firstStream = p?.stream[0];
   const streamUrl = firstStream ? providerUrl(firstStream.name, item.title, p?.link ?? null) : null;
-  // Tredje kolumn bara när det finns plats för affisch, text och panel bredvid varandra.
+  // Third column only when there's room for poster, text and panel side by side.
   const showAside = isWide && width >= 1200;
 
   const providersCard = (
     <View style={[styles.providers, showAside && styles.providersAside]}>
-      <Text style={styles.sectionTitle}>Var kan jag se den?</Text>
+      <Text style={styles.sectionTitle}>Where to watch</Text>
       {providers.isPending ? (
         <ActivityIndicator color={colors.textMuted} style={styles.alignStart} />
       ) : p && hasProviders ? (
         <>
-          <Text style={styles.hint}>Tryck på en tjänst för att öppna den.</Text>
+          <Text style={styles.hint}>Tap a service to open it.</Text>
           <View style={[styles.providerGroups, showAside && styles.providerGroupsAside]}>
-            <ProviderLogos label="Streama" providers={p.stream} title={item.title} fallbackUrl={p.link} />
-            <ProviderLogos label="Hyr" providers={p.rent} title={item.title} fallbackUrl={p.link} />
-            <ProviderLogos label="Köp" providers={p.buy} title={item.title} fallbackUrl={p.link} />
+            <ProviderLogos label="Stream" providers={p.stream} title={item.title} fallbackUrl={p.link} />
+            <ProviderLogos label="Rent" providers={p.rent} title={item.title} fallbackUrl={p.link} />
+            <ProviderLogos label="Buy" providers={p.buy} title={item.title} fallbackUrl={p.link} />
           </View>
           {p.link && (
             <Text style={styles.allOffers} onPress={() => Linking.openURL(p.link!)} accessibilityRole="link">
-              Se alla erbjudanden och priser →
+              See all offers and prices →
             </Text>
           )}
-          <Text style={styles.attribution}>Tjänsteinformation från JustWatch via TMDB.</Text>
+          <Text style={styles.attribution}>Streaming availability by JustWatch via TMDB.</Text>
         </>
       ) : (
-        <Text style={styles.muted}>Finns inte på någon svensk tjänst just nu.</Text>
+        <Text style={styles.muted}>Not available on any Swedish service right now.</Text>
       )}
     </View>
   );
@@ -94,12 +94,12 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
     >
       <Stack.Screen options={{ title: item.title }} />
 
-      {/* Bakgrundsbild i full bredd som tonar ut mot sidan */}
+      {/* Full-width backdrop that fades into the page */}
       <View style={[styles.backdrop, { height: backdropHeight }]}>
         {backdrop && (
           <Image
             source={backdrop}
-            // En liten version laddar direkt och byts mot den skarpa när den är klar.
+            // A small version loads instantly and is swapped for the sharp one when ready.
             placeholder={imageUrl(item.backdropPath, "w300")}
             placeholderContentFit="cover"
             style={StyleSheet.absoluteFill}
@@ -131,7 +131,7 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
           <Text style={[styles.title, isWide && styles.titleWide]}>{item.title}</Text>
           {item.tagline && <Text style={styles.tagline}>{item.tagline}</Text>}
           <MetaLine
-            parts={[item.type === "movie" ? "Film" : "Serie", item.year, item.runtime ? formatRuntime(item.runtime) : null]}
+            parts={[item.type === "movie" ? "Movie" : "TV Show", item.year, item.runtime ? formatRuntime(item.runtime) : null]}
             rating={item.voteAverage}
             size={isWide ? 16 : 15}
           />
@@ -147,10 +147,10 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
           )}
 
           <View style={styles.buttons}>
-            {/* Huvudknapp: titta direkt hos första tjänsten som har titeln i abonnemanget */}
+            {/* Primary button: watch directly on the first service that includes the title */}
             {firstStream && streamUrl && (
               <Button
-                label={`Se på ${firstStream.name}`}
+                label={`Watch on ${firstStream.name}`}
                 icon="play"
                 size={isWide ? "lg" : "md"}
                 onPress={() => Linking.openURL(streamUrl)}
@@ -168,22 +168,22 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
             <WatchlistButton item={item} size={isWide ? "lg" : "md"} />
           </View>
 
-          {/* Mobil och mellanstora skärmar: tjänsterna före beskrivningen, eftersom det är det viktigaste */}
+          {/* Phones and medium screens: services before the overview, since that's what matters most */}
           {!showAside && providersCard}
 
           {item.overview ? (
             <Text style={[styles.overview, isWide && styles.overviewWide]}>{item.overview}</Text>
           ) : (
-            <Text style={styles.muted}>Ingen beskrivning finns.</Text>
+            <Text style={styles.muted}>No description available.</Text>
           )}
         </View>
 
-        {/* Stora skärmar: tjänsterna i en egen kolumn till höger, synlig utan att scrolla */}
+        {/* Large screens: services in their own column on the right, visible without scrolling */}
         {showAside && <View style={styles.aside}>{providersCard}</View>}
       </View>
 
       <View style={styles.more}>
-        <MediaRow title="Mer som detta" kind="recommendations" type={type} id={id} />
+        <MediaRow title="More like this" kind="recommendations" type={type} id={id} />
       </View>
       <Footer />
     </ScrollView>

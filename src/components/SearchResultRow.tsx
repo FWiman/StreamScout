@@ -10,18 +10,18 @@ import { MetaLine } from "./MetaLine";
 interface Props {
   item: MediaItem;
   onPress: () => void;
-  /** Markerad med piltangenterna. */
+  /** Highlighted with the arrow keys. */
   active?: boolean;
-  /** Mindre variant för rullgardinen i toppmenyn. */
+  /** Smaller variant for the dropdown in the top nav. */
   compact?: boolean;
 }
 
-/** Fakta som visas under titeln i sökresultat (betyget läggs till av MetaLine). */
+/** Facts shown under the title in search results (MetaLine adds the rating). */
 export function mediaParts(item: MediaItem) {
-  return [item.type === "movie" ? "Film" : "Serie", item.year];
+  return [item.type === "movie" ? "Movie" : "TV Show", item.year];
 }
 
-/** En sökträff som rad: liten affisch, titel och fakta. */
+/** A search hit as a row: small poster, title and facts. */
 export function SearchResultRow({ item, onPress, active = false, compact = false }: Props) {
   const [hovered, setHovered] = useState(false);
   const poster = imageUrl(item.posterPath, "w185");

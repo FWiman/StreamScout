@@ -5,11 +5,11 @@ import { Footer } from "./Footer";
 
 interface Props {
   children: ReactNode;
-  /** Visas i full bredd överst, ovanför det centrerade innehållet. */
+  /** Shown full width at the top, above the page content. */
   hero?: ReactNode;
 }
 
-/** Gemensam scrollbar sidbakgrund som centrerar innehållet på breda skärmar, med sidfot. */
+/** Shared scrollable page background with the footer at the bottom. */
 export function Screen({ children, hero }: Props) {
   return (
     <ScrollView
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   padTop: {
     paddingTop: spacing.md,
   },
-  // Full bredd: rader går kant i kant och linjerar själva med useGutter().
+  // Full width: rows run edge to edge and align themselves with useGutter().
   inner: {
     width: "100%",
     gap: spacing.xl,

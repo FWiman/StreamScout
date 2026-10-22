@@ -6,8 +6,8 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 import { Button } from "./Button";
 
 /**
- * "+ Min lista" / "I min lista". Utloggad skickas man till inloggningen.
- * Visas inte alls om konton inte är uppsatta.
+ * "+ My List" / "✓ In My List". Signed-out users are sent to sign in.
+ * Not shown at all if accounts aren't set up.
  */
 export function WatchlistButton({ item, size = "md" }: { item: MediaItem; size?: "md" | "lg" }) {
   const { user } = useAuth();
@@ -18,7 +18,7 @@ export function WatchlistButton({ item, size = "md" }: { item: MediaItem; size?:
 
   return (
     <Button
-      label={inList ? "I min lista" : "Min lista"}
+      label={inList ? "In My List" : "My List"}
       icon={inList ? "checkmark" : "add"}
       variant="secondary"
       size={size}

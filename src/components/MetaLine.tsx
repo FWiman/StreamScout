@@ -3,14 +3,14 @@ import { StyleSheet, Text } from "react-native";
 import { colors } from "@/theme";
 
 interface Props {
-  /** Fakta i ordning, t.ex. ["Film", "2024", "2 h 46 min"]. Tomma värden hoppas över. */
+  /** Facts in order, e.g. ["Movie", "2024", "2 h 46 min"]. Empty values are skipped. */
   parts: (string | null | undefined | false)[];
-  /** Betyg 0–10. Visas gult, som på korten. 0 betyder inget betyg. */
+  /** Rating 0–10. Shown in yellow, like on the cards. 0 means no rating. */
   rating?: number;
   size?: number;
 }
 
-/** En rad med fakta åtskilda av punkter, med betyget i samma gula färg som på korten. */
+/** A line of facts separated by dots, with the rating in the same yellow as on the cards. */
 export function MetaLine({ parts, rating = 0, size = 15 }: Props) {
   const items = parts.filter((p): p is string => Boolean(p));
   const hasRating = rating > 0;

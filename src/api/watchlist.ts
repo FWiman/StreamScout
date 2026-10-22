@@ -4,8 +4,8 @@ import { supabase } from "@/lib/supabase";
 import type { MediaItem, MediaType } from "./types";
 
 /**
- * Min lista – sparas i Supabase-tabellen `watchlist` (se Supabase-projektet).
- * Row Level Security i databasen ser till att varje användare bara når sina egna rader.
+ * My List – stored in the Supabase table `watchlist` (see the Supabase project).
+ * Row Level Security in the database ensures each user can only reach their own rows.
  */
 
 interface WatchlistRow {
@@ -65,7 +65,7 @@ const key = (userId: string | undefined) => ["watchlist", userId] as const;
 const sameItem = (a: { type: MediaType; id: number }, b: { type: MediaType; id: number }) =>
   a.type === b.type && a.id === b.id;
 
-/** Den inloggade användarens lista, nyast först. Tom lista när man är utloggad. */
+/** The signed-in user's list, newest first. Empty when signed out. */
 export function useWatchlist() {
   const { user } = useAuth();
   return useQuery({
@@ -76,7 +76,7 @@ export function useWatchlist() {
   });
 }
 
-/** Lägg till / ta bort en titel. Listan uppdateras direkt på skärmen och rättas om servern säger nej. */
+/** Add / remove a title. The list updates on screen immediately and is rolled back if the server refuses. */
 export function useToggleWatchlist() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -102,7 +102,7 @@ export function useToggleWatchlist() {
   });
 }
 
-/** Om en viss titel finns i listan. */
+/** Whether a given title is in the list. */
 export function useIsInWatchlist(type: MediaType, id: number | undefined) {
   const { data } = useWatchlist();
   return id !== undefined && Boolean(data?.some((i) => i.type === type && i.id === id));

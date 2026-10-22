@@ -8,7 +8,7 @@ import { colors, spacing } from "@/theme";
 import { Button } from "./Button";
 import { MediaCard } from "./MediaCard";
 
-/** Rutnät med användarens sparade titlar. Krysset i hörnet tar bort en titel. */
+/** Grid of the user's saved titles. The × in the corner removes a title. */
 export function WatchlistGrid() {
   const { data, isPending, isError, refetch } = useWatchlist();
   const toggle = useToggleWatchlist();
@@ -26,8 +26,8 @@ export function WatchlistGrid() {
   if (isError) {
     return (
       <View style={[styles.empty, { marginHorizontal: gutter }]}>
-        <Text style={styles.emptyText}>Kunde inte hämta din lista.</Text>
-        <Button label="Försök igen" variant="outline" onPress={() => refetch()} />
+        <Text style={styles.emptyText}>Couldn't load your list.</Text>
+        <Button label="Try again" variant="outline" onPress={() => refetch()} />
       </View>
     );
   }
@@ -36,11 +36,11 @@ export function WatchlistGrid() {
     return (
       <View style={[styles.empty, { marginHorizontal: gutter }]}>
         <Ionicons name="bookmark-outline" size={32} color={colors.textMuted} />
-        <Text style={styles.emptyTitle}>Din lista är tom</Text>
+        <Text style={styles.emptyTitle}>Your list is empty</Text>
         <Text style={styles.emptyText}>
-          Tryck på "Min lista" på en film eller serie för att spara den här. Listan finns sedan på alla dina enheter.
+          Tap "My List" on a movie or TV show to save it here. Your list is then available on all your devices.
         </Text>
-        <Button label="Hitta något att se" icon="compass-outline" onPress={() => router.push("/")} />
+        <Button label="Find something to watch" icon="compass-outline" onPress={() => router.push("/")} />
       </View>
     );
   }
@@ -53,7 +53,7 @@ export function WatchlistGrid() {
           <Pressable
             onPress={() => toggle.mutate({ item, add: false })}
             accessibilityRole="button"
-            accessibilityLabel={`Ta bort ${item.title} från listan`}
+            accessibilityLabel={`Remove ${item.title} from your list`}
             hitSlop={6}
             style={({ pressed }) => [styles.remove, pressed && styles.removePressed]}
           >

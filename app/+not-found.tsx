@@ -5,10 +5,10 @@ import { colors, spacing } from "@/theme";
 export default function NotFoundScreen() {
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: "Hittades inte" }} />
-      <Text style={styles.text}>Sidan finns inte.</Text>
+      <Stack.Screen options={{ title: "Not found" }} />
+      <Text style={styles.text}>This page doesn't exist.</Text>
       <Link href="/" style={styles.link}>
-        Till startsidan
+        Go to home page
       </Link>
     </View>
   );
