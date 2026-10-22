@@ -23,21 +23,21 @@ interface Props {
   title: string;
   kind: ListKind;
   type: MediaType;
-  /** Krävs för `recommendations`. */
+  /** Required for `recommendations`. */
   id?: number;
 }
 
 const CARD_WIDTH = 130;
 const CARD_WIDTH_WIDE = 170;
 const ARROW_SIZE = 44;
-/** Luft ovanför och under korten så att hover-zoomen inte klipps av. */
+/** Space above and below the cards so the hover zoom isn't clipped. */
 const ZOOM_ROOM = spacing.sm;
 
 /**
- * En horisontell rad med affischer som hämtar fler titlar när man närmar sig slutet.
- * Raden går kant i kant: rubriken och första kortet linjerar med sidans innehåll,
- * medan korten fortsätter ut till skärmkanten.
- * På bredare webbskärmar visas pilar, eftersom mushjulet bara scrollar i höjdled.
+ * A horizontal row of posters that loads more titles as you approach the end.
+ * The row runs edge to edge: the heading and first card align with the page content,
+ * while the cards continue to the screen edge.
+ * Wider web screens get arrows, since the mouse wheel only scrolls vertically.
  */
 export function MediaRow({ title, kind, type, id }: Props) {
   const { items, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
@@ -64,7 +64,7 @@ export function MediaRow({ title, kind, type, id }: Props) {
   const scrollBy = (direction: 1 | -1) => {
     const next = Math.max(0, offset + direction * viewWidth * 0.8);
     listRef.current?.scrollToOffset({ offset: next, animated: true });
-    // Om pilen tar oss nära slutet, hämta nästa sida direkt.
+    // If the arrow takes us near the end, fetch the next page right away.
     if (direction === 1 && next + viewWidth * 2 > contentWidth) loadMore();
   };
 
@@ -72,7 +72,7 @@ export function MediaRow({ title, kind, type, id }: Props) {
     if (showArrows) setOffset(e.nativeEvent.contentOffset.x);
   };
 
-  // En tom lista (t.ex. inga rekommendationer) visas inte alls.
+  // An empty list (e.g. no recommendations) isn't shown at all.
   if (!isPending && !isError && items.length === 0) return null;
 
   return (
@@ -81,7 +81,7 @@ export function MediaRow({ title, kind, type, id }: Props) {
       {isPending ? (
         <ActivityIndicator color={colors.textMuted} style={[styles.status, { paddingHorizontal: gutter }]} />
       ) : isError ? (
-        <Text style={[styles.status, styles.error, { paddingHorizontal: gutter }]}>Kunde inte hämta listan.</Text>
+        <Text style={[styles.status, styles.error, { paddingHorizontal: gutter }]}>Couldn't load this list.</Text>
       ) : (
         <View onLayout={(e) => setViewWidth(e.nativeEvent.layout.width)}>
           <FlatList
@@ -120,7 +120,7 @@ export function MediaRow({ title, kind, type, id }: Props) {
 
 interface ArrowProps {
   direction: "back" | "forward";
-  /** Pilens mittpunkt i höjdled, i linje med affischernas mitt. */
+  /** The arrow's vertical center, aligned with the middle of the posters. */
   top: number;
   onPress: () => void;
 }
@@ -131,7 +131,7 @@ function Arrow({ direction, top, onPress }: ArrowProps) {
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={isBack ? "Scrolla bakåt" : "Scrolla framåt"}
+      accessibilityLabel={isBack ? "Scroll back" : "Scroll forward"}
       style={[styles.arrow, { top: top - ARROW_SIZE / 2 }, isBack ? styles.arrowBack : styles.arrowForward]}
     >
       <Ionicons name={isBack ? "chevron-back" : "chevron-forward"} size={22} color={colors.text} />

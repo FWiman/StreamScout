@@ -1,34 +1,36 @@
-# StreamWatch – projektkontext för Claude
+# StreamWatch – project context for Claude
 
-## Om projektet
-App för att hitta filmer/serier och se var de streamas i Sverige. En Expo-kodbas (SDK 57 – samma version som Expo Go i App Store; uppgradera när Expo Go stöder nyare) som byggs till webb, iOS och Android. Ägaren utvecklar på Windows och kommunicerar på svenska.
+## About the project
+App for finding movies/TV shows and seeing where they stream in Sweden. One Expo codebase (SDK 57 – the same version Expo Go in the App Store supports; upgrade once Expo Go supports newer) that builds for web, iOS and Android. The owner develops on Windows.
+
+**Language:** the whole project – UI text, code, comments, commit messages and docs – is in English. The owner writes in Swedish in chat, so reply to them in Swedish.
 
 ## Stack
-- Expo SDK 57, Expo Router (filbaserad routing i `app/`), TypeScript strict
-- `@tanstack/react-query` för datahämtning och cache
-- `expo-image` för bilder, `@expo/vector-icons` (Ionicons) för ikoner
-- TMDB API v3, språk `sv-SE`, region `SE`
-- Supabase för konton (e-post/lösenord + Google): klient i `src/lib/supabase.ts`, `useAuth()` från `src/auth/AuthProvider.tsx`. Sessionslagring: webbläsarens localStorage på webben, expo-sqlite localStorage på mobil (`sessionStorage.native.ts`)
-- Supabase-projekt `streamwatch` (ref `zhodxslqoycsohosqlrg`, eu-north-1). Tabell `public.watchlist` med RLS (select/insert/delete för egna rader). Klientkod i `src/api/watchlist.ts` (`useWatchlist`, `useToggleWatchlist`, `useIsInWatchlist`). Schemaändringar görs som migrationer – kör alltid säkerhetsråden efteråt
-- Google-knappen visas bara när `EXPO_PUBLIC_AUTH_GOOGLE=true`
+- Expo SDK 57, Expo Router (file-based routing in `app/`), TypeScript strict
+- `@tanstack/react-query` for data fetching and caching
+- `expo-image` for images, `@expo/vector-icons` (Ionicons) for icons
+- TMDB API v3, language `en-US`, region `SE` (Swedish streaming services)
+- Supabase for accounts (email/password, Google, Apple): client in `src/lib/supabase.ts`, `useAuth()` from `src/auth/AuthProvider.tsx`. Session storage: the browser's localStorage on web, expo-sqlite localStorage on mobile (`sessionStorage.native.ts`)
+- Supabase project `streamwatch` (ref `zhodxslqoycsohosqlrg`, eu-north-1). Table `public.watchlist` with RLS (select/insert/delete on own rows). Client code in `src/api/watchlist.ts` (`useWatchlist`, `useToggleWatchlist`, `useIsInWatchlist`). Schema changes are done as migrations – always run the security advisors afterwards
+- Sign-in buttons are controlled by `.env`: `EXPO_PUBLIC_AUTH_GOOGLE`, `EXPO_PUBLIC_AUTH_APPLE` (iOS native via expo-apple-authentication + `signInWithIdToken`) and `EXPO_PUBLIC_AUTH_APPLE_WEB` (OAuth on web/Android, needs an Apple Developer account). Bundle ID / package: `com.fwiman.streamwatch`
 
-## Konventioner
-- All TMDB-kommunikation går via `src/api/tmdb.ts`; komponenter använder hooks i `src/api/queries.ts`
-- TMDB-svar normaliseras till `MediaItem`/`MediaDetails` (`src/api/types.ts`) – komponenter ska inte se råa TMDB-fält
-- Färger och avstånd från `src/theme.ts`, inga hårdkodade färger i komponenter
-- Importera från `src` med aliaset `@/`
-- Användartext på svenska; kod, variabelnamn och commit-meddelanden på engelska
-- Allt ska fungera på webb, iOS och Android – undvik webb- eller native-specifika API:er utan fallback
-- Dator och telefon har olika layout: `useIsWide()` (`src/hooks/useIsWide.ts`) styr toppmeny (`TopNav`) vs flikmeny, kortstorlekar och toppsektionens (`Hero`) utseende
-- Sidomarginal: använd `useGutter()` (4 % av bredden, 16–64 px) för vänster/höger padding – allt linjerar vid samma vänsterkant, inget centrerat maxbredd-innehåll. Rader med affischer går kant i kant
-- React Native (0.86+) har strikta typer: skriv refs som `useRef<ComponentRef<typeof TextInput>>(null)` (inte `useRef<TextInput>`), och `ListFooterComponent` m.fl. tar `undefined`, inte `null`
-- Installera paket med `npx expo install <paket>` (inte `npm install`) så versionerna passar SDK:n. Byt inte SDK-version utan att kolla vilken Expo Go i App Store stöder
+## Conventions
+- All TMDB communication goes through `src/api/tmdb.ts`; components use the hooks in `src/api/queries.ts`
+- TMDB responses are normalized to `MediaItem`/`MediaDetails` (`src/api/types.ts`) – components should never see raw TMDB fields
+- Colors and spacing come from `src/theme.ts`, no hard-coded colors in components
+- Import from `src` with the `@/` alias
+- Wording: "Movies", "TV Shows", "My List"; "Movie"/"TV Show" as type labels
+- Everything must work on web, iOS and Android – avoid web- or native-only APIs without a fallback
+- Desktop and phone have different layouts: `useIsWide()` (`src/hooks/useIsWide.ts`) controls top nav (`TopNav`) vs tab bar, card sizes and the hero's (`Hero`) look
+- Side margin: use `useGutter()` (4% of the width, 16–64 px) for left/right padding – everything aligns to the same left edge, no centered max-width content. Poster rows run edge to edge
+- React Native (0.86+) has strict types: write refs as `useRef<ComponentRef<typeof TextInput>>(null)` (not `useRef<TextInput>`), and `ListFooterComponent` etc. take `undefined`, not `null`
+- Install packages with `npx expo install <package>` (not `npm install`) so versions match the SDK. Don't change SDK version without checking which one Expo Go in the App Store supports
 
-## Kommandon
-- `npm run web` / `npm start` – utvecklingsserver
+## Commands
+- `npm run web` / `npm start` – dev server
 - `npm run typecheck` – TypeScript
 - `npm run lint` – ESLint
 
-## Hemligheter
-`.env` innehåller `EXPO_PUBLIC_TMDB_API_KEY`, `EXPO_PUBLIC_SUPABASE_URL` och `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` och är gitignorerad. `EXPO_PUBLIC_`-variabler hamnar i klientkoden; planen är att flytta TMDB-anrop till en backend.
-Supabase-nyckeln är publik med avsikt – all data måste skyddas med Row Level Security i databasen.
+## Secrets
+`.env` contains `EXPO_PUBLIC_TMDB_API_KEY`, `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and is gitignored. `EXPO_PUBLIC_` variables end up in the client code; the plan is to move TMDB requests to a backend.
+The Supabase key is publishable on purpose – all data must be protected with Row Level Security in the database.

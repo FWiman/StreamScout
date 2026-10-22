@@ -10,18 +10,18 @@ import { Logo } from "./Logo";
 const tmdbLogo = require("../../assets/tmdb-logo.svg");
 
 const LINKS = [
-  { href: "/", label: "Hem" },
-  { href: "/movies", label: "Filmer" },
-  { href: "/series", label: "Serier" },
-  { href: "/about", label: "Om StreamWatch" },
+  { href: "/", label: "Home" },
+  { href: "/movies", label: "Movies" },
+  { href: "/series", label: "TV Shows" },
+  { href: "/about", label: "About StreamWatch" },
 ] as const;
 
-/** Text som TMDB:s användarvillkor kräver, ordagrant på engelska. */
+/** Text required word for word by TMDB's terms of use. */
 export const TMDB_NOTICE = "This product uses the TMDB API but is not endorsed or certified by TMDB.";
 
 /**
- * Sidfot med länkar och de källhänvisningar som TMDB och JustWatch kräver.
- * TMDB-loggan måste vara mindre framträdande än vår egen logga.
+ * Footer with links and the attributions TMDB and JustWatch require.
+ * The TMDB logo must be less prominent than our own logo.
  */
 export function Footer() {
   const isWide = useIsWide();
@@ -33,7 +33,7 @@ export function Footer() {
       <View style={[styles.inner, isWide && styles.innerWide, { paddingHorizontal: gutter }]}>
         <View style={styles.brand}>
           <Logo size={18} />
-          <Text style={styles.tagline}>Hitta filmer och serier – och se var de streamas i Sverige.</Text>
+          <Text style={styles.tagline}>Find movies and TV shows – and see where to stream them in Sweden.</Text>
         </View>
 
         <View style={[styles.links, isWide && styles.linksWide]}>
@@ -53,7 +53,7 @@ export function Footer() {
             <Image source={tmdbLogo} style={styles.tmdbLogo} contentFit="contain" />
           </Pressable>
           <Text style={styles.small}>{TMDB_NOTICE}</Text>
-          <Text style={styles.small}>Streaminginformation från JustWatch.</Text>
+          <Text style={styles.small}>Streaming availability by JustWatch.</Text>
         </View>
       </View>
 

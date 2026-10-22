@@ -5,26 +5,26 @@ import { authStorage } from "./sessionStorage";
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-/** False tills Supabase-nycklarna finns i .env – då visar kontosidan en förklaring i stället. */
+/** False until the Supabase keys are in .env – the account page then shows an explanation instead. */
 export const isSupabaseConfigured = Boolean(url && key);
 
 /**
- * Supabase-klienten för inloggning och (snart) watchlist.
- * Den publika nyckeln får finnas i appen – vad användare får läsa och skriva styrs av
- * databasens säkerhetsregler (Row Level Security), inte av att nyckeln är hemlig.
+ * The Supabase client for sign-in and the watchlist.
+ * The publishable key may ship in the app – what users can read and write is controlled
+ * by the database's security rules (Row Level Security), not by keeping the key secret.
  */
 export const supabase = createClient(url ?? "https://not-configured.supabase.co", key ?? "not-configured", {
   auth: {
     storage: authStorage,
     autoRefreshToken: true,
     persistSession: true,
-    // Webben: plocka upp inloggningen från adressen efter Google eller e-postbekräftelse.
+    // Web: pick up the session from the URL after Google or email confirmation.
     detectSessionInUrl: Platform.OS === "web",
     flowType: "pkce",
   },
 });
 
-// Mobil: förnya inloggningen bara när appen är öppen (Expos rekommendation).
+// Mobile: only refresh the session while the app is in the foreground (Expo's recommendation).
 if (Platform.OS !== "web") {
   AppState.addEventListener("change", (state) => {
     if (state === "active") supabase.auth.startAutoRefresh();

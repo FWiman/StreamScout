@@ -1,20 +1,20 @@
 /**
- * Länkar till streamingtjänster.
+ * Links to streaming services.
  *
- * TMDB säger bara VILKA tjänster som har en titel, inte en direktlänk till den hos tjänsten
- * (de länkarna ägs av JustWatch och kräver ett partneravtal). Därför öppnar vi tjänstens
- * egen sökning med titeln ifylld – titeln hamnar då överst. På telefonen öppnas ofta
- * tjänstens app direkt, eftersom de flesta tjänster tar över sina egna webbadresser.
+ * TMDB only tells us WHICH services carry a title, not a deep link to it on the service
+ * (those links belong to JustWatch and require a partner agreement). So we open the service's
+ * own search with the title filled in – the title then shows up first. On phones this often
+ * opens the service's app directly, since most services claim their own web addresses.
  *
- * Tjänster som saknas här får i stället TMDB:s "var kan jag se"-sida, som har
- * direktlänkar till titeln hos alla tjänster.
+ * Services missing here get TMDB's "where to watch" page instead, which links
+ * straight to the title on every service.
  *
- * Lägg bara till sök-URL:er som du har testat – en felaktig adress hamnar på fel sida.
+ * Only add search URLs you have tested – a wrong address lands on the wrong page.
  */
 
 type SearchUrl = (query: string) => string;
 
-/** Nyckel = del av tjänstens namn hos TMDB (gemener), t.ex. "Amazon Prime Video". */
+/** Key = part of the service name at TMDB (lowercase), e.g. "Amazon Prime Video". */
 const SEARCH_URLS: [match: string, url: SearchUrl][] = [
   ["netflix", (q) => `https://www.netflix.com/search?q=${q}`],
   ["amazon", (q) => `https://www.primevideo.com/search/?phrase=${q}`],
@@ -27,21 +27,21 @@ const SEARCH_URLS: [match: string, url: SearchUrl][] = [
   ["sf anytime", (q) => `https://www.sfanytime.com/sv/search?query=${q}`],
   ["tele2", (q) => `https://www.tele2play.se/search?q=${q}`],
   ["crunchyroll", (q) => `https://www.crunchyroll.com/search?q=${q}`],
-  // TMDB har kallat tjänsten både "HBO Max" och "Max" – se även exakt namn nedan.
+  // TMDB has called the service both "HBO Max" and "Max" – see the exact name below too.
   ["hbo", (q) => `https://play.hbomax.com/search/result?q=${q}`],
   ["tv4 play", (q) => `https://www.tv4play.se/sok/${q}`],
 ];
 
-/** Tjänster vars namn är för kort för att matcha på en del av namnet. */
+/** Services whose name is too short to match on part of the name. */
 const EXACT_NAMES: Record<string, SearchUrl> = {
   max: (q) => `https://play.hbomax.com/search/result?q=${q}`,
 };
 
 /**
- * Var ett tryck på en tjänsts logga ska leda.
- * @param providerName tjänstens namn från TMDB
- * @param title titelns namn att söka efter
- * @param fallbackUrl TMDB:s sida med alla tjänster för titeln
+ * Where tapping a service's logo should lead.
+ * @param providerName the service name from TMDB
+ * @param title the title to search for
+ * @param fallbackUrl TMDB's page listing every service for the title
  */
 export function providerUrl(providerName: string, title: string, fallbackUrl: string | null) {
   const name = providerName.toLowerCase().trim();

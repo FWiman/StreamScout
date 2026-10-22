@@ -25,14 +25,14 @@ import { useIsWide } from "@/hooks/useIsWide";
 import { colors, noFocusOutline, spacing } from "@/theme";
 
 const FILTERS: { value: SearchFilter; label: string }[] = [
-  { value: "all", label: "Alla" },
-  { value: "movie", label: "Filmer" },
-  { value: "tv", label: "Serier" },
+  { value: "all", label: "All" },
+  { value: "movie", label: "Movies" },
+  { value: "tv", label: "TV Shows" },
 ];
 
 export default function SearchScreen() {
   const isWide = useIsWide();
-  // På datorn skrivs sökningen i toppmenyn och kommer hit som ?q=…
+  // On desktop the query is typed in the top nav and arrives here as ?q=…
   const { q } = useLocalSearchParams<{ q?: string }>();
   const [localQuery, setLocalQuery] = useState(q ?? "");
   const [focused, setFocused] = useState(false);
@@ -44,14 +44,14 @@ export default function SearchScreen() {
   const { items, isPending, isFetching, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useSearch(debouncedQuery, filter);
 
-  // Dator: rutnät med affischer. Telefon: lista med rader (lättare att skumma med tummen).
+  // Desktop: poster grid. Phone: list of rows (easier to skim with a thumb).
   const { width } = useWindowDimensions();
   const gutter = useGutter();
   const contentWidth = width - gutter * 2;
   const columns = isWide ? Math.max(3, Math.floor((contentWidth + spacing.md) / (160 + spacing.md))) : 1;
   const cardWidth = (contentWidth - spacing.md * (columns - 1)) / columns;
 
-  // Första träffen visas stort överst, resten under.
+  // The first hit is shown large at the top, the rest below.
   const [topResult, ...rest] = hasQuery ? items : [];
   const openTitle = (item: MediaItem) => router.push(`/title/${item.type}/${item.id}`);
 
@@ -59,7 +59,7 @@ export default function SearchScreen() {
     <View style={[styles.header, { paddingHorizontal: gutter }]}>
       {isWide ? (
         <Text style={styles.heading}>
-          {hasQuery ? `Sökresultat för "${debouncedQuery}"` : "Sök"}
+          {hasQuery ? `Results for "${debouncedQuery}"` : "Search"}
         </Text>
       ) : (
         <View style={[styles.inputWrap, focused && styles.inputWrapFocused]}>
@@ -69,14 +69,14 @@ export default function SearchScreen() {
             onChangeText={setLocalQuery}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            placeholder="Sök filmer och serier"
+            placeholder="Search movies and TV shows"
             placeholderTextColor={colors.textMuted}
             style={[styles.input, noFocusOutline]}
             autoCorrect={false}
             returnKeyType="search"
           />
           {localQuery.length > 0 && (
-            <Pressable onPress={() => setLocalQuery("")} accessibilityLabel="Rensa sökningen" hitSlop={8}>
+            <Pressable onPress={() => setLocalQuery("")} accessibilityLabel="Clear search" hitSlop={8}>
               <Ionicons name="close-circle" size={18} color={colors.textMuted} />
             </Pressable>
           )}
@@ -103,25 +103,25 @@ export default function SearchScreen() {
       )}
 
       {hasQuery && isPending && <ActivityIndicator color={colors.textMuted} style={styles.alignStart} />}
-      {isError && <Text style={styles.message}>Något gick fel. Försök igen.</Text>}
+      {isError && <Text style={styles.message}>Something went wrong. Please try again.</Text>}
       {hasQuery && !isFetching && !isError && items.length === 0 && (
-        <Text style={styles.message}>Inga träffar för "{debouncedQuery}". Prova ett annat stavsätt.</Text>
+        <Text style={styles.message}>No results for "{debouncedQuery}". Try a different spelling.</Text>
       )}
 
       {topResult && <TopResult item={topResult} wide={isWide} />}
-      {rest.length > 0 && <Text style={styles.subheading}>Fler resultat</Text>}
+      {rest.length > 0 && <Text style={styles.subheading}>More results</Text>}
     </View>
   );
 
-  // Innan man har sökt: visa något att bläddra i i stället för en tom sida.
-  // Allt ligger i samma FlatList, så sökfältet inte byts ut (och tappar fokus) när resultaten dyker upp.
+  // Before searching: show something to browse instead of an empty page.
+  // Everything lives in the same FlatList, so the search field isn't replaced (and doesn't lose focus) when results appear.
   const footer = !hasQuery ? (
     <View style={styles.browse}>
       <Text style={[styles.message, { paddingHorizontal: gutter }]}>
-        {isWide ? "Börja skriva i sökfältet högst upp." : "Skriv minst två bokstäver för att söka."}
+        {isWide ? "Start typing in the search field at the top." : "Type at least two letters to search."}
       </Text>
-      <MediaRow title="Trendande filmer" kind="trending" type="movie" />
-      <MediaRow title="Trendande serier" kind="trending" type="tv" />
+      <MediaRow title="Trending movies" kind="trending" type="movie" />
+      <MediaRow title="Trending TV shows" kind="trending" type="tv" />
       <Footer />
     </View>
   ) : isFetchingNextPage ? (
@@ -133,7 +133,7 @@ export default function SearchScreen() {
   return (
     <View style={styles.page}>
       <FlatList
-        key={columns} // FlatList kräver ny nyckel när antalet kolumner ändras
+        key={columns} // FlatList needs a new key when the number of columns changes
         style={styles.list}
         showsVerticalScrollIndicator={false}
         data={rest}

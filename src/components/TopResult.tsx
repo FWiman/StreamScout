@@ -9,7 +9,7 @@ import { Button } from "./Button";
 import { MetaLine } from "./MetaLine";
 import { mediaParts } from "./SearchResultRow";
 
-/** Stort kort för den bästa sökträffen. */
+/** Large card for the best search match. */
 export function TopResult({ item, wide }: { item: MediaItem; wide: boolean }) {
   const backdrop = imageUrl(item.backdropPath ?? item.posterPath, "w780");
   const poster = imageUrl(item.posterPath, "w342");
@@ -41,7 +41,7 @@ export function TopResult({ item, wide }: { item: MediaItem; wide: boolean }) {
       <View style={styles.content}>
         {poster && wide && <Image source={poster} style={styles.poster} contentFit="cover" />}
         <View style={styles.text}>
-          <Text style={styles.label}>Bästa träff</Text>
+          <Text style={styles.label}>Top result</Text>
           <Text style={[styles.title, wide && styles.titleWide]} numberOfLines={2}>
             {item.title}
           </Text>
@@ -52,7 +52,7 @@ export function TopResult({ item, wide }: { item: MediaItem; wide: boolean }) {
             </Text>
           )}
           <View style={styles.buttons}>
-            <Button label="Mer info" icon="information-circle-outline" onPress={open} />
+            <Button label="More info" icon="information-circle-outline" onPress={open} />
           </View>
         </View>
       </View>

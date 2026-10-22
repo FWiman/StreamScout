@@ -4,11 +4,11 @@ import { Screen } from "@/components/Screen";
 
 export default function HomeScreen() {
   return (
-    <Screen hero={<Hero kind="trending" type="movie" label="Trendar just nu" />}>
-      <MediaRow title="Trendande filmer" kind="trending" type="movie" />
-      <MediaRow title="Trendande serier" kind="trending" type="tv" />
-      <MediaRow title="Topprankade filmer" kind="topRated" type="movie" />
-      <MediaRow title="Topprankade serier" kind="topRated" type="tv" />
+    <Screen hero={<Hero kind="trending" type="movie" label="Trending now" />}>
+      <MediaRow title="Trending movies" kind="trending" type="movie" />
+      <MediaRow title="Trending TV shows" kind="trending" type="tv" />
+      <MediaRow title="Top rated movies" kind="topRated" type="movie" />
+      <MediaRow title="Top rated TV shows" kind="topRated" type="tv" />
     </Screen>
   );
 }

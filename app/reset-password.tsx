@@ -9,9 +9,9 @@ import { useGutter } from "@/hooks/useGutter";
 import { colors, spacing } from "@/theme";
 
 /**
- * Hit leder länken i mejlet "återställ lösenord". Länken loggar in användaren
- * tillfälligt (webben: automatiskt via adressen, mobil: i AuthProvider), och här
- * väljer man ett nytt lösenord.
+ * The link in the "reset password" email leads here. The link signs the user in
+ * temporarily (web: automatically via the URL, mobile: in AuthProvider), and here
+ * they choose a new password.
  */
 export default function ResetPasswordScreen() {
   const gutter = useGutter();
@@ -41,35 +41,35 @@ export default function ResetPasswordScreen() {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: "Nytt lösenord" }} />
+      <Stack.Screen options={{ title: "New password" }} />
       <View style={[styles.page, { paddingHorizontal: gutter }]}>
         <View style={styles.card}>
           {loading ? (
             <ActivityIndicator color={colors.textMuted} />
           ) : done ? (
             <>
-              <Text style={styles.title}>Lösenordet är bytt</Text>
-              <FormMessage kind="notice" text="Klart! Du är inloggad med ditt nya lösenord." />
-              <Button label="Till Min lista" icon="bookmark" block onPress={() => router.replace("/account")} />
+              <Text style={styles.title}>Password changed</Text>
+              <FormMessage kind="notice" text="Done! You're signed in with your new password." />
+              <Button label="Go to My List" icon="bookmark" block onPress={() => router.replace("/account")} />
             </>
           ) : !user ? (
             <>
-              <Text style={styles.title}>Länken fungerar inte</Text>
+              <Text style={styles.title}>This link doesn't work</Text>
               <Text style={styles.subtitle}>
-                Länken har gått ut, har redan använts eller öppnades på en annan enhet än den där du begärde den.
-                Begär en ny under "Glömt lösenordet?" och öppna den i samma webbläsare eller app.
+                The link has expired, has already been used, or was opened on a different device than the one you
+                requested it on. Request a new one under "Forgot password?" and open it in the same browser or app.
               </Text>
-              <Button label="Till inloggningen" block onPress={() => router.replace("/account")} />
+              <Button label="Back to sign in" block onPress={() => router.replace("/account")} />
             </>
           ) : (
             <>
-              <Text style={styles.title}>Välj nytt lösenord</Text>
-              <Text style={styles.subtitle}>För kontot {user.email}</Text>
+              <Text style={styles.title}>Choose a new password</Text>
+              <Text style={styles.subtitle}>For the account {user.email}</Text>
               <Field
                 icon="lock-closed-outline"
                 value={password}
                 onChangeText={setPassword}
-                placeholder="Nytt lösenord (minst 6 tecken)"
+                placeholder="New password (at least 6 characters)"
                 secureTextEntry
                 autoComplete="new-password"
                 textContentType="newPassword"
@@ -78,15 +78,15 @@ export default function ResetPasswordScreen() {
                 icon="lock-closed-outline"
                 value={confirm}
                 onChangeText={setConfirm}
-                placeholder="Upprepa lösenordet"
+                placeholder="Repeat the password"
                 secureTextEntry
                 autoComplete="new-password"
                 textContentType="newPassword"
                 onSubmitEditing={submit}
               />
-              {mismatch && <Text style={styles.hint}>Lösenorden matchar inte.</Text>}
+              {mismatch && <Text style={styles.hint}>The passwords don't match.</Text>}
               {error && <FormMessage kind="error" text={error} />}
-              <Button label="Spara nytt lösenord" block loading={busy} disabled={!canSubmit} onPress={submit} />
+              <Button label="Save new password" block loading={busy} disabled={!canSubmit} onPress={submit} />
             </>
           )}
         </View>

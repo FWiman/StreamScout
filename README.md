@@ -1,21 +1,21 @@
 # StreamWatch
 
-Hitta filmer och serier och se var de går att streama i Sverige. En gemensam kodbas för **webb, iOS och Android**, byggd med [Expo](https://expo.dev) (SDK 57), Expo Router och TypeScript. Data kommer från [TMDB](https://www.themoviedb.org/).
+Find movies and TV shows and see where to stream them in Sweden. One codebase for **web, iOS and Android**, built with [Expo](https://expo.dev) (SDK 57), Expo Router and TypeScript. Data comes from [TMDB](https://www.themoviedb.org/).
 
-Efterföljare till [MovieApp](https://github.com/FWiman/MovieApp) (webb) och [Movie-PhoneApp](https://github.com/FWiman/Movie-PhoneApp) (mobil).
+Successor to [MovieApp](https://github.com/FWiman/MovieApp) (web) and [Movie-PhoneApp](https://github.com/FWiman/Movie-PhoneApp) (mobile).
 
-## Kom igång på Windows
+## Getting started on Windows
 
-Du behöver:
+You'll need:
 
-- [Node.js](https://nodejs.org/) LTS (version 22.13 eller senare, eller 24)
+- [Node.js](https://nodejs.org/) LTS (version 22.13 or later, or 24)
 - [Git](https://git-scm.com/download/win)
-- [VS Code](https://code.visualstudio.com/) – öppna mappen så föreslås rätt tillägg automatiskt
-- En gratis API-nyckel från [TMDB](https://www.themoviedb.org/settings/api)
+- [VS Code](https://code.visualstudio.com/) – open the folder and the right extensions are suggested automatically
+- A free API key from [TMDB](https://www.themoviedb.org/settings/api)
 
-Kör i terminalen (PowerShell eller VS Code-terminalen):
+Run in the terminal (PowerShell or the VS Code terminal):
 
-> **Första gången i PowerShell?** Får du felet *"running scripts is disabled on this system"* när du kör `npm`, tillåt skript för ditt konto en gång:
+> **First time in PowerShell?** If you get *"running scripts is disabled on this system"* when running `npm`, allow scripts for your account once:
 > ```powershell
 > Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 > ```
@@ -28,74 +28,89 @@ npm run setup
 copy .env.example .env
 ```
 
-Öppna sedan `.env` och klistra in din TMDB-nyckel efter `EXPO_PUBLIC_TMDB_API_KEY=`.
+Then open `.env` and paste your TMDB key after `EXPO_PUBLIC_TMDB_API_KEY=`.
 
-> `npm run setup` installerar resten av paketen i de versioner som passar Expo SDK 57. Det behöver bara köras en gång.
+> `npm run setup` installs the remaining packages in the versions that match Expo SDK 57. It only needs to run once.
 
-### Starta appen
+### Running the app
 
 ```powershell
-npm run web      # öppnar webbversionen i webbläsaren
-npm start        # visar en QR-kod – skanna med Expo Go på telefonen
+npm run web      # opens the web version in the browser
+npm start        # shows a QR code – scan it with Expo Go on your phone
 ```
 
-Telefonen och datorn måste vara på samma wifi. Om Expo Go säger att versionen inte stöds, testa på webben så länge eller kör `npx expo start --tunnel`.
+Your phone and computer must be on the same Wi-Fi. If Expo Go says the version isn't supported, test on the web for now or run `npx expo start --tunnel`.
 
-## Konton (Supabase)
+## Accounts (Supabase)
 
-Inloggning sköts av [Supabase](https://supabase.com) (gratisnivån räcker). Utan nycklar fungerar appen ändå – kontosidan visar då bara en förklaring.
+Sign-in is handled by [Supabase](https://supabase.com) (the free tier is enough). Without keys the app still works – the account page just shows an explanation.
 
-1. **Skapa ett projekt** på [supabase.com](https://supabase.com/dashboard) – välj regionen *North EU (Stockholm)*.
-2. **Kopiera nycklarna** från *Project Settings → API* (eller knappen *Connect*) till `.env`:
-   `EXPO_PUBLIC_SUPABASE_URL` och `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Starta om `npm run web` / `npm start`.
-3. **Tillåt omdirigeringar** under *Authentication → URL Configuration → Redirect URLs*, lägg till:
-   - `http://localhost:8081/**` (webben lokalt)
+1. **Create a project** at [supabase.com](https://supabase.com/dashboard) – choose the region *North EU (Stockholm)*.
+2. **Copy the keys** from *Project Settings → API* (or the *Connect* button) into `.env`:
+   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Restart `npm run web` / `npm start`.
+3. **Allow redirects** under *Authentication → URL Configuration → Redirect URLs*, add:
+   - `http://localhost:8081/**` (local web)
    - `exp://**` (Expo Go)
-   - `streamwatch://**` (den riktiga appen)
+   - `streamwatch://**` (the real app)
 
-### Logga in med Google
+### Sign in with Google (free)
 
-1. Gå till [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials), skapa ett projekt och konfigurera *OAuth consent screen* (extern, appnamn StreamWatch).
-2. Skapa *OAuth client ID* av typen **Web application**. Under *Authorized redirect URIs*, lägg till
-   `https://<ditt-projekt>.supabase.co/auth/v1/callback` (står även i Supabase under Google-inställningarna).
-3. I Supabase: *Authentication → Sign In / Providers → Google* – slå på och klistra in *Client ID* och *Client secret*.
+1. Open [Google Cloud Console](https://console.cloud.google.com/) and create a project, e.g. *StreamWatch*.
+2. Go to **Google Auth Platform** (search for "OAuth" in the search bar):
+   - **Branding:** app name *StreamWatch* and your email as the support address.
+   - **Audience:** *External*. While the app is in *Testing* mode, only the test users you add can sign in – add yourself, or press *Publish app* when you want everyone to be able to.
+   - **Clients → Create client:** type **Web application**, name *StreamWatch Supabase*.
+     - *Authorized JavaScript origins:* `http://localhost:8081`
+     - *Authorized redirect URIs:* `https://zhodxslqoycsohosqlrg.supabase.co/auth/v1/callback`
+3. Copy the **Client ID** and **Client secret** into Supabase: [Authentication → Sign In / Providers → Google](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/providers). Enable it and save.
+4. Set `EXPO_PUBLIC_AUTH_GOOGLE=true` in `.env` and restart the server.
 
-När Google är uppsatt: sätt `EXPO_PUBLIC_AUTH_GOOGLE=true` i `.env` så visas knappen.
+### Sign in with Apple
 
-> När appen ska ut i App Store: Apple kräver *Logga in med Apple* om appen erbjuder Google-inloggning.
+**On iPhone (free, testable in Expo Go):**
 
-### Databas
+1. In Supabase: [Authentication → Sign In / Providers → Apple](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/providers) – enable it and enter under *Client IDs*:
+   `host.exp.Exponent,com.fwiman.streamwatch`
+   (`host.exp.Exponent` is Expo Go, the other is the real app). Leave the *Secret Key* fields empty.
+2. Set `EXPO_PUBLIC_AUTH_APPLE=true` in `.env` and restart the server.
 
-Tabellen `watchlist` (Min lista) har Row Level Security: varje användare kan bara läsa, lägga till och ta bort sina egna rader. Titel och bilder sparas med raden så att listan visas utan extra TMDB-anrop.
+**On web and Android** you need an [Apple Developer account](https://developer.apple.com/programs/) (USD 99/year) to create a *Services ID* and a signing key. Follow [Supabase's guide](https://supabase.com/docs/guides/auth/social-login/auth-apple) and then set `EXPO_PUBLIC_AUTH_APPLE_WEB=true`. Apple requires the key to be renewed every 6 months.
 
-## Struktur
+> The App Store requires *Sign in with Apple* if the app offers Google sign-in – that's why both are there.
+
+### Database
+
+The `watchlist` table (My List) uses Row Level Security: each user can only read, add and remove their own rows. Title and images are stored with the row so the list shows up without extra TMDB requests.
+
+## Structure
 
 ```
-app/                    Skärmar – filnamnet blir adressen (Expo Router)
-  (tabs)/               Flikarna: Hem, Filmer, Serier, Sök
-  title/[type]/[id].tsx Detaljsida: info, trailer, svenska streamingtjänster
+app/                    Screens – the file name becomes the URL (Expo Router)
+  (tabs)/               Tabs: Home, Movies, TV Shows, Search, My List
+  title/[type]/[id].tsx Title page: info, trailer, Swedish streaming services
 src/
-  api/tmdb.ts           Alla anrop till TMDB
-  api/queries.ts        React Query-hooks med cachning
-  api/types.ts          Typer
-  auth/AuthProvider.tsx Inloggning (useAuth)
-  lib/supabase.ts       Supabase-klienten
-  components/           Återanvändbara komponenter
-  theme.ts              Färger och avstånd
+  api/tmdb.ts           All TMDB requests
+  api/queries.ts        React Query hooks with caching
+  api/watchlist.ts      My List (Supabase)
+  api/types.ts          Types
+  auth/AuthProvider.tsx Sign-in (useAuth)
+  lib/supabase.ts       The Supabase client
+  components/           Reusable components
+  theme.ts              Colors and spacing
 ```
 
-## Färdplan
+## Roadmap
 
-- [x] Grund: Expo Router, TMDB, trendande/topprankat, sök, detaljsida, trailers, streamingtjänster i Sverige
-- [x] Konton och inloggning (e-post + Google via Supabase)
-- [x] Watchlist (Min lista) som synkas mellan webb och app
-- [x] Glömt lösenord
-- [ ] Logga in med Google och Apple
-- [ ] Egen backend som döljer TMDB-nyckeln
-- [ ] Filtrera på streamingtjänst ("vad finns på Netflix?")
-- [ ] Publicera webben (t.ex. EAS Hosting eller Vercel)
-- [ ] Publicera i App Store och Google Play (EAS Build)
+- [x] Foundation: Expo Router, TMDB, trending/top rated, search, title page, trailers, streaming services in Sweden
+- [x] Accounts and sign-in (email via Supabase)
+- [x] Watchlist (My List) synced between web and app
+- [x] Forgot password
+- [x] Sign in with Google and Apple (Apple on web/Android needs an Apple Developer account)
+- [ ] Own backend that hides the TMDB key
+- [ ] Filter by streaming service ("what's on Netflix?")
+- [ ] Publish the website (e.g. EAS Hosting or Vercel)
+- [ ] Publish on the App Store and Google Play (EAS Build)
 
 ## Attribution
 
-This product uses the TMDB API but is not endorsed or certified by TMDB. Streaminginformation kommer från JustWatch via TMDB.
+This product uses the TMDB API but is not endorsed or certified by TMDB. Streaming availability by JustWatch via TMDB.

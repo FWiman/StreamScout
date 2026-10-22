@@ -4,7 +4,7 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
-    "setup": "expo install expo-router expo-linking expo-constants expo-status-bar expo-image expo-web-browser expo-linear-gradient @expo/vector-icons @expo/metro-runtime react react-dom react-native react-native-web react-native-safe-area-context react-native-screens @tanstack/react-query @supabase/supabase-js expo-sqlite && expo install --fix && expo install typescript @types/react -- --save-dev",
+    "setup": "expo install expo-router expo-linking expo-constants expo-status-bar expo-image expo-web-browser expo-linear-gradient @expo/vector-icons @expo/metro-runtime react react-dom react-native react-native-web react-native-safe-area-context react-native-screens @tanstack/react-query @supabase/supabase-js expo-sqlite expo-apple-authentication && expo install --fix && expo install typescript @types/react -- --save-dev",
     "start": "expo start",
     "web": "expo start --web",
     "android": "expo start --android",

@@ -1,14 +1,14 @@
 import { colors } from "@/theme";
 
 /**
- * Globala CSS-regler för webben – saker som React Natives stilar inte når.
- * Importeras från rotlayouten. Gör ingenting på iOS/Android (se webStyles.native.ts).
+ * Global CSS rules for the web – things React Native styles can't reach.
+ * Imported from the root layout. Does nothing on iOS/Android (see webStyles.native.ts).
  */
 const css = `
-  /* Sidan är mörk: webbläsarens egna kontroller (autofyll-menyn, rullningslister m.m.) blir mörka. */
+  /* The page is dark: the browser's own controls (autofill menu, scrollbars etc.) become dark too. */
   :root { color-scheme: dark; }
 
-  /* Chrome/Safari målar autofyllda fält ljusa. Behåll vår mörka bakgrund och ljusa text. */
+  /* Chrome/Safari paint autofilled fields light. Keep our dark background and light text. */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
@@ -20,7 +20,7 @@ const css = `
     transition: background-color 99999s ease-out 0s;
   }
 
-  /* Markerad text i appens färger. */
+  /* Selected text in the app's colors. */
   ::selection { background: ${colors.accent}; color: ${colors.text}; }
 `;
 

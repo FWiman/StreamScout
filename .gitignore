@@ -1,4 +1,4 @@
-# Beroenden
+# Dependencies
 node_modules/
 
 # Expo
@@ -7,15 +7,15 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Inbyggda mappar (skapas av expo prebuild)
+# Native folders (created by expo prebuild)
 /ios
 /android
 
-# Miljövariabler – innehåller din TMDB-nyckel, ska aldrig pushas
+# Environment variables – contain your keys, never push them
 .env
 .env*.local
 
-# Övrigt
+# Misc
 *.log
 .DS_Store
 .vscode/*

@@ -1,8 +1,8 @@
-# Använd alltid LF som radslut i repot, oavsett operativsystem.
-# Git konverterar automatiskt – inga fler "LF will be replaced by CRLF"-varningar.
+# Always use LF line endings in the repo, regardless of OS.
+# Git converts automatically – no more "LF will be replaced by CRLF" warnings.
 * text=auto eol=lf
 
-# Binära filer ska aldrig konverteras
+# Binary files must never be converted
 *.png binary
 *.jpg binary
 *.jpeg binary

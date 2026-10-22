@@ -1,2 +1,2 @@
-// Globala CSS-regler finns bara på webben (se webStyles.ts).
+// Global CSS rules only exist on the web (see webStyles.ts).
 export {};

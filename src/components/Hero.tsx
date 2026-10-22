@@ -16,13 +16,13 @@ import { WatchlistButton } from "./WatchlistButton";
 interface Props {
   kind: ListKind;
   type: MediaType;
-  /** Liten etikett ovanför titeln, t.ex. "Trendar just nu". */
+  /** Small label above the title, e.g. "Trending now". */
   label: string;
 }
 
 /**
- * Stor toppsektion med bakgrundsbild från första titeln i listan.
- * Delar cache med raden för samma lista, så den kostar inget extra anrop.
+ * Large hero section with the backdrop of the first title in the list.
+ * Shares its cache with the row for the same list, so it costs no extra request.
  */
 export function Hero({ kind, type, label }: Props) {
   const { items } = useMediaList(kind, type);
@@ -38,17 +38,17 @@ export function Hero({ kind, type, label }: Props) {
 
   if (!item) return <View style={{ height }} />;
 
-  // Dator: liggande bakgrundsbild. Telefon: stående affisch, som fyller skärmen bättre.
+  // Desktop: landscape backdrop. Phone: portrait poster, which fills the screen better.
   const backdrop = isWide
     ? imageUrl(item.backdropPath, "w1280")
     : imageUrl(item.posterPath ?? item.backdropPath, "w780");
 
   return (
     <View style={[styles.hero, { height }]}>
-      {/* Förankra i överkant: ansikten och titlar sitter oftast högt upp i bilden */}
+      {/* Anchor to the top: faces and titles usually sit high in the image */}
       <Image
         source={backdrop}
-        // En liten version laddar direkt och byts mot den skarpa när den är klar.
+        // A small version loads instantly and is swapped for the sharp one when ready.
         placeholder={isWide ? imageUrl(item.backdropPath, "w300") : imageUrl(item.posterPath, "w92")}
         placeholderContentFit="cover"
         style={StyleSheet.absoluteFill}
@@ -57,7 +57,7 @@ export function Hero({ kind, type, label }: Props) {
         transition={300}
       />
 
-      {/* Tonar ut bilden mot bakgrunden så texten går att läsa */}
+      {/* Fades the image into the background so the text is readable */}
       <LinearGradient
         colors={[colors.backgroundClear, colors.background]}
         locations={[isWide ? 0.55 : 0.35, 1]}
@@ -78,7 +78,7 @@ export function Hero({ kind, type, label }: Props) {
           <Text style={[styles.title, isWide && styles.titleWide]} numberOfLines={2}>
             {item.title}
           </Text>
-          <MetaLine parts={[item.type === "movie" ? "Film" : "Serie", item.year]} rating={item.voteAverage} />
+          <MetaLine parts={[item.type === "movie" ? "Movie" : "TV Show", item.year]} rating={item.voteAverage} />
           {isWide && item.overview.length > 0 && (
             <Text style={styles.overview} numberOfLines={3}>
               {item.overview}
@@ -87,14 +87,14 @@ export function Hero({ kind, type, label }: Props) {
           <View style={styles.buttons}>
             {trailer.data && (
               <Button
-                label="Se trailer"
+                label="Watch trailer"
                 icon="play"
                 size={isWide ? "lg" : "md"}
                 onPress={() => WebBrowser.openBrowserAsync(trailer.data!)}
               />
             )}
             <Button
-              label="Mer info"
+              label="More info"
               icon="information-circle-outline"
               variant="secondary"
               size={isWide ? "lg" : "md"}
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   contentWide: {
-    // Textens bredd plus marginalen till vänster.
+    // Text width plus the left margin.
     maxWidth: 600 + 64,
     paddingBottom: spacing.xl,
   },

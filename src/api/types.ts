@@ -1,6 +1,6 @@
 export type MediaType = "movie" | "tv";
 
-/** Ett normaliserat objekt som appen använder för både filmer och serier. */
+/** A normalized object the app uses for both movies and TV shows. */
 export interface MediaItem {
   id: number;
   type: MediaType;
@@ -12,7 +12,7 @@ export interface MediaItem {
   year: string | null;
 }
 
-/** En sida ur en lista från TMDB. */
+/** One page of a list from TMDB. */
 export interface MediaPage {
   items: MediaItem[];
   page: number;
@@ -21,7 +21,7 @@ export interface MediaPage {
 
 export interface MediaDetails extends MediaItem {
   genres: string[];
-  /** Speltid i minuter (filmer) eller avsnittslängd (serier). */
+  /** Runtime in minutes (movies) or episode length (TV shows). */
   runtime: number | null;
   tagline: string | null;
 }
@@ -33,14 +33,14 @@ export interface WatchProvider {
 }
 
 export interface WatchProviders {
-  /** Länk till TMDB:s sida där man väljer tjänst. */
+  /** Link to TMDB's page where you pick a service. */
   link: string | null;
   stream: WatchProvider[];
   rent: WatchProvider[];
   buy: WatchProvider[];
 }
 
-// ---- Råa svar från TMDB (bara de fält vi använder) ----
+// ---- Raw TMDB responses (only the fields we use) ----
 
 export interface TmdbPage<T> {
   page: number;

@@ -13,11 +13,11 @@ export const colors = {
   successSoft: "rgba(61, 214, 140, 0.12)",
   rating: "#f5c451",
   overlay: "rgba(11, 13, 18, 0.85)",
-  /** Bakgrundsfärgen helt genomskinlig – för gradienter som tonar ut mot bakgrunden. */
+  /** The background color, fully transparent – for gradients that fade into the background. */
   backgroundClear: "rgba(11, 13, 18, 0)",
   glass: "rgba(255, 255, 255, 0.16)",
   shadow: "#000000",
-  /** Bakgrund för markerad/hovrad rad. */
+  /** Background for a highlighted/hovered row. */
   highlight: "rgba(255, 255, 255, 0.09)",
 } as const;
 
@@ -29,10 +29,9 @@ export const spacing = {
   xl: 32,
 } as const;
 
-
 /**
- * Tar bort webbläsarens fokusram på textfält (den ritas som en kantig rektangel
- * även när fältet har rundade hörn). Fältets egen kant visar fokus i stället.
- * `outlineStyle: "none"` finns inte i React Natives typer men stöds på webben.
+ * Removes the browser's focus outline on text fields (it is drawn as a square
+ * rectangle even when the field has rounded corners). The field's own border shows focus instead.
+ * `outlineStyle: "none"` is missing from React Native's types but works on the web.
  */
 export const noFocusOutline = (Platform.OS === "web" ? { outlineStyle: "none" } : {}) as unknown as TextStyle;

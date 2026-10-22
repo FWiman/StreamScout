@@ -16,9 +16,9 @@ import type {
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_URL = "https://image.tmdb.org/t/p";
 
-/** Språk för titlar och beskrivningar. TMDB faller tillbaka på originalet om svensk text saknas. */
-const LANGUAGE = "sv-SE";
-/** Land för streamingtjänster. */
+/** Language for titles and overviews. */
+const LANGUAGE = "en-US";
+/** Country for streaming services – the app shows what's available in Sweden. */
 const REGION = "SE";
 
 const API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY;
@@ -28,7 +28,7 @@ type Params = Record<string, string | number | undefined>;
 async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
   if (!API_KEY) {
     throw new Error(
-      "TMDB-nyckel saknas. Kopiera .env.example till .env och fyll i EXPO_PUBLIC_TMDB_API_KEY."
+      "TMDB key missing. Copy .env.example to .env and fill in EXPO_PUBLIC_TMDB_API_KEY."
     );
   }
 
@@ -41,12 +41,12 @@ async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
 
   const response = await fetch(url.toString());
   if (!response.ok) {
-    throw new Error(`TMDB svarade ${response.status} för ${path}`);
+    throw new Error(`TMDB responded ${response.status} for ${path}`);
   }
   return (await response.json()) as T;
 }
 
-// ---- Hjälpfunktioner ----
+// ---- Helpers ----
 
 export type ImageSize = "w92" | "w185" | "w300" | "w342" | "w500" | "w780" | "w1280" | "original";
 
@@ -56,13 +56,13 @@ export function imageUrl(path: string | null | undefined, size: ImageSize = "w34
 
 function toMediaItem(raw: TmdbMediaResult, fallbackType?: MediaType): MediaItem | null {
   const type = raw.media_type === "movie" || raw.media_type === "tv" ? raw.media_type : fallbackType;
-  if (!type) return null; // t.ex. personer i sökresultat
+  if (!type) return null; // e.g. people in search results
 
   const date = type === "movie" ? raw.release_date : raw.first_air_date;
   return {
     id: raw.id,
     type,
-    title: raw.title ?? raw.name ?? "Okänd titel",
+    title: raw.title ?? raw.name ?? "Unknown title",
     overview: raw.overview ?? "",
     posterPath: raw.poster_path ?? null,
     backdropPath: raw.backdrop_path ?? null,
@@ -81,9 +81,9 @@ function toProviders(list: TmdbProvider[] | undefined): WatchProvider[] {
   return (list ?? []).map((p) => ({ id: p.provider_id, name: p.provider_name, logoPath: p.logo_path }));
 }
 
-// ---- Listor (sidindelade, 20 titlar per sida) ----
+// ---- Lists (paginated, 20 titles per page) ----
 
-/** TMDB ger aldrig ut fler än 500 sidor. */
+/** TMDB never returns more than 500 pages. */
 const MAX_PAGES = 500;
 
 async function getListPage(path: string, type: MediaType, page: number, params: Params = {}) {
@@ -107,7 +107,7 @@ export function getPopular(type: MediaType, page = 1) {
   return getListPage(`/${type}/popular`, type, page, { region: REGION });
 }
 
-/** Titlar som liknar en viss film eller serie. */
+/** Titles similar to a given movie or TV show. */
 export function getRecommendations(type: MediaType, id: number, page = 1) {
   return getListPage(`/${type}/${id}/recommendations`, type, page);
 }
@@ -116,14 +116,14 @@ function normalize(text: string) {
   return text
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // ta bort accenter: "amélie" → "amelie"
+    .replace(/[\u0300-\u036f]/g, "") // strip accents: "amélie" → "amelie"
     .trim();
 }
 
 /**
- * TMDB sorterar sökträffar efter hur exakt texten matchar, inte efter popularitet,
- * så en okänd film som heter exakt "Inter" hamnar före Interstellar. Vi sorterar om
- * sidan: hur väl titeln matchar + hur känd titeln är (popularitet och antal röster).
+ * TMDB orders search hits by how exactly the text matches, not by popularity,
+ * so an obscure movie called exactly "Inter" ranks above Interstellar. We re-rank
+ * each page: how well the title matches + how well known it is (popularity and vote count).
  */
 function rankSearchResults(results: TmdbMediaResult[], query: string) {
   const q = normalize(query);
@@ -154,8 +154,8 @@ function rankSearchResults(results: TmdbMediaResult[], query: string) {
 export type SearchFilter = "all" | MediaType;
 
 /**
- * Söker filmer och/eller serier. Med ett filter används TMDB:s egna sökningar
- * för bara filmer eller bara serier, som ger träffsäkrare resultat än multisökningen.
+ * Searches movies and/or TV shows. With a filter we use TMDB's dedicated movie-only
+ * or TV-only search, which gives more accurate results than the multi search.
  */
 export async function searchMedia(query: string, filter: SearchFilter = "all", page = 1): Promise<MediaPage> {
   const path = filter === "all" ? "/search/multi" : `/search/${filter}`;
@@ -166,14 +166,14 @@ export async function searchMedia(query: string, filter: SearchFilter = "all", p
   });
   const ranked = { ...raw, results: rankSearchResults(raw.results, query) };
   return {
-    // Titlar utan affisch är nästan alltid okända eller felaktiga poster – hoppa över dem.
+    // Titles without a poster are almost always obscure or broken entries – skip them.
     items: toMediaList(ranked, filter === "all" ? undefined : filter).filter((i) => i.posterPath),
     page: raw.page,
     totalPages: Math.min(raw.total_pages, MAX_PAGES),
   };
 }
 
-// ---- Detaljer ----
+// ---- Details ----
 
 export async function getDetails(type: MediaType, id: number): Promise<MediaDetails> {
   const raw = await tmdbFetch<TmdbDetailsResult>(`/${type}/${id}`);
@@ -187,10 +187,10 @@ export async function getDetails(type: MediaType, id: number): Promise<MediaDeta
   };
 }
 
-/** Returnerar en YouTube-länk till bästa trailern, eller null. Föredrar svenska, sedan engelska. */
+/** Returns a YouTube link to the best trailer, or null. Prefers official English trailers. */
 export async function getTrailerUrl(type: MediaType, id: number): Promise<string | null> {
   const { results } = await tmdbFetch<{ results: TmdbVideo[] }>(`/${type}/${id}/videos`, {
-    include_video_language: "sv,en,null",
+    include_video_language: "en,null",
   });
 
   const youtube = results.filter((v) => v.site === "YouTube");
@@ -202,7 +202,7 @@ export async function getTrailerUrl(type: MediaType, id: number): Promise<string
   return trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
 }
 
-/** Var titeln går att se i Sverige. */
+/** Where the title can be watched in Sweden. */
 export async function getWatchProviders(type: MediaType, id: number): Promise<WatchProviders> {
   const data = await tmdbFetch<TmdbProvidersResult>(`/${type}/${id}/watch/providers`);
   const se = data.results[REGION];

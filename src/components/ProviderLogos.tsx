@@ -9,15 +9,15 @@ import { colors, spacing } from "@/theme";
 interface Props {
   label: string;
   providers: WatchProvider[];
-  /** Titeln som tjänstens sökning fylls i med. */
+  /** The title the service's search is filled in with. */
   title: string;
-  /** TMDB:s sida med alla tjänster – används för tjänster vi inte har en sök-URL för. */
+  /** TMDB's page with all services – used for services we have no search URL for. */
   fallbackUrl: string | null;
 }
 
 /**
- * Logotyper för streamingtjänster, t.ex. "Streama" eller "Hyr".
- * Trycker man på en logga öppnas tjänsten (appen på telefonen om den finns) med titeln sökt.
+ * Streaming service logos, e.g. under "Stream" or "Rent".
+ * Tapping a logo opens the service (its app on phones, if installed) searching for the title.
  */
 export function ProviderLogos({ label, providers, title, fallbackUrl }: Props) {
   if (providers.length === 0) return null;
@@ -44,12 +44,12 @@ function ProviderLogo({ provider, url }: { provider: WatchProvider; url: string 
 
   return (
     <Pressable
-      // Linking (inte en inbyggd webbläsare) så att tjänstens egen app kan ta över länken.
+      // Linking (not an in-app browser) so the service's own app can take over the link.
       onPress={() => Linking.openURL(url)}
       onHoverIn={() => setHovered(true)}
       onHoverOut={() => setHovered(false)}
       accessibilityRole="link"
-      accessibilityLabel={`Öppna ${provider.name}`}
+      accessibilityLabel={`Open ${provider.name}`}
       style={({ pressed }) => [styles.pressable, hovered && styles.hovered, pressed && styles.pressed]}
     >
       {logo}

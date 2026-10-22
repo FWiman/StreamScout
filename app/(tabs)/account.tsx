@@ -12,8 +12,8 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 import { colors, spacing } from "@/theme";
 
 /**
- * Min lista: inloggad ser man sina sparade titlar och sitt konto,
- * utloggad ser man inloggningsformuläret.
+ * My List: signed in you see your saved titles and your account,
+ * signed out you see the sign-in form.
  */
 export default function AccountScreen() {
   const gutter = useGutter();
@@ -25,10 +25,10 @@ export default function AccountScreen() {
       <Screen>
         <View style={styles.signedIn}>
           <View style={[styles.listHeader, { paddingHorizontal: gutter }]}>
-            <Text style={styles.heading}>Min lista</Text>
+            <Text style={styles.heading}>My List</Text>
             {data && data.length > 0 && (
               <Text style={styles.count}>
-                {data.length} {data.length === 1 ? "titel" : "titlar"}
+                {data.length} {data.length === 1 ? "title" : "titles"}
               </Text>
             )}
           </View>
@@ -61,7 +61,7 @@ function Profile({ email, createdAt, provider }: { email: string; createdAt: str
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const since = new Date(createdAt).toLocaleDateString("sv-SE", { year: "numeric", month: "long" });
+  const since = new Date(createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long" });
   const initial = email.charAt(0).toUpperCase() || "?";
 
   const onSignOut = async () => {
@@ -86,14 +86,14 @@ function Profile({ email, createdAt, provider }: { email: string; createdAt: str
             {email}
           </Text>
           <Text style={styles.muted}>
-            Medlem sedan {since}
-            {provider === "google" ? " · inloggad med Google" : ""}
+            Member since {since}
+            {provider === "google" ? " · signed in with Google" : provider === "apple" ? " · signed in with Apple" : ""}
           </Text>
         </View>
       </View>
 
       {error && <Text style={styles.error}>{error}</Text>}
-      <Button label="Logga ut" icon="log-out-outline" variant="outline" block loading={busy} onPress={onSignOut} />
+      <Button label="Sign out" icon="log-out-outline" variant="outline" block loading={busy} onPress={onSignOut} />
     </View>
   );
 }
@@ -102,10 +102,10 @@ function NotConfigured() {
   return (
     <View style={styles.card}>
       <Ionicons name="construct-outline" size={28} color={colors.textMuted} />
-      <Text style={styles.title}>Konton är inte uppsatta än</Text>
+      <Text style={styles.title}>Accounts aren't set up yet</Text>
       <Text style={styles.muted}>
-        Lägg in EXPO_PUBLIC_SUPABASE_URL och EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY i .env och starta om
-        utvecklingsservern. Se README för steg-för-steg.
+        Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env and restart the
+        dev server. See the README for step-by-step instructions.
       </Text>
     </View>
   );

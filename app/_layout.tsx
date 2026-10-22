@@ -16,7 +16,7 @@ export default function RootLayout() {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 10 * 60 * 1000, // TMDB-listor ändras sällan, cacha i 10 min
+            staleTime: 10 * 60 * 1000, // TMDB lists rarely change, cache for 10 min
             retry: 1,
           },
         },
@@ -28,7 +28,7 @@ export default function RootLayout() {
       <AuthProvider>
       <StatusBar style="light" />
       <View style={styles.root}>
-        {/* Dator: en gemensam toppmeny för alla sidor. Telefon: varje navigator har sin egen rubrik. */}
+        {/* Desktop: one shared top nav for all pages. Phone: each navigator has its own header. */}
         {isWide && <TopNav />}
         <Stack
           screenOptions={{
@@ -39,8 +39,8 @@ export default function RootLayout() {
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="title/[type]/[id]" options={{ title: "", headerShown: !isWide }} />
-          <Stack.Screen name="about" options={{ title: "Om StreamWatch", headerShown: !isWide }} />
-          <Stack.Screen name="reset-password" options={{ title: "Nytt lösenord", headerShown: !isWide }} />
+          <Stack.Screen name="about" options={{ title: "About StreamWatch", headerShown: !isWide }} />
+          <Stack.Screen name="reset-password" options={{ title: "New password", headerShown: !isWide }} />
         </Stack>
       </View>
       </AuthProvider>
