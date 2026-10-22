@@ -55,6 +55,24 @@ function redirectUrl(path = "/account") {
   return Linking.createURL(path);
 }
 
+/**
+ * Redirect URL for OAuth (Google, Apple on web/Android).
+ *
+ * Supabase rejects redirect URLs whose host is an IP address – even when they match the
+ * allow list – and falls back to the Site URL (http://localhost:8081), which a phone can't
+ * open. Expo Go's URLs use the computer's LAN IP (exp://192.168.x.x:8081/--/account).
+ *
+ * On iOS the auth session catches the redirect by its scheme ("exp") before loading it, so
+ * the host doesn't matter: swap the IP for "localhost", which Supabase accepts. Expo Go then
+ * never opens that URL – we read the code from it and exchange it for a session.
+ * (Real app builds use streamwatch://… and are unaffected.)
+ */
+function oauthRedirectUrl() {
+  const url = redirectUrl();
+  if (Platform.OS === "ios") return url.replace(/^exp:\/\/[^/:]+/, "exp://localhost");
+  return url;
+}
+
 /** Supabase error messages in plain, friendly English. */
 export function authErrorMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
@@ -120,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * auth session window and exchange the code we get back for a session.
    */
   const signInWithOAuthProvider = async (provider: Provider) => {
-    const redirectTo = redirectUrl();
+    const redirectTo = oauthRedirectUrl();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo, skipBrowserRedirect: Platform.OS !== "web" },

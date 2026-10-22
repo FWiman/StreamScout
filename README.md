@@ -53,6 +53,8 @@ Sign-in is handled by [Supabase](https://supabase.com) (the free tier is enough)
    - `exp://**` (Expo Go)
    - `streamwatch://**` (the real app)
 
+> **Expo Go and IP addresses:** Supabase rejects redirect URLs that contain an IP address, even if they're on the list – and Expo Go's URLs contain your computer's IP (`exp://192.168.x.x:8081`). The app works around this for Google/Apple sign-in on iPhone. Email links (confirmation, password reset) can't open in Expo Go for the same reason – test those on the web, or in a real build of the app.
+
 ### Sign in with Google (free)
 
 1. Open [Google Cloud Console](https://console.cloud.google.com/) and create a project, e.g. *StreamWatch*.
