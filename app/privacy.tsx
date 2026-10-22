@@ -7,7 +7,7 @@ import { useGutter } from "@/hooks/useGutter";
 import { colors, spacing } from "@/theme";
 
 /** Who to contact about personal data. */
-const CONTACT_EMAIL = "frewim@gmail.com";
+const CONTACT_EMAIL = "streamscout.application@gmail.com";
 const LAST_UPDATED = "22 October 2026";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {

@@ -33,7 +33,7 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 
 ## Publishing
 - Web: EAS Hosting, `npm run deploy:web` (exports with the local `.env`, then `eas deploy --prod`). App store releases are on hold (owner's decision – costs)
-- Account deletion: RPC `public.delete_own_account()` (SECURITY DEFINER, deletes `auth.uid()`; the advisor warning about it is intended). Privacy policy in `app/privacy.tsx` – keep it in sync when data handling changes
+- Account deletion: RPC `public.delete_own_account()` (SECURITY DEFINER, deletes `auth.uid()`; the advisor warning about it is intended). Privacy policy in `app/privacy.tsx` – keep it in sync when data handling changes. Public contact address: `streamscout.application@gmail.com` (until the project has its own domain)
 
 ## Commands
 - `npm run web` / `npm start` – dev server

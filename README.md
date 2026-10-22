@@ -59,7 +59,7 @@ Sign-in is handled by [Supabase](https://supabase.com) (the free tier is enough)
 
 1. Open [Google Cloud Console](https://console.cloud.google.com/) and create a project, e.g. *StreamScout*.
 2. Go to **Google Auth Platform** (search for "OAuth" in the search bar):
-   - **Branding:** app name *StreamScout* and your email as the support address.
+   - **Branding:** app name *StreamScout* and `streamscout.application@gmail.com` as the support address.
    - **Audience:** *External*. While the app is in *Testing* mode, only the test users you add can sign in – add yourself, or press *Publish app* when you want everyone to be able to.
    - **Clients → Create client:** type **Web application**, name *StreamScout Supabase*.
      - *Authorized JavaScript origins:* `http://localhost:8081`
