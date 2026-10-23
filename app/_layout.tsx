@@ -40,6 +40,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="title/[type]/[id]" options={{ title: "", headerShown: !isWide }} />
           <Stack.Screen name="account" options={{ title: "Account", headerShown: !isWide }} />
+          <Stack.Screen name="my-services" options={{ title: "My services", headerShown: !isWide }} />
           <Stack.Screen name="privacy" options={{ title: "Privacy policy", headerShown: !isWide }} />
           <Stack.Screen name="about" options={{ title: "About StreamScout", headerShown: !isWide }} />
           <Stack.Screen name="reset-password" options={{ title: "New password", headerShown: !isWide }} />

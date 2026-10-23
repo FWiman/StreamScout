@@ -8,7 +8,7 @@ import { colors, spacing } from "@/theme";
 
 /** Who to contact about personal data. */
 const CONTACT_EMAIL = "streamscout.application@gmail.com";
-const LAST_UPDATED = "22 October 2026";
+const LAST_UPDATED = "23 October 2026";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -70,7 +70,7 @@ export default function PrivacyScreen() {
           <Bullet>
             If you sign in with Google or Apple: the email address, and name if provided, that they share with us.
           </Bullet>
-          <Bullet>The titles you save to My List.</Bullet>
+          <Bullet>The titles you save to My List, and the streaming services you pick under My services.</Bullet>
           <Bullet>
             Technical data needed to run the service, such as when you signed in and your IP address in server logs,
             which are kept for a short time.
@@ -85,7 +85,9 @@ export default function PrivacyScreen() {
         <Section title="On your device">
           <P>
             To keep you signed in, a sign-in token is stored in your browser&apos;s local storage (or in the app on your
-            phone). It&apos;s strictly necessary for the account to work and is removed when you sign out.
+            phone). It&apos;s strictly necessary for the account to work and is removed when you sign out. If you pick
+            your streaming services under My services, that choice is also saved on your device so it works without an
+            account.
           </P>
         </Section>
 

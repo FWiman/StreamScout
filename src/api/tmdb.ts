@@ -124,8 +124,8 @@ export function getPopular(type: MediaType, page = 1) {
 }
 
 export interface DiscoverFilters {
-  /** Streaming service (TMDB provider id): only titles included in its subscription in Sweden. */
-  service?: number | null;
+  /** Streaming services (TMDB provider ids): titles included in any of their subscriptions in Sweden. */
+  services?: number[] | null;
   /** Genre ids – any of them matches (see genres.ts). */
   genreIds?: number[] | null;
 }
@@ -133,14 +133,15 @@ export interface DiscoverFilters {
 /** Movies or TV shows matching a service and/or genre, most popular first. */
 export function getDiscover(type: MediaType, filters: DiscoverFilters, page = 1) {
   const params: Params = { sort_by: "popularity.desc" };
-  if (filters.service) {
+  const hasServices = Boolean(filters.services?.length);
+  if (hasServices) {
     params.watch_region = REGION;
-    params.with_watch_providers = filters.service;
+    params.with_watch_providers = filters.services!.join("|"); // "|" = any of them
     params.with_watch_monetization_types = "flatrate"; // not rent/buy
   }
   if (filters.genreIds?.length) params.with_genres = filters.genreIds.join("|");
   // Without a service, popularity alone lets in many obscure titles – require some votes.
-  if (!filters.service) params["vote_count.gte"] = 50;
+  if (!hasServices) params["vote_count.gte"] = 50;
   return getListPage(`/discover/${type}`, type, page, params);
 }
 

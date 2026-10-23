@@ -1,23 +1,34 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useMyServices } from "@/api/myServices";
 import { useStreamingServices } from "@/api/queries";
 import { imageUrl } from "@/api/tmdb";
 import type { MediaType } from "@/api/types";
 import { useGutter } from "@/hooks/useGutter";
 import { colors, spacing } from "@/theme";
 
+/** A single service's provider id, "mine" for all of the user's services, or null for everything. */
+export type ServiceSelection = number | "mine" | null;
+
 interface Props {
   type: MediaType;
-  /** The selected service's provider id, or null for "All". */
-  selected: number | null;
-  onSelect: (providerId: number | null) => void;
+  selected: ServiceSelection;
+  onSelect: (selection: ServiceSelection) => void;
 }
 
-/** A row of streaming service logos for filtering: "what's on Netflix?". Scrolls sideways. */
+/**
+ * A row of streaming service logos for filtering: "what's on Netflix?". Scrolls sideways.
+ * "My services" filters by all the services the user has; without any picked yet it links to choosing them.
+ */
 export function ServicePicker({ type, selected, onSelect }: Props) {
   const gutter = useGutter();
+  const router = useRouter();
   const { data: services } = useStreamingServices(type);
+  const { ids: myServices } = useMyServices();
   if (!services || services.length === 0) return null;
+  const hasMine = myServices.length > 0;
 
   return (
     <ScrollView
@@ -34,12 +45,30 @@ export function ServicePicker({ type, selected, onSelect }: Props) {
         <Text style={[styles.allText, selected === null && styles.allTextSelected]}>All</Text>
       </Pressable>
 
+      <Pressable
+        onPress={() => (hasMine ? onSelect(selected === "mine" ? null : "mine") : router.push("/my-services"))}
+        accessibilityRole="button"
+        accessibilityLabel={hasMine ? "My services" : "Choose my services"}
+        accessibilityState={{ selected: selected === "mine" }}
+        style={({ pressed }) => [styles.all, selected === "mine" && styles.selected, pressed && styles.pressed]}
+      >
+        <View style={styles.mineRow}>
+          <Ionicons
+            name={hasMine ? "checkmark-circle" : "add-circle-outline"}
+            size={16}
+            color={selected === "mine" ? colors.accentText : colors.textMuted}
+          />
+          <Text style={[styles.allText, selected === "mine" && styles.allTextSelected]}>My services</Text>
+        </View>
+      </Pressable>
+
       {services.map((service) => {
-        const active = service.id === selected;
+        // With "My services" selected, the user's own services light up too.
+        const active = service.id === selected || (selected === "mine" && myServices.includes(service.id));
         return (
           <Pressable
             key={service.id}
-            onPress={() => onSelect(active ? null : service.id)}
+            onPress={() => onSelect(service.id === selected ? null : service.id)}
             accessibilityRole="button"
             accessibilityLabel={service.name}
             accessibilityState={{ selected: active }}
@@ -84,6 +113,11 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 15,
     fontWeight: "700",
+  },
+  mineRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   allTextSelected: {
     color: colors.text,

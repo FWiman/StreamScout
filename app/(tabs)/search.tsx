@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { genresFor } from "@/api/genres";
+import { useMyServices } from "@/api/myServices";
 import { useFilteredResults, useSearch, useStreamingServices } from "@/api/queries";
 import type { SearchFilter } from "@/api/tmdb";
 import type { MediaItem } from "@/api/types";
@@ -21,7 +22,7 @@ import { Footer } from "@/components/Footer";
 import { GenrePicker } from "@/components/GenrePicker";
 import { MediaRow } from "@/components/MediaRow";
 import { SearchResultRow } from "@/components/SearchResultRow";
-import { ServicePicker } from "@/components/ServicePicker";
+import { ServicePicker, type ServiceSelection } from "@/components/ServicePicker";
 import { TopResult } from "@/components/TopResult";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useGutter } from "@/hooks/useGutter";
@@ -41,20 +42,22 @@ export default function SearchScreen() {
   const [localQuery, setLocalQuery] = useState(q ?? "");
   const [focused, setFocused] = useState(false);
   const [filter, setFilter] = useState<SearchFilter>("all");
-  const [service, setService] = useState<number | null>(null);
+  const [service, setService] = useState<ServiceSelection>(null);
+  const { ids: myServices } = useMyServices();
+  const serviceIds = service === "mine" ? myServices : service !== null ? [service] : null;
   const [genreKey, setGenreKey] = useState<string | null>(null);
   // A genre may not exist for the chosen type (e.g. Reality for movies) – then it's ignored.
   const genre = genresFor(filter).find((g) => g.key === genreKey) ?? null;
   const serviceType = filter === "tv" ? "tv" : "movie";
   const { data: services } = useStreamingServices(serviceType);
-  const serviceName = services?.find((s) => s.id === service)?.name;
+  const serviceName = service === "mine" ? "your services" : services?.find((s) => s.id === service)?.name;
   const query = isWide ? q ?? "" : localQuery;
 
   const debouncedQuery = useDebouncedValue(query, 300).trim();
   const hasQuery = debouncedQuery.length > 1;
   const { items: allItems, data, isPending, isFetching, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useSearch(debouncedQuery, filter);
-  const { items, checking } = useFilteredResults(allItems, service, genre);
+  const { items, checking } = useFilteredResults(allItems, serviceIds, genre);
   const isFiltered = service !== null || genre !== null;
 
   // Filters can leave few hits per page – fetch a few more pages automatically so the list isn't empty.

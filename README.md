@@ -123,6 +123,7 @@ app/                    Screens – the file name becomes the URL (Expo Router)
   title/[type]/[id].tsx Title page: info, trailer, Swedish streaming services
   account.tsx           Sign in / profile (phone: the icon top right)
   privacy.tsx           Privacy policy
+  my-services.tsx       Pick the streaming services you have
 supabase/functions/tmdb/ Edge Function that proxies TMDB and holds the key
 supabase/migrations/    Database changes (SQL)
 src/
@@ -148,6 +149,7 @@ src/
 - [x] Ready to publish: delete account, privacy policy, icons
 - [ ] Publish the website on EAS Hosting (see *Publishing the website*)
 - [ ] Own SMTP for emails to real users (needs a domain)
+- [x] My services: pick your streaming services, filter by them, see them highlighted
 - [ ] Publish on the App Store and Google Play (EAS Build)
 
 ## Attribution

@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { useMyServices } from "@/api/myServices";
 import { useDetails, useTrailer, useWatchProviders } from "@/api/queries";
 import { providerUrl } from "@/api/providerLinks";
 import { imageUrl } from "@/api/tmdb";
@@ -42,6 +43,7 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const details = useDetails(type, id);
   const trailer = useTrailer(type, id);
   const providers = useWatchProviders(type, id);
+  const { ids: myServices } = useMyServices();
   const isWide = useIsWide();
   const { width } = useWindowDimensions();
   const gutter = useGutter();
@@ -55,7 +57,9 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
   const backdropHeight = isWide ? Math.min(Math.max(width * 0.4, 360), 540) : width * 0.62;
   const p = providers.data;
   const hasProviders = p && (p.stream.length > 0 || p.rent.length > 0 || p.buy.length > 0);
-  const firstStream = p?.stream[0];
+  // Prefer one of the user's own services for the "Watch on …" button.
+  const myStreams = p?.stream.filter((s) => myServices.includes(s.id)) ?? [];
+  const firstStream = myStreams[0] ?? p?.stream[0];
   const streamUrl = firstStream ? providerUrl(firstStream.name, item.title, p?.link ?? null) : null;
   // Third column only when there's room for poster, text and panel side by side.
   const showAside = isWide && width >= 1200;
@@ -67,9 +71,22 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
         <ActivityIndicator color={colors.textMuted} style={styles.alignStart} />
       ) : p && hasProviders ? (
         <>
-          <Text style={styles.hint}>Tap a service to open it.</Text>
+          {myStreams.length > 0 ? (
+            <Text style={styles.onYours}>
+              ✓ Included in your {myStreams.length === 1 ? "service" : "services"}:{" "}
+              {myStreams.map((s) => s.name).join(", ")}
+            </Text>
+          ) : (
+            <Text style={styles.hint}>Tap a service to open it.</Text>
+          )}
           <View style={[styles.providerGroups, showAside && styles.providerGroupsAside]}>
-            <ProviderLogos label="Stream" providers={p.stream} title={item.title} fallbackUrl={p.link} />
+            <ProviderLogos
+              label="Stream"
+              providers={p.stream}
+              title={item.title}
+              fallbackUrl={p.link}
+              highlight={myServices}
+            />
             <ProviderLogos label="Rent" providers={p.rent} title={item.title} fallbackUrl={p.link} />
             <ProviderLogos label="Buy" providers={p.buy} title={item.title} fallbackUrl={p.link} />
           </View>
@@ -322,6 +339,12 @@ const styles = StyleSheet.create({
   hint: {
     color: colors.textMuted,
     fontSize: 13,
+    marginTop: -spacing.sm,
+  },
+  onYours: {
+    color: colors.accentText,
+    fontSize: 14,
+    fontWeight: "600",
     marginTop: -spacing.sm,
   },
   allOffers: {

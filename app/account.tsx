@@ -47,6 +47,7 @@ export default function AccountScreen() {
 
 function Profile({ email, createdAt, provider }: { email: string; createdAt: string; provider?: string }) {
   const { signOut, deleteAccount } = useAuth();
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -95,6 +96,7 @@ function Profile({ email, createdAt, provider }: { email: string; createdAt: str
       </View>
 
       {error && <Text style={styles.error}>{error}</Text>}
+      <Button label="My services" icon="tv-outline" variant="secondary" block onPress={() => router.push("/my-services")} />
       <Button label="Sign out" icon="log-out-outline" variant="outline" block loading={busy} onPress={onSignOut} />
 
       <View style={styles.dangerZone}>

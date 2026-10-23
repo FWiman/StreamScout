@@ -24,6 +24,7 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - Navigation: "My List" (`app/(tabs)/my-list.tsx`) only shows the list; sign-in/profile is `app/account.tsx`, reached from the avatar in `TopNav` (desktop) or `HeaderAccountButton` top right (phone)
 - Movies/TV Shows pages are `BrowseScreen` (`src/components/BrowseScreen.tsx`): rows, or – with a service (`ServicePicker`) and/or genre (`GenrePicker`) picked – a `MediaGrid` of `/discover` results (service = flatrate in SE). Filters live in the URL (`?service=<provider id>&genre=<key>`)
 - Streaming services offered as filters are the curated `SWEDISH_SERVICES` ids in `tmdb.ts` (TMDB's own ranking hides e.g. HBO Max). Genres are one shared static list in `src/api/genres.ts` mapping to TMDB's movie/TV genre ids
+- "My services" (`src/api/myServices.ts`, `useMyServices`): always saved on the device (`src/lib/localPrefs`), and in table `public.user_services` (RLS, own rows) when signed in; a device choice is uploaded on first sign-in. Used by the "My services" chip in `ServicePicker` (`?service=mine`), the Home rows, and highlighted on the title page. Edited on `app/my-services.tsx`
 - Search filters: genre is matched on the results' `genreIds`; service via each result's providers (`useFilteredResults`), auto-loading up to 5 pages
 - Import from `src` with the `@/` alias
 - Wording: "Movies", "TV Shows", "My List"; "Movie"/"TV Show" as type labels

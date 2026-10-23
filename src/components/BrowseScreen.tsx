@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { findGenre } from "@/api/genres";
+import { useMyServices } from "@/api/myServices";
 import { useStreamingServices } from "@/api/queries";
 import type { MediaType } from "@/api/types";
 import { useGutter } from "@/hooks/useGutter";
@@ -10,7 +11,7 @@ import { Hero } from "./Hero";
 import { MediaGrid } from "./MediaGrid";
 import { MediaRow } from "./MediaRow";
 import { Screen } from "./Screen";
-import { ServicePicker } from "./ServicePicker";
+import { ServicePicker, type ServiceSelection } from "./ServicePicker";
 
 const LABELS: Record<MediaType, { plural: string; hero: string }> = {
   movie: { plural: "Movies", hero: "Popular movie" },
@@ -26,12 +27,20 @@ export function BrowseScreen({ type }: { type: MediaType }) {
   const router = useRouter();
   const gutter = useGutter();
   const params = useLocalSearchParams<{ service?: string; genre?: string }>();
-  const service = params.service && /^\d+$/.test(params.service) ? Number(params.service) : null;
+  const { ids: myServices } = useMyServices();
+  const service: ServiceSelection =
+    params.service === "mine" && myServices.length > 0
+      ? "mine"
+      : params.service && /^\d+$/.test(params.service)
+        ? Number(params.service)
+        : null;
+  const serviceIds = service === "mine" ? myServices : service !== null ? [service] : null;
   const genre = findGenre(params.genre);
   const filtered = service !== null || genre !== null;
 
   const { data: services } = useStreamingServices(type);
-  const serviceName = services?.find((s) => s.id === service)?.name;
+  const serviceName =
+    service === "mine" ? "your services" : services?.find((s) => s.id === service)?.name;
   const labels = LABELS[type];
 
   const title = [
@@ -54,7 +63,7 @@ export function BrowseScreen({ type }: { type: MediaType }) {
         <ServicePicker
           type={type}
           selected={service}
-          onSelect={(id) => router.setParams({ service: id === null ? undefined : String(id) })}
+          onSelect={(selection) => router.setParams({ service: selection === null ? undefined : String(selection) })}
         />
         <GenrePicker
           type={type}
@@ -67,9 +76,9 @@ export function BrowseScreen({ type }: { type: MediaType }) {
         <View style={styles.results}>
           <Text style={[styles.heading, { paddingHorizontal: gutter }]}>{title}</Text>
           <MediaGrid
-            key={`${service}-${genre?.key}`}
+            key={`${serviceIds?.join("|")}-${genre?.key}`}
             type={type}
-            filters={{ service, genreIds: genre ? genre[type] : null }}
+            filters={{ services: serviceIds, genreIds: genre ? genre[type] : null }}
             emptyText={`No ${labels.plural.toLowerCase()} match these filters right now.`}
           />
         </View>

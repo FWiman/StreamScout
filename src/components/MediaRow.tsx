@@ -25,6 +25,8 @@ interface Props {
   type: MediaType;
   /** Required for `recommendations`. */
   id?: number;
+  /** Required for `services`: provider ids. */
+  services?: number[];
 }
 
 const CARD_WIDTH = 130;
@@ -39,9 +41,9 @@ const ZOOM_ROOM = spacing.sm;
  * while the cards continue to the screen edge.
  * Wider web screens get arrows, since the mouse wheel only scrolls vertically.
  */
-export function MediaRow({ title, kind, type, id }: Props) {
+export function MediaRow({ title, kind, type, id, services }: Props) {
   const { items, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useMediaList(kind, type, id);
+    useMediaList(kind, type, id, services);
 
   const listRef = useRef<FlatList<MediaItem>>(null);
   const [offset, setOffset] = useState(0);
