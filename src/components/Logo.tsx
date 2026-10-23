@@ -1,15 +1,18 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { colors } from "@/theme";
 
-/** The StreamScout logo: green badge with a play symbol, plus the name. */
+const mark = require("../../assets/logo-mark.png");
+
+/** Serif wordmark. A bundled display font (e.g. Fraunces) can replace this later. */
+const WORDMARK_FONT = Platform.select({ ios: "Georgia", android: "serif", default: "Georgia, 'Times New Roman', serif" });
+
+/** The StreamScout logo: an amber lens with a play button (scouting for something to watch), plus the name. */
 export function Logo({ size = 22 }: { size?: number }) {
-  const badge = size * 1.35;
+  const markSize = size * 1.45;
   return (
     <View style={styles.row} accessibilityRole="header" accessibilityLabel="StreamScout">
-      <View style={[styles.badge, { width: badge, height: badge, borderRadius: badge * 0.28 }]}>
-        <Ionicons name="play" size={size * 0.75} color={colors.onAccent} style={{ marginLeft: size * 0.08 }} />
-      </View>
+      <Image source={mark} style={{ width: markSize, height: markSize }} contentFit="contain" />
       <Text style={[styles.text, { fontSize: size }]}>
         Stream<Text style={styles.accent}>Scout</Text>
       </Text>
@@ -21,17 +24,13 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-  },
-  badge: {
-    backgroundColor: colors.accent,
-    alignItems: "center",
-    justifyContent: "center",
+    gap: 6,
   },
   text: {
     color: colors.text,
-    fontWeight: "800",
-    letterSpacing: -0.5,
+    fontFamily: WORDMARK_FONT,
+    fontWeight: "700",
+    letterSpacing: -0.3,
   },
   accent: {
     color: colors.accentText,

@@ -20,7 +20,7 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 ## Conventions
 - All TMDB communication goes through `src/api/tmdb.ts`; components use the hooks in `src/api/queries.ts`. `tmdbFetch` calls the Supabase Edge Function `tmdb` (`supabase/functions/tmdb/index.ts`, deployed with verify_jwt false, key in the secret `TMDB_API_KEY`). New TMDB endpoints must be added to its `ALLOWED_PATHS` and the function redeployed
 - TMDB responses are normalized to `MediaItem`/`MediaDetails` (`src/api/types.ts`) – components should never see raw TMDB fields
-- Colors and spacing come from `src/theme.ts`, no hard-coded colors in components. Palette inspired by the Matrix poster: green-tinted blacks and a muted phosphor-green brand color (`accent` #5cb879, `accentText` for text on dark, `onAccent` – dark – for text/icons on top of it); errors use `danger` (red) – never `accent`
+- Colors and spacing come from `src/theme.ts`, no hard-coded colors in components. Palette "Projector Amber": warm charcoal surfaces and an amber brand color (`accent` #e8a93c, `accentText` for text on dark, `onAccent` – dark – for text/icons on top of it); errors use `danger` (red) – never `accent`
 - Navigation: "My List" (`app/(tabs)/my-list.tsx`) only shows the list; sign-in/profile is `app/account.tsx`, reached from the avatar in `TopNav` (desktop) or `HeaderAccountButton` top right (phone)
 - Movies/TV Shows pages are `BrowseScreen` (`src/components/BrowseScreen.tsx`): rows, or – with a service (`ServicePicker`) and/or genre (`GenrePicker`) picked – a `MediaGrid` of `/discover` results (service = flatrate in SE). Filters live in the URL (`?service=<provider id>&genre=<key>`)
 - Streaming services offered as filters are the curated `SWEDISH_SERVICES` ids in `tmdb.ts` (TMDB's own ranking hides e.g. HBO Max). Genres are one shared static list in `src/api/genres.ts` mapping to TMDB's movie/TV genre ids
@@ -28,6 +28,7 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - Member title state (`src/api/userTitles.ts`): seen, thumbs rating and "not interested" in table `public.user_titles` (RLS, own rows); set from `TitleActions` on the title page. `useWithoutHidden` drops hidden titles from rows, grids and search; `MediaCard` shows a seen badge
 - My List: "On my services" filter and service logos per card via `useAvailability`. Home: "Because you saved …" rows from the newest movie/TV show in My List
 - Search filters: genre is matched on the results' `genreIds`; service via each result's providers (`useFilteredResults`), auto-loading up to 5 pages
+- Logo (`src/components/Logo.tsx`): amber lens-with-play mark (`assets/logo-mark.png`) + serif wordmark "Stream**Scout**"; app icon, adaptive icon and favicon use the same mark. Tagline: "Find your next favorite."
 - Import from `src` with the `@/` alias
 - Wording: "Movies", "TV Shows", "My List"; "Movie"/"TV Show" as type labels
 - Everything must work on web, iOS and Android – avoid web- or native-only APIs without a fallback

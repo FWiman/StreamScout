@@ -1,29 +1,29 @@
 import { Platform, type TextStyle } from "react-native";
 
 export const colors = {
-  // Palette inspired by the Matrix poster: green-tinted blacks and a muted phosphor green.
-  background: "#090d0b",
-  surface: "#121915",
-  surfaceRaised: "#1a231e",
-  border: "#26332b",
-  text: "#eef4f0",
-  textMuted: "#93a39a",
+  // "Projector Amber": warm charcoal surfaces and the amber glow of a projector beam.
+  background: "#15110c",
+  surface: "#211a12",
+  surfaceRaised: "#2b2218",
+  border: "#3a2e20",
+  text: "#f6eee2",
+  textMuted: "#b3a48f",
   /** Brand color: buttons, active tabs, focus rings, avatar. */
-  accent: "#5cb879",
-  accentSoft: "rgba(92, 184, 121, 0.14)",
-  /** Lighter brand color for text on dark backgrounds. */
-  accentText: "#8fd6a3",
+  accent: "#e8a93c",
+  accentSoft: "rgba(232, 169, 60, 0.14)",
+  /** Brand color for text on dark backgrounds. */
+  accentText: "#efb653",
   /** Text and icons on top of `accent`. */
-  onAccent: "#06150c",
+  onAccent: "#1d1407",
   /** Errors and warnings – kept red so they don't look like brand elements. */
   danger: "#e5484d",
   dangerSoft: "rgba(229, 72, 77, 0.12)",
   success: "#3dd68c",
   successSoft: "rgba(61, 214, 140, 0.12)",
   rating: "#f5c451",
-  overlay: "rgba(9, 13, 11, 0.85)",
+  overlay: "rgba(21, 17, 12, 0.85)",
   /** The background color, fully transparent – for gradients that fade into the background. */
-  backgroundClear: "rgba(9, 13, 11, 0)",
+  backgroundClear: "rgba(21, 17, 12, 0)",
   glass: "rgba(255, 255, 255, 0.16)",
   shadow: "#000000",
   /** Light button background (e.g. "Continue with Apple", per Apple's guidelines). */
