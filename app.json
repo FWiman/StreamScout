@@ -13,7 +13,6 @@
       "usesAppleSignIn": true
     },
     "android": {
-      "edgeToEdgeEnabled": true,
       "package": "com.fwiman.streamscout",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
