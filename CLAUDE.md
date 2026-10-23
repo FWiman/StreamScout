@@ -35,7 +35,7 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - Everything must work on web, iOS and Android – avoid web- or native-only APIs without a fallback
 - Desktop and phone have different layouts: `useIsWide()` (`src/hooks/useIsWide.ts`) controls top nav (`TopNav`) vs tab bar, card sizes and the hero's (`Hero`) look
 - Side margin: use `useGutter()` (4% of the width, 16–64 px) for left/right padding – everything aligns to the same left edge, no centered max-width content. Poster rows run edge to edge
-- React Native (0.86+, strict TypeScript API by default since 0.88) has strict types: write refs as `useRef<ComponentRef<typeof TextInput>>(null)` (not `useRef<TextInput>`), and `ListFooterComponent` etc. take `undefined`, not `null`
+- React Native (0.86+, strict TypeScript API by default since 0.88) has strict types: write refs as `useRef<ComponentRef<typeof TextInput>>(null)` (not `useRef<TextInput>`), `ListFooterComponent` etc. take `undefined`, not `null`, and `StyleSheet.absoluteFillObject` is gone (use `StyleSheet.absoluteFill` as a style, or spell out `position: "absolute", top: 0, …`)
 - Install packages with `npx expo install <package>` (not `npm install`) so versions match the SDK. Don't change SDK version without checking which one Expo Go in the App Store supports
 
 ## Publishing
