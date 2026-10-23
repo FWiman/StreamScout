@@ -98,22 +98,26 @@ The `watchlist` table (My List) uses Row Level Security: each user can only read
 
 ## Publishing the website
 
-The website is hosted on [EAS Hosting](https://docs.expo.dev/eas/hosting/introduction/) (free tier) with your Expo account.
+The website lives at **https://streamscout.com**: the domain, DNS, hosting ([Cloudflare Pages](https://developers.cloudflare.com/pages/), free) and email forwarding are all on Cloudflare. The site is a static export (`dist/`); with no `404.html`, Pages serves `index.html` for every route, so links like `/privacy` work.
 
 **First time:**
 
-1. `npm install --global eas-cli` and `eas login` (the same account as in Expo Go).
-2. `eas init` – links the project to your Expo account (adds a project ID to `app.json`; commit it).
-3. `npm run deploy:web` – builds the site with the keys in your `.env` and publishes it. The first time you choose a name, e.g. `streamscout`, which gives `https://streamscout.expo.app`.
+1. Buy `streamscout.com` in the Cloudflare dashboard (*Domain Registration → Register Domains*).
+2. In the project folder: `npx wrangler@4 login`, then `npx wrangler@4 pages project create streamscout --production-branch main`.
+3. `npm run deploy:web` – builds the site with the keys in your `.env` and publishes it to `https://streamscout.pages.dev`.
+4. Cloudflare dashboard → *Workers & Pages → streamscout → Custom domains*: add `streamscout.com` and `www.streamscout.com`.
 
-**Then point the services to the new address** (replace with yours):
+**Then point the services to the new address:**
 
-- Supabase → [Authentication → URL Configuration](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/url-configuration): *Site URL* `https://streamscout.expo.app`, and add `https://streamscout.expo.app/**` under *Redirect URLs* (keep the localhost ones for development).
-- Google Cloud → your OAuth client: add `https://streamscout.expo.app` under *Authorized JavaScript origins*. Under *Audience*, press **Publish app** so anyone can sign in with Google, not just test users.
+- Supabase → [Authentication → URL Configuration](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/url-configuration): *Site URL* `https://streamscout.com`, and add `https://streamscout.com/**` and `https://www.streamscout.com/**` under *Redirect URLs* (keep the localhost ones for development).
+- Google Cloud → your OAuth client: add `https://streamscout.com` and `https://www.streamscout.com` under *Authorized JavaScript origins*; under *Branding*, set the home page and privacy policy links to streamscout.com and add `streamscout.com` under *Authorized domains*.
 
-**Emails to real users:** Supabase's built-in email only sends to members of your Supabase project, and very few per hour. To send confirmation and password emails to everyone, connect your own SMTP service under [Authentication → Emails → SMTP Settings](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/smtp), e.g. [Resend](https://resend.com) (free up to 3,000 emails/month – needs a domain of your own to send from).
+**Email:**
 
-**Updating the site:** run `npm run deploy:web` again.
+- *Receiving:* Cloudflare → *Email → Email Routing*: forward e.g. `hello@streamscout.com` to your Gmail.
+- *Sending (sign-up and password emails):* create a free [Resend](https://resend.com) account, add and verify `streamscout.com` (Resend shows the DNS records – add them in Cloudflare), then enter Resend's SMTP details in Supabase under [Authentication → Emails → SMTP Settings](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/smtp) with a sender like `no-reply@streamscout.com`. After that, turn "Confirm email" back on.
+
+**Updating the site:** run `npm run deploy:web` again. (`npm run deploy:eas` still publishes to the old `streamscout.expo.app`.)
 
 ## Structure
 
@@ -147,7 +151,8 @@ src/
 - [x] Own backend that hides the TMDB key (Supabase Edge Function)
 - [x] Filter by streaming service ("what's on Netflix?") on the Movies and TV Shows pages
 - [x] Ready to publish: delete account, privacy policy, icons
-- [ ] Publish the website on EAS Hosting (see *Publishing the website*)
+- [x] Publish the website
+- [ ] Own domain streamscout.com on Cloudflare (see *Publishing the website*)
 - [ ] Own SMTP for emails to real users (needs a domain)
 - [x] My services: pick your streaming services, filter by them, see them highlighted
 - [ ] Publish on the App Store and Google Play (EAS Build)

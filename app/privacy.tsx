@@ -103,8 +103,9 @@ export default function PrivacyScreen() {
             them.
           </Bullet>
           <Bullet>
-            <ExternalLink url="https://expo.dev/privacy">Expo</ExternalLink> hosts the website, which means your IP
-            address passes through their servers when you visit.
+            <ExternalLink url="https://www.cloudflare.com/privacypolicy/">Cloudflare</ExternalLink> hosts the website
+            and handles the streamscout.com domain, which means your IP address passes through their servers when you
+            visit.
           </Bullet>
           <Bullet>
             Trailers open on YouTube, and streaming links open the service&apos;s own site or app. Their own privacy
