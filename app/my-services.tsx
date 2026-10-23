@@ -1,15 +1,14 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
-import { Link, Stack, useRouter } from "expo-router";
+import { Link, Stack } from "expo-router";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { useMyServices } from "@/api/myServices";
 import { useStreamingServices } from "@/api/queries";
 import { imageUrl } from "@/api/tmdb";
-import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
+import { SignInPrompt } from "@/components/SignInPrompt";
 import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
-import { isSupabaseConfigured } from "@/lib/supabase";
 import { colors, spacing } from "@/theme";
 
 /**
@@ -19,7 +18,6 @@ import { colors, spacing } from "@/theme";
 export default function MyServicesScreen() {
   const gutter = useGutter();
   const isWide = useIsWide();
-  const router = useRouter();
   const { data: services, isPending } = useStreamingServices("movie");
   const { ids, toggle, saveError, signedIn, isLoading } = useMyServices();
 
@@ -28,19 +26,12 @@ export default function MyServicesScreen() {
       <Screen>
         <Stack.Screen options={{ title: "My services" }} />
         <View style={[styles.page, { paddingHorizontal: gutter }]}>
-          <Text style={styles.title}>My services</Text>
           {!isLoading && (
-            <View style={styles.empty}>
-              <Ionicons name="tv-outline" size={32} color={colors.textMuted} />
-              <Text style={styles.emptyTitle}>See what you can watch right now</Text>
-              <Text style={styles.lead}>
-                Sign in and pick the streaming services you have. We&apos;ll highlight them on every title and let you
-                browse just what&apos;s included – on all your devices.
-              </Text>
-              {isSupabaseConfigured && (
-                <Button label="Sign in" icon="person-circle-outline" onPress={() => router.push("/account")} />
-              )}
-            </View>
+            <SignInPrompt
+              icon="tv-outline"
+              title="See what you can watch right now"
+              text="Sign in and pick the streaming services you have. We'll highlight them on every title and let you browse just what's included – on all your devices."
+            />
           )}
         </View>
       </Screen>
@@ -112,21 +103,6 @@ const styles = StyleSheet.create({
   page: {
     paddingTop: spacing.lg,
     gap: spacing.md,
-  },
-  empty: {
-    alignItems: "flex-start",
-    gap: spacing.md,
-    padding: spacing.lg,
-    maxWidth: 520,
-    borderRadius: 16,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  emptyTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: "800",
   },
   title: {
     color: colors.text,
