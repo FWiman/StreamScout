@@ -85,9 +85,7 @@ export default function PrivacyScreen() {
         <Section title="On your device">
           <P>
             To keep you signed in, a sign-in token is stored in your browser&apos;s local storage (or in the app on your
-            phone). It&apos;s strictly necessary for the account to work and is removed when you sign out. If you pick
-            your streaming services under My services, that choice is also saved on your device so it works without an
-            account.
+            phone). It&apos;s strictly necessary for the account to work and is removed when you sign out.
           </P>
         </Section>
 

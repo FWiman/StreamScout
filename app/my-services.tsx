@@ -1,23 +1,51 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useRouter } from "expo-router";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { useMyServices } from "@/api/myServices";
 import { useStreamingServices } from "@/api/queries";
 import { imageUrl } from "@/api/tmdb";
-import { useAuth } from "@/auth/AuthProvider";
+import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
+import { isSupabaseConfigured } from "@/lib/supabase";
 import { colors, spacing } from "@/theme";
 
-/** Pick the streaming services you have. Saved right away – on the device, and on the account when signed in. */
+/**
+ * Pick the streaming services you have. Saved to the account right away.
+ * Like My List it needs an account – signed out you get a sign-in prompt.
+ */
 export default function MyServicesScreen() {
   const gutter = useGutter();
   const isWide = useIsWide();
-  const { user } = useAuth();
+  const router = useRouter();
   const { data: services, isPending } = useStreamingServices("movie");
-  const { ids, toggle, saveError } = useMyServices();
+  const { ids, toggle, saveError, signedIn, isLoading } = useMyServices();
+
+  if (!signedIn) {
+    return (
+      <Screen>
+        <Stack.Screen options={{ title: "My services" }} />
+        <View style={[styles.page, { paddingHorizontal: gutter }]}>
+          <Text style={styles.title}>My services</Text>
+          {!isLoading && (
+            <View style={styles.empty}>
+              <Ionicons name="tv-outline" size={32} color={colors.textMuted} />
+              <Text style={styles.emptyTitle}>See what you can watch right now</Text>
+              <Text style={styles.lead}>
+                Sign in and pick the streaming services you have. We&apos;ll highlight them on every title and let you
+                browse just what&apos;s included – on all your devices.
+              </Text>
+              {isSupabaseConfigured && (
+                <Button label="Sign in" icon="person-circle-outline" onPress={() => router.push("/account")} />
+              )}
+            </View>
+          )}
+        </View>
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
@@ -29,7 +57,7 @@ export default function MyServicesScreen() {
           what you can watch.
         </Text>
 
-        {isPending ? (
+        {isPending || isLoading ? (
           <ActivityIndicator color={colors.textMuted} style={styles.loading} />
         ) : (
           <View style={styles.grid}>
@@ -67,14 +95,8 @@ export default function MyServicesScreen() {
         <Text style={styles.note}>
           {ids.length === 0
             ? "Nothing picked yet."
-            : `${ids.length} ${ids.length === 1 ? "service" : "services"} picked – saved automatically.`}
-          {user ? " Your choice follows your account to all your devices." : " Saved on this device."}
+            : `${ids.length} ${ids.length === 1 ? "service" : "services"} picked – saved to your account.`}
         </Text>
-        {!user && (
-          <Link href="/account" style={styles.link}>
-            Sign in to keep them on all your devices
-          </Link>
-        )}
         {saveError && <Text style={styles.error}>Couldn&apos;t save to your account. Please try again.</Text>}
         {ids.length > 0 && (
           <Link href="/movies?service=mine" style={styles.link}>
@@ -90,6 +112,21 @@ const styles = StyleSheet.create({
   page: {
     paddingTop: spacing.lg,
     gap: spacing.md,
+  },
+  empty: {
+    alignItems: "flex-start",
+    gap: spacing.md,
+    padding: spacing.lg,
+    maxWidth: 520,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  emptyTitle: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: "800",
   },
   title: {
     color: colors.text,
