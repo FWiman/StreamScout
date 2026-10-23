@@ -82,32 +82,38 @@ export default function SearchScreen() {
   const [topResult, ...rest] = hasQuery ? items : [];
   const openTitle = (item: MediaItem) => router.push(`/title/${item.type}/${item.id}`);
 
+  // Phone: the search field stays pinned above the results, so you can change the search
+  // without scrolling back up. (Desktop searches from the top nav.)
+  const searchBar = isWide ? null : (
+    <View style={[styles.searchBar, { paddingHorizontal: gutter }]}>
+      <View style={[styles.inputWrap, focused && styles.inputWrapFocused]}>
+        <Ionicons name="search" size={18} color={colors.textMuted} />
+        <TextInput
+          value={localQuery}
+          onChangeText={setLocalQuery}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder="Search movies and TV shows"
+          placeholderTextColor={colors.textMuted}
+          style={[styles.input, noFocusOutline]}
+          autoCorrect={false}
+          returnKeyType="search"
+        />
+        {localQuery.length > 0 && (
+          <Pressable onPress={() => setLocalQuery("")} accessibilityLabel="Clear search" hitSlop={8}>
+            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+          </Pressable>
+        )}
+      </View>
+    </View>
+  );
+
   const header = (
-    <View style={[styles.header, { paddingHorizontal: gutter }]}>
-      {isWide ? (
+    <View style={[styles.header, !isWide && styles.headerBelowBar, { paddingHorizontal: gutter }]}>
+      {isWide && (
         <Text style={styles.heading}>
           {hasQuery ? `Results for "${debouncedQuery}"` : "Search"}
         </Text>
-      ) : (
-        <View style={[styles.inputWrap, focused && styles.inputWrapFocused]}>
-          <Ionicons name="search" size={18} color={colors.textMuted} />
-          <TextInput
-            value={localQuery}
-            onChangeText={setLocalQuery}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            placeholder="Search movies and TV shows"
-            placeholderTextColor={colors.textMuted}
-            style={[styles.input, noFocusOutline]}
-            autoCorrect={false}
-            returnKeyType="search"
-          />
-          {localQuery.length > 0 && (
-            <Pressable onPress={() => setLocalQuery("")} accessibilityLabel="Clear search" hitSlop={8}>
-              <Ionicons name="close-circle" size={18} color={colors.textMuted} />
-            </Pressable>
-          )}
-        </View>
       )}
 
       {hasQuery && (
@@ -147,7 +153,7 @@ export default function SearchScreen() {
   );
 
   // Before searching: show something to browse instead of an empty page.
-  // Everything lives in the same FlatList, so the search field isn't replaced (and doesn't lose focus) when results appear.
+  // The search field sits outside the list, so it isn't replaced (and doesn't lose focus) when results appear.
   const footer = !hasQuery ? (
     <View style={styles.browse}>
       <Text style={[styles.message, { paddingHorizontal: gutter }]}>
@@ -165,6 +171,7 @@ export default function SearchScreen() {
 
   return (
     <View style={styles.page}>
+      {searchBar}
       <FlatList
         key={columns} // FlatList needs a new key when the number of columns changes
         style={styles.list}
@@ -204,6 +211,16 @@ const styles = StyleSheet.create({
   },
   browse: {
     gap: spacing.lg,
+  },
+  searchBar: {
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerBelowBar: {
+    paddingTop: spacing.md,
   },
   header: {
     gap: spacing.md,
