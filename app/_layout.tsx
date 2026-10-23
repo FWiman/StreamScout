@@ -1,3 +1,4 @@
+import { Fraunces_700Bold, useFonts } from "@expo-google-fonts/fraunces";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -10,6 +11,9 @@ import { useIsWide } from "@/hooks/useIsWide";
 import { colors } from "@/theme";
 
 export default function RootLayout() {
+  // The logo's wordmark font, bundled with the app (no request to Google). Until it has loaded,
+  // the logo shows a fallback serif, so nothing waits for it.
+  useFonts({ Fraunces_700Bold });
   const isWide = useIsWide();
   const [queryClient] = useState(
     () =>
