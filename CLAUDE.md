@@ -3,12 +3,12 @@
 ## About the project
 The app was renamed from StreamWatch to StreamScout (another iOS app is called StreamWatch). Internal names that weren't worth changing still say streamwatch: the Supabase project, Google Cloud project, local folder.
 
-App for finding movies/TV shows and seeing where they stream in Sweden. One Expo codebase (SDK 57 – the same version Expo Go in the App Store supports; upgrade once Expo Go supports newer) that builds for web, iOS and Android. The owner develops on Windows.
+App for finding movies/TV shows and seeing where they stream in Sweden. One Expo codebase (SDK 58 – the same version Expo Go in the App Store supports; Expo Go only runs the latest SDK, so upgrade when it does) that builds for web, iOS and Android. The owner develops on Windows.
 
 **Language:** the whole project – UI text, code, comments, commit messages and docs – is in English. The owner writes in Swedish in chat, so reply to them in Swedish.
 
 ## Stack
-- Expo SDK 57, Expo Router (file-based routing in `app/`), TypeScript strict
+- Expo SDK 58 (React Native 0.88), Expo Router (file-based routing in `app/`), TypeScript strict
 - `@tanstack/react-query` for data fetching and caching
 - `expo-image` for images, `@expo/vector-icons` (Ionicons) for icons
 - TMDB API v3, language `en-US`, region `SE` (Swedish streaming services)
@@ -31,7 +31,7 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - Everything must work on web, iOS and Android – avoid web- or native-only APIs without a fallback
 - Desktop and phone have different layouts: `useIsWide()` (`src/hooks/useIsWide.ts`) controls top nav (`TopNav`) vs tab bar, card sizes and the hero's (`Hero`) look
 - Side margin: use `useGutter()` (4% of the width, 16–64 px) for left/right padding – everything aligns to the same left edge, no centered max-width content. Poster rows run edge to edge
-- React Native (0.86+) has strict types: write refs as `useRef<ComponentRef<typeof TextInput>>(null)` (not `useRef<TextInput>`), and `ListFooterComponent` etc. take `undefined`, not `null`
+- React Native (0.86+, strict TypeScript API by default since 0.88) has strict types: write refs as `useRef<ComponentRef<typeof TextInput>>(null)` (not `useRef<TextInput>`), and `ListFooterComponent` etc. take `undefined`, not `null`
 - Install packages with `npx expo install <package>` (not `npm install`) so versions match the SDK. Don't change SDK version without checking which one Expo Go in the App Store supports
 
 ## Publishing

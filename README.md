@@ -1,6 +1,6 @@
 # StreamScout
 
-Find movies and TV shows and see where to stream them in Sweden. One codebase for **web, iOS and Android**, built with [Expo](https://expo.dev) (SDK 57), Expo Router and TypeScript. Data comes from [TMDB](https://www.themoviedb.org/).
+Find movies and TV shows and see where to stream them in Sweden. One codebase for **web, iOS and Android**, built with [Expo](https://expo.dev) (SDK 58), Expo Router and TypeScript. Data comes from [TMDB](https://www.themoviedb.org/).
 
 Successor to [MovieApp](https://github.com/FWiman/MovieApp) (web) and [Movie-PhoneApp](https://github.com/FWiman/Movie-PhoneApp) (mobile).
 
@@ -30,7 +30,7 @@ copy .env.example .env
 
 Then fill in the Supabase keys in `.env` (see *Accounts* below). TMDB requests go through the app's own backend (see *TMDB backend*). To try the app without Supabase, you can instead paste a TMDB key after `EXPO_PUBLIC_TMDB_API_KEY=` – it's then built into the app, so only do that locally.
 
-> `npm run setup` installs the remaining packages in the versions that match Expo SDK 57. It only needs to run once.
+> `npm run setup` installs the remaining packages in the versions that match Expo SDK 58. It only needs to run once.
 
 ### Running the app
 
