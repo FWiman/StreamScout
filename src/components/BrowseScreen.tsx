@@ -1,9 +1,11 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
+import { findGenre } from "@/api/genres";
 import { useStreamingServices } from "@/api/queries";
 import type { MediaType } from "@/api/types";
 import { useGutter } from "@/hooks/useGutter";
 import { colors, spacing } from "@/theme";
+import { GenrePicker } from "./GenrePicker";
 import { Hero } from "./Hero";
 import { MediaGrid } from "./MediaGrid";
 import { MediaRow } from "./MediaRow";
@@ -16,61 +18,74 @@ const LABELS: Record<MediaType, { plural: string; hero: string }> = {
 };
 
 /**
- * The Movies and TV Shows pages: a hero and rows, plus a streaming service filter.
- * Picking a service replaces the rows with a grid of what's included on it in Sweden.
- * The choice is kept in the URL (?service=8), so it survives a reload and can be shared.
+ * The Movies and TV Shows pages: a hero and rows, plus filters for streaming service and genre.
+ * With a filter set, the rows are replaced by a grid of matching titles ("comedies on Netflix").
+ * Filters live in the URL (?service=8&genre=comedy), so they survive a reload and can be shared.
  */
 export function BrowseScreen({ type }: { type: MediaType }) {
   const router = useRouter();
   const gutter = useGutter();
-  const { service } = useLocalSearchParams<{ service?: string }>();
-  const selected = service && /^\d+$/.test(service) ? Number(service) : null;
+  const params = useLocalSearchParams<{ service?: string; genre?: string }>();
+  const service = params.service && /^\d+$/.test(params.service) ? Number(params.service) : null;
+  const genre = findGenre(params.genre);
+  const filtered = service !== null || genre !== null;
 
   const { data: services } = useStreamingServices(type);
-  const serviceName = services?.find((s) => s.id === selected)?.name;
+  const serviceName = services?.find((s) => s.id === service)?.name;
   const labels = LABELS[type];
 
-  const select = (id: number | null) => router.setParams({ service: id === null ? undefined : String(id) });
+  const title = [
+    genre ? `${genre.name} ${labels.plural.toLowerCase()}` : labels.plural,
+    service !== null ? `on ${serviceName ?? "this service"}` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <Screen
       hero={
-        selected === null ? (
+        filtered ? undefined : (
           <Hero kind={type === "movie" ? "popular" : "trending"} type={type} label={labels.hero} />
-        ) : undefined
+        )
       }
     >
-      <View style={styles.filter}>
+      <View style={styles.filters}>
         <Text style={[styles.filterLabel, { paddingHorizontal: gutter }]}>Streaming in Sweden</Text>
-        <ServicePicker type={type} selected={selected} onSelect={select} />
+        <ServicePicker
+          type={type}
+          selected={service}
+          onSelect={(id) => router.setParams({ service: id === null ? undefined : String(id) })}
+        />
+        <GenrePicker
+          type={type}
+          selected={genre?.key ?? null}
+          onSelect={(key) => router.setParams({ genre: key ?? undefined })}
+        />
       </View>
 
-      {selected === null ? (
+      {filtered ? (
+        <View style={styles.results}>
+          <Text style={[styles.heading, { paddingHorizontal: gutter }]}>{title}</Text>
+          <MediaGrid
+            key={`${service}-${genre?.key}`}
+            type={type}
+            filters={{ service, genreIds: genre ? genre[type] : null }}
+            emptyText={`No ${labels.plural.toLowerCase()} match these filters right now.`}
+          />
+        </View>
+      ) : (
         <>
           <MediaRow title="Trending now" kind="trending" type={type} />
           <MediaRow title="Popular" kind="popular" type={type} />
           <MediaRow title="Top rated" kind="topRated" type={type} />
         </>
-      ) : (
-        <View style={styles.results}>
-          <Text style={[styles.heading, { paddingHorizontal: gutter }]}>
-            {labels.plural} on {serviceName ?? "this service"}
-          </Text>
-          <MediaGrid
-            key={selected}
-            kind="service"
-            type={type}
-            id={selected}
-            emptyText={`No ${labels.plural.toLowerCase()} found on this service right now.`}
-          />
-        </View>
       )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  filter: {
+  filters: {
     gap: spacing.sm,
   },
   filterLabel: {

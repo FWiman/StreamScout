@@ -20,9 +20,11 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 ## Conventions
 - All TMDB communication goes through `src/api/tmdb.ts`; components use the hooks in `src/api/queries.ts`. `tmdbFetch` calls the Supabase Edge Function `tmdb` (`supabase/functions/tmdb/index.ts`, deployed with verify_jwt false, key in the secret `TMDB_API_KEY`). New TMDB endpoints must be added to its `ALLOWED_PATHS` and the function redeployed
 - TMDB responses are normalized to `MediaItem`/`MediaDetails` (`src/api/types.ts`) – components should never see raw TMDB fields
-- Colors and spacing come from `src/theme.ts`, no hard-coded colors in components. Brand color is violet (`accent`, `accentText` for text on dark); errors use `danger` (red) – never `accent`
+- Colors and spacing come from `src/theme.ts`, no hard-coded colors in components. Brand color is Matrix green (`accent` #00ff41, `accentText` for text on dark, `onAccent` – dark – for text/icons on top of it); errors use `danger` (red) – never `accent`
 - Navigation: "My List" (`app/(tabs)/my-list.tsx`) only shows the list; sign-in/profile is `app/account.tsx`, reached from the avatar in `TopNav` (desktop) or `HeaderAccountButton` top right (phone)
-- Movies/TV Shows pages are `BrowseScreen` (`src/components/BrowseScreen.tsx`): rows, or – with a service picked in `ServicePicker` – a `MediaGrid` of `/discover` results (flatrate in SE). The choice lives in the URL (`?service=<provider id>`)
+- Movies/TV Shows pages are `BrowseScreen` (`src/components/BrowseScreen.tsx`): rows, or – with a service (`ServicePicker`) and/or genre (`GenrePicker`) picked – a `MediaGrid` of `/discover` results (service = flatrate in SE). Filters live in the URL (`?service=<provider id>&genre=<key>`)
+- Streaming services offered as filters are the curated `SWEDISH_SERVICES` ids in `tmdb.ts` (TMDB's own ranking hides e.g. HBO Max). Genres are one shared static list in `src/api/genres.ts` mapping to TMDB's movie/TV genre ids
+- Search filters: genre is matched on the results' `genreIds`; service via each result's providers (`useFilteredResults`), auto-loading up to 5 pages
 - Import from `src` with the `@/` alias
 - Wording: "Movies", "TV Shows", "My List"; "Movie"/"TV Show" as type labels
 - Everything must work on web, iOS and Android – avoid web- or native-only APIs without a fallback

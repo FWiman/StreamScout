@@ -1,8 +1,9 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueries, useQuery } from "@tanstack/react-query";
+import { matchesGenre, type Genre } from "./genres";
 import { useMemo } from "react";
 import {
-  getByService,
   getDetails,
+  getDiscover,
   getStreamingServices,
   getPopular,
   getRecommendations,
@@ -11,24 +12,21 @@ import {
   getTrending,
   getWatchProviders,
   searchMedia,
+  type DiscoverFilters,
   type SearchFilter,
 } from "./tmdb";
 import type { MediaItem, MediaPage, MediaType } from "./types";
 
 // React Query caches responses, so the same list isn't fetched over and over.
 
-/**
- * `recommendations` needs a title id ("more like this"),
- * `service` a streaming service's provider id ("what's on Netflix?").
- */
-export type ListKind = "trending" | "popular" | "topRated" | "recommendations" | "service";
+/** `recommendations` needs a title id ("more like this"). */
+export type ListKind = "trending" | "popular" | "topRated" | "recommendations";
 
 const listFetchers = {
   trending: (type: MediaType, page: number) => getTrending(type, page),
   popular: (type: MediaType, page: number) => getPopular(type, page),
   topRated: (type: MediaType, page: number) => getTopRated(type, page),
   recommendations: (type: MediaType, page: number, id?: number) => getRecommendations(type, id!, page),
-  service: (type: MediaType, page: number, id?: number) => getByService(type, id!, page),
 } as const;
 
 /**
@@ -39,11 +37,23 @@ export function useMediaList(kind: ListKind, type: MediaType, id?: number) {
   const query = useInfiniteQuery({
     queryKey: ["list", kind, type, id],
     queryFn: ({ pageParam }) => listFetchers[kind](type, pageParam, id),
-    enabled: (kind !== "recommendations" && kind !== "service") || id !== undefined,
+    enabled: kind !== "recommendations" || id !== undefined,
     initialPageParam: 1,
     getNextPageParam: (last) => (last.page < last.totalPages ? last.page + 1 : undefined),
   });
 
+  const items = useMemo(() => flattenPages(query.data?.pages), [query.data]);
+  return { ...query, items };
+}
+
+/** Titles filtered by streaming service and/or genre ("comedies on Netflix"), paginated. */
+export function useDiscover(type: MediaType, filters: DiscoverFilters) {
+  const query = useInfiniteQuery({
+    queryKey: ["discover", type, filters.service ?? null, filters.genreIds?.join("|") ?? null],
+    queryFn: ({ pageParam }) => getDiscover(type, filters, pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.page < last.totalPages ? last.page + 1 : undefined),
+  });
   const items = useMemo(() => flattenPages(query.data?.pages), [query.data]);
   return { ...query, items };
 }
@@ -85,6 +95,29 @@ export function useStreamingServices(type: MediaType) {
     queryFn: () => getStreamingServices(type),
     staleTime: 24 * 60 * 60 * 1000,
   });
+}
+
+/**
+ * Narrows search results by genre and/or streaming service. Genre is checked directly on the
+ * results; for a service each title's providers are fetched (cached, and shared with the title page).
+ * `checking` is true while providers are still loading.
+ */
+export function useFilteredResults(items: MediaItem[], service: number | null, genre: Genre | null) {
+  const byGenre = genre ? items.filter((item) => matchesGenre(item, genre)) : items;
+  const providers = useQueries({
+    queries:
+      service === null
+        ? []
+        : byGenre.map((item) => ({
+            queryKey: ["providers", item.type, item.id],
+            queryFn: () => getWatchProviders(item.type, item.id),
+          })),
+  });
+  if (service === null) return { items: byGenre, checking: false };
+  return {
+    items: byGenre.filter((_, i) => providers[i]?.data?.stream.some((p) => p.id === service)),
+    checking: providers.some((q) => q.isPending),
+  };
 }
 
 export function useDetails(type: MediaType, id: number) {

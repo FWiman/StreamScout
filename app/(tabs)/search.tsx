@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -11,13 +11,17 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import { useSearch } from "@/api/queries";
+import { genresFor } from "@/api/genres";
+import { useFilteredResults, useSearch, useStreamingServices } from "@/api/queries";
 import type { SearchFilter } from "@/api/tmdb";
 import type { MediaItem } from "@/api/types";
+import { Chip } from "@/components/Chip";
 import { MediaCard } from "@/components/MediaCard";
 import { Footer } from "@/components/Footer";
+import { GenrePicker } from "@/components/GenrePicker";
 import { MediaRow } from "@/components/MediaRow";
 import { SearchResultRow } from "@/components/SearchResultRow";
+import { ServicePicker } from "@/components/ServicePicker";
 import { TopResult } from "@/components/TopResult";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useGutter } from "@/hooks/useGutter";
@@ -37,12 +41,29 @@ export default function SearchScreen() {
   const [localQuery, setLocalQuery] = useState(q ?? "");
   const [focused, setFocused] = useState(false);
   const [filter, setFilter] = useState<SearchFilter>("all");
+  const [service, setService] = useState<number | null>(null);
+  const [genreKey, setGenreKey] = useState<string | null>(null);
+  // A genre may not exist for the chosen type (e.g. Reality for movies) – then it's ignored.
+  const genre = genresFor(filter).find((g) => g.key === genreKey) ?? null;
+  const serviceType = filter === "tv" ? "tv" : "movie";
+  const { data: services } = useStreamingServices(serviceType);
+  const serviceName = services?.find((s) => s.id === service)?.name;
   const query = isWide ? q ?? "" : localQuery;
 
   const debouncedQuery = useDebouncedValue(query, 300).trim();
   const hasQuery = debouncedQuery.length > 1;
-  const { items, isPending, isFetching, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
+  const { items: allItems, data, isPending, isFetching, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useSearch(debouncedQuery, filter);
+  const { items, checking } = useFilteredResults(allItems, service, genre);
+  const isFiltered = service !== null || genre !== null;
+
+  // Filters can leave few hits per page – fetch a few more pages automatically so the list isn't empty.
+  const loadedPages = data?.pages.length ?? 0;
+  const canAutoLoad = isFiltered && hasQuery && hasNextPage && loadedPages < 5;
+  useEffect(() => {
+    if (canAutoLoad && !checking && !isFetchingNextPage && items.length < 12) fetchNextPage();
+  }, [canAutoLoad, checking, isFetchingNextPage, items.length, fetchNextPage]);
+  const searchingFilters = isFiltered && (checking || (canAutoLoad && items.length < 12));
 
   // Desktop: poster grid. Phone: list of rows (easier to skim with a thumb).
   const { width } = useWindowDimensions();
@@ -85,27 +106,33 @@ export default function SearchScreen() {
 
       {hasQuery && (
         <View style={styles.filters}>
-          {FILTERS.map((f) => {
-            const active = f.value === filter;
-            return (
-              <Pressable
-                key={f.value}
-                onPress={() => setFilter(f.value)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                style={[styles.chip, active && styles.chipActive]}
-              >
-                <Text style={[styles.chipText, active && styles.chipTextActive]}>{f.label}</Text>
-              </Pressable>
-            );
-          })}
+          {FILTERS.map((f) => (
+            <Chip key={f.value} label={f.label} selected={f.value === filter} onPress={() => setFilter(f.value)} />
+          ))}
         </View>
+      )}
+      {hasQuery && (
+        // The pickers pad themselves with the gutter, so they can scroll to the screen edge.
+        <View style={[styles.pickers, { marginHorizontal: -gutter }]}>
+          <ServicePicker type={serviceType} selected={service} onSelect={setService} />
+          <GenrePicker type={filter} selected={genre?.key ?? null} onSelect={setGenreKey} />
+        </View>
+      )}
+      {hasQuery && isFiltered && (
+        <Text style={styles.message}>
+          {[genre?.name, serviceName && `on ${serviceName}`].filter(Boolean).join(" ")}
+          {searchingFilters ? " – checking more titles…" : ""}
+        </Text>
       )}
 
       {hasQuery && isPending && <ActivityIndicator color={colors.textMuted} style={styles.alignStart} />}
       {isError && <Text style={styles.message}>Something went wrong. Please try again.</Text>}
-      {hasQuery && !isFetching && !isError && items.length === 0 && (
-        <Text style={styles.message}>No results for "{debouncedQuery}". Try a different spelling.</Text>
+      {hasQuery && !isFetching && !isError && !searchingFilters && items.length === 0 && (
+        <Text style={styles.message}>
+          {isFiltered
+            ? `No results for "${debouncedQuery}" with these filters.`
+            : `No results for "${debouncedQuery}". Try a different spelling.`}
+        </Text>
       )}
 
       {topResult && <TopResult item={topResult} wide={isWide} />}
@@ -216,25 +243,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.sm,
   },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 999,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  chipActive: {
-    backgroundColor: colors.text,
-    borderColor: colors.text,
-  },
-  chipText: {
-    color: colors.textMuted,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  chipTextActive: {
-    color: colors.background,
+  pickers: {
+    gap: spacing.sm,
   },
   message: {
     color: colors.textMuted,

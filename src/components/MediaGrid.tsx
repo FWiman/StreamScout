@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { useMediaList, type ListKind } from "@/api/queries";
+import { useDiscover } from "@/api/queries";
+import type { DiscoverFilters } from "@/api/tmdb";
 import type { MediaType } from "@/api/types";
 import { useGridLayout } from "@/hooks/useGridLayout";
 import { colors, spacing } from "@/theme";
@@ -7,20 +8,18 @@ import { Button } from "./Button";
 import { MediaCard } from "./MediaCard";
 
 interface Props {
-  kind: ListKind;
   type: MediaType;
-  id?: number;
+  filters: DiscoverFilters;
   /** Shown when the list has no titles. */
   emptyText?: string;
 }
 
-/** A paginated poster grid with a "Show more" button at the bottom. */
-export function MediaGrid({ kind, type, id, emptyText = "No titles found." }: Props) {
+/** A paginated poster grid of filtered titles, with a "Show more" button at the bottom. */
+export function MediaGrid({ type, filters, emptyText = "No titles found." }: Props) {
   const { gutter, cardWidth } = useGridLayout();
-  const { items, isPending, isError, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } = useMediaList(
-    kind,
+  const { items, isPending, isError, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } = useDiscover(
     type,
-    id
+    filters
   );
 
   if (isPending) return <ActivityIndicator color={colors.textMuted} style={styles.status} />;

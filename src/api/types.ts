@@ -10,6 +10,8 @@ export interface MediaItem {
   backdropPath: string | null;
   voteAverage: number;
   year: string | null;
+  /** TMDB genre ids – set for TMDB lists and search results (used to filter by genre). */
+  genreIds?: number[];
 }
 
 /** One page of a list from TMDB. */
@@ -64,6 +66,7 @@ export interface TmdbMediaResult {
   popularity?: number;
   release_date?: string;
   first_air_date?: string;
+  genre_ids?: number[];
 }
 
 export interface TmdbDetailsResult extends TmdbMediaResult {

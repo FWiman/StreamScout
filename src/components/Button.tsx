@@ -28,7 +28,7 @@ export function Button({
 }: Props) {
   const large = size === "lg";
   const inactive = disabled || loading;
-  const contentColor = variant === "light" ? colors.onLight : colors.text;
+  const contentColor = variant === "light" ? colors.onLight : variant === "primary" ? colors.onAccent : colors.text;
   return (
     <Pressable
       onPress={onPress}

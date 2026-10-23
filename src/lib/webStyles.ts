@@ -21,7 +21,7 @@ const css = `
   }
 
   /* Selected text in the app's colors. */
-  ::selection { background: ${colors.accent}; color: ${colors.text}; }
+  ::selection { background: ${colors.accent}; color: ${colors.onAccent}; }
 `;
 
 if (typeof document !== "undefined" && !document.getElementById("streamscout-global-css")) {

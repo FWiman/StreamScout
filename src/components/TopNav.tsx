@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.accent,
   },
   signIn: {
-    color: colors.text,
+    color: colors.onAccent,
     fontSize: 15,
     fontWeight: "700",
     paddingHorizontal: 16,
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     borderColor: colors.text,
   },
   avatarText: {
-    color: colors.text,
+    color: colors.onAccent,
     fontSize: 16,
     fontWeight: "800",
   },

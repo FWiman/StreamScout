@@ -83,6 +83,7 @@ function toMediaItem(raw: TmdbMediaResult, fallbackType?: MediaType): MediaItem 
     backdropPath: raw.backdrop_path ?? null,
     voteAverage: raw.vote_average ?? 0,
     year: date ? date.slice(0, 4) : null,
+    genreIds: raw.genre_ids,
   };
 }
 
@@ -122,29 +123,54 @@ export function getPopular(type: MediaType, page = 1) {
   return getListPage(`/${type}/popular`, type, page, { region: REGION });
 }
 
-/**
- * Titles included in a streaming service's subscription in Sweden (not rent/buy),
- * most popular first.
- */
-export function getByService(type: MediaType, providerId: number, page = 1) {
-  return getListPage(`/discover/${type}`, type, page, {
-    watch_region: REGION,
-    with_watch_providers: providerId,
-    with_watch_monetization_types: "flatrate",
-    sort_by: "popularity.desc",
-  });
+export interface DiscoverFilters {
+  /** Streaming service (TMDB provider id): only titles included in its subscription in Sweden. */
+  service?: number | null;
+  /** Genre ids – any of them matches (see genres.ts). */
+  genreIds?: number[] | null;
 }
 
-/** How many services to offer in the filter – the rest are small niche services. */
-const MAX_SERVICES = 14;
+/** Movies or TV shows matching a service and/or genre, most popular first. */
+export function getDiscover(type: MediaType, filters: DiscoverFilters, page = 1) {
+  const params: Params = { sort_by: "popularity.desc" };
+  if (filters.service) {
+    params.watch_region = REGION;
+    params.with_watch_providers = filters.service;
+    params.with_watch_monetization_types = "flatrate"; // not rent/buy
+  }
+  if (filters.genreIds?.length) params.with_genres = filters.genreIds.join("|");
+  // Without a service, popularity alone lets in many obscure titles – require some votes.
+  if (!filters.service) params["vote_count.gte"] = 50;
+  return getListPage(`/discover/${type}`, type, page, params);
+}
 
-/** The biggest streaming services in Sweden, in the order TMDB/JustWatch ranks them. */
+/**
+ * The main streaming services in Sweden, in the order we show them. TMDB's own ranking
+ * puts e.g. HBO Max far down (41st), and mixes in rent/buy stores, kids profiles and
+ * "Amazon Channel" add-ons – so we pick the services ourselves and take names and logos from TMDB.
+ */
+const SWEDISH_SERVICES = [
+  8, // Netflix
+  1899, // HBO Max
+  337, // Disney Plus
+  76, // Viaplay
+  119, // Amazon Prime Video
+  350, // Apple TV
+  1773, // SkyShowtime
+  1944, // TV4 Play
+  493, // SVT Play
+  497, // Tele2 Play
+  283, // Crunchyroll
+];
+
+/** The streaming services you can filter by (those in SWEDISH_SERVICES that TMDB lists). */
 export async function getStreamingServices(type: MediaType): Promise<WatchProvider[]> {
   const { results } = await tmdbFetch<TmdbProviderListResult>(`/watch/providers/${type}`, {
     watch_region: REGION,
   });
-  const rank = (p: TmdbProviderListResult["results"][number]) => p.display_priorities?.[REGION] ?? 999;
-  return toProviders([...results].sort((a, b) => rank(a) - rank(b)).slice(0, MAX_SERVICES));
+  const byId = new Map(results.map((p) => [p.provider_id, p]));
+  const picked = SWEDISH_SERVICES.map((id) => byId.get(id)).filter((p): p is TmdbProvider => p !== undefined);
+  return toProviders(picked);
 }
 
 /** Titles similar to a given movie or TV show. */
