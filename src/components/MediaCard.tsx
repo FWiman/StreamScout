@@ -2,7 +2,9 @@ import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { useRef } from "react";
 import { Animated, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { imageUrl } from "@/api/tmdb";
+import { useTitleState } from "@/api/userTitles";
 import type { MediaItem } from "@/api/types";
 import { colors, spacing } from "@/theme";
 
@@ -16,6 +18,7 @@ interface Props {
 /** Poster with title and rating. Tapping opens the title page. */
 export function MediaCard({ item, width = 130, showType = false }: Props) {
   const poster = imageUrl(item.posterPath, width > 160 ? "w500" : "w342");
+  const { seen } = useTitleState(item.type, item.id);
   const subtitle = [item.year, showType ? (item.type === "movie" ? "Movie" : "TV Show") : null]
     .filter(Boolean)
     .join(" · ");
@@ -51,6 +54,11 @@ export function MediaCard({ item, width = 130, showType = false }: Props) {
                   <Text style={styles.placeholder} numberOfLines={3}>
                     {item.title}
                   </Text>
+                )}
+                {seen && (
+                  <View style={styles.seen} accessibilityLabel="Seen">
+                    <Ionicons name="checkmark" size={14} color={colors.onAccent} />
+                  </View>
                 )}
                 {item.voteAverage > 0 && (
                   <View style={styles.rating}>
@@ -97,6 +105,17 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
+  },
+  seen: {
+    position: "absolute",
+    bottom: 6,
+    right: 6,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.accent,
   },
   ratingText: {
     color: colors.rating,

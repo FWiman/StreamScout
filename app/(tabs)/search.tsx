@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { genresFor } from "@/api/genres";
 import { useMyServices } from "@/api/myServices";
+import { useWithoutHidden } from "@/api/userTitles";
 import { useFilteredResults, useSearch, useStreamingServices } from "@/api/queries";
 import type { SearchFilter } from "@/api/tmdb";
 import type { MediaItem } from "@/api/types";
@@ -57,7 +58,9 @@ export default function SearchScreen() {
   const hasQuery = debouncedQuery.length > 1;
   const { items: allItems, data, isPending, isFetching, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useSearch(debouncedQuery, filter);
-  const { items, checking } = useFilteredResults(allItems, serviceIds, genre);
+  const filteredResults = useFilteredResults(allItems, serviceIds, genre);
+  const items = useWithoutHidden(filteredResults.items);
+  const { checking } = filteredResults;
   const isFiltered = service !== null || genre !== null;
 
   // Filters can leave few hits per page – fetch a few more pages automatically so the list isn't empty.

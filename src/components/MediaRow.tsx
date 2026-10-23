@@ -13,6 +13,7 @@ import {
   type NativeSyntheticEvent,
 } from "react-native";
 import { useMediaList, type ListKind } from "@/api/queries";
+import { useWithoutHidden } from "@/api/userTitles";
 import type { MediaItem, MediaType } from "@/api/types";
 import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
@@ -42,8 +43,9 @@ const ZOOM_ROOM = spacing.sm;
  * Wider web screens get arrows, since the mouse wheel only scrolls vertically.
  */
 export function MediaRow({ title, kind, type, id, services }: Props) {
-  const { items, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
+  const { items: allItems, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useMediaList(kind, type, id, services);
+  const items = useWithoutHidden(allItems);
 
   const listRef = useRef<FlatList<MediaItem>>(null);
   const [offset, setOffset] = useState(0);

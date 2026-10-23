@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useDiscover } from "@/api/queries";
+import { useWithoutHidden } from "@/api/userTitles";
 import type { DiscoverFilters } from "@/api/tmdb";
 import type { MediaType } from "@/api/types";
 import { useGridLayout } from "@/hooks/useGridLayout";
@@ -17,10 +18,9 @@ interface Props {
 /** A paginated poster grid of filtered titles, with a "Show more" button at the bottom. */
 export function MediaGrid({ type, filters, emptyText = "No titles found." }: Props) {
   const { gutter, cardWidth } = useGridLayout();
-  const { items, isPending, isError, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } = useDiscover(
-    type,
-    filters
-  );
+  const { items: allItems, isPending, isError, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useDiscover(type, filters);
+  const items = useWithoutHidden(allItems);
 
   if (isPending) return <ActivityIndicator color={colors.textMuted} style={styles.status} />;
 

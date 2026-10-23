@@ -13,6 +13,7 @@ import { Footer } from "@/components/Footer";
 import { MediaRow } from "@/components/MediaRow";
 import { MetaLine } from "@/components/MetaLine";
 import { ProviderLogos } from "@/components/ProviderLogos";
+import { TitleActions } from "@/components/TitleActions";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { useGutter } from "@/hooks/useGutter";
 import { useIsWide } from "@/hooks/useIsWide";
@@ -184,6 +185,7 @@ function TitleDetails({ type, id }: { type: MediaType; id: number }) {
             )}
             <WatchlistButton item={item} size={isWide ? "lg" : "md"} />
           </View>
+          <TitleActions type={item.type} id={item.id} />
 
           {/* Phones and medium screens: services before the overview, since that's what matters most */}
           {!showAside && providersCard}

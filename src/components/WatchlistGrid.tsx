@@ -1,17 +1,29 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { useMyServices } from "@/api/myServices";
+import { useAvailability } from "@/api/queries";
+import { imageUrl } from "@/api/tmdb";
 import { useToggleWatchlist, useWatchlist } from "@/api/watchlist";
 import { useGridLayout } from "@/hooks/useGridLayout";
 import { colors, spacing } from "@/theme";
 import { Button } from "./Button";
 import { MediaCard } from "./MediaCard";
 
-/** Grid of the user's saved titles. The × in the corner removes a title. */
-export function WatchlistGrid() {
+/**
+ * Grid of the user's saved titles. The × in the corner removes a title. Under each card,
+ * the logos of the user's own services that include it; `onlyAvailable` shows just those titles.
+ */
+export function WatchlistGrid({ onlyAvailable = false }: { onlyAvailable?: boolean }) {
   const { data, isPending, isError, refetch } = useWatchlist();
   const toggle = useToggleWatchlist();
   const { gutter, cardWidth } = useGridLayout();
+  const { ids: myServices } = useMyServices();
+  const { byTitle, checking } = useAvailability(data ?? [], myServices);
+  const shown = onlyAvailable
+    ? (data ?? []).filter((item) => (byTitle[`${item.type}-${item.id}`] ?? []).length > 0)
+    : data ?? [];
 
   if (isPending) return <ActivityIndicator color={colors.textMuted} style={styles.status} />;
 
@@ -37,11 +49,37 @@ export function WatchlistGrid() {
     );
   }
 
+  if (onlyAvailable && shown.length === 0) {
+    return checking ? (
+      <ActivityIndicator color={colors.textMuted} style={styles.status} />
+    ) : (
+      <View style={[styles.empty, { marginHorizontal: gutter }]}>
+        <Ionicons name="tv-outline" size={32} color={colors.textMuted} />
+        <Text style={styles.emptyTitle}>Nothing on your services right now</Text>
+        <Text style={styles.emptyText}>
+          None of the titles in your list are included in your services. Catalogs change often – check back later.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.grid, { paddingHorizontal: gutter }]}>
-      {data.map((item) => (
+      {shown.map((item) => (
         <View key={`${item.type}-${item.id}`} style={{ width: cardWidth }}>
           <MediaCard item={item} width={cardWidth} showType />
+          {(byTitle[`${item.type}-${item.id}`] ?? []).length > 0 && (
+            <View style={styles.services} accessibilityLabel="On your services">
+              {byTitle[`${item.type}-${item.id}`].map((service) => (
+                <Image
+                  key={service.id}
+                  source={imageUrl(service.logoPath, "w92")}
+                  style={styles.serviceLogo}
+                  accessibilityLabel={service.name}
+                />
+              ))}
+            </View>
+          )}
           <Pressable
             onPress={() => toggle.mutate({ item, add: false })}
             accessibilityRole="button"
@@ -66,6 +104,17 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: spacing.md,
     rowGap: spacing.lg,
+  },
+  services: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 4,
+    marginTop: spacing.xs,
+  },
+  serviceLogo: {
+    width: 22,
+    height: 22,
+    borderRadius: 5,
   },
   remove: {
     position: "absolute",

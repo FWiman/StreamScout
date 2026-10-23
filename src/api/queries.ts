@@ -15,7 +15,7 @@ import {
   type DiscoverFilters,
   type SearchFilter,
 } from "./tmdb";
-import type { MediaItem, MediaPage, MediaType } from "./types";
+import type { MediaItem, MediaPage, MediaType, WatchProvider } from "./types";
 
 // React Query caches responses, so the same list isn't fetched over and over.
 
@@ -124,6 +124,27 @@ export function useFilteredResults(items: MediaItem[], services: number[] | null
     items: byGenre.filter((_, i) => providers[i]?.data?.stream.some((p) => services.includes(p.id))),
     checking: providers.some((q) => q.isPending),
   };
+}
+
+/**
+ * For each title: which of the given services include it (streaming, in Sweden).
+ * Fetches each title's providers – cached, and shared with the title page.
+ */
+export function useAvailability(items: MediaItem[], services: number[]) {
+  const providers = useQueries({
+    queries:
+      services.length === 0
+        ? []
+        : items.map((item) => ({
+            queryKey: ["providers", item.type, item.id],
+            queryFn: () => getWatchProviders(item.type, item.id),
+          })),
+  });
+  const byTitle: Record<string, WatchProvider[]> = {};
+  items.forEach((item, i) => {
+    byTitle[`${item.type}-${item.id}`] = (providers[i]?.data?.stream ?? []).filter((p) => services.includes(p.id));
+  });
+  return { byTitle, checking: providers.some((q) => q.isPending) };
 }
 
 export function useDetails(type: MediaType, id: number) {

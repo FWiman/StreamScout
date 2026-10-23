@@ -25,6 +25,8 @@ App for finding movies/TV shows and seeing where they stream in Sweden. One Expo
 - Movies/TV Shows pages are `BrowseScreen` (`src/components/BrowseScreen.tsx`): rows, or – with a service (`ServicePicker`) and/or genre (`GenrePicker`) picked – a `MediaGrid` of `/discover` results (service = flatrate in SE). Filters live in the URL (`?service=<provider id>&genre=<key>`)
 - Streaming services offered as filters are the curated `SWEDISH_SERVICES` ids in `tmdb.ts` (TMDB's own ranking hides e.g. HBO Max). Genres are one shared static list in `src/api/genres.ts` mapping to TMDB's movie/TV genre ids
 - "My services" (`src/api/myServices.ts`, `useMyServices`): account-only like My List – table `public.user_services` (RLS, own rows); signed out it's empty and `app/my-services.tsx` shows a sign-in prompt. Used by the "My services" chip in `ServicePicker` (`?service=mine`), the Home rows, and highlighted on the title page. Edited on `app/my-services.tsx`
+- Member title state (`src/api/userTitles.ts`): seen, thumbs rating and "not interested" in table `public.user_titles` (RLS, own rows); set from `TitleActions` on the title page. `useWithoutHidden` drops hidden titles from rows, grids and search; `MediaCard` shows a seen badge
+- My List: "On my services" filter and service logos per card via `useAvailability`. Home: "Because you saved …" rows from the newest movie/TV show in My List
 - Search filters: genre is matched on the results' `genreIds`; service via each result's providers (`useFilteredResults`), auto-loading up to 5 pages
 - Import from `src` with the `@/` alias
 - Wording: "Movies", "TV Shows", "My List"; "Movie"/"TV Show" as type labels

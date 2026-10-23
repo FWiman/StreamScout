@@ -1,6 +1,10 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
+import { useState } from "react";
+import { useMyServices } from "@/api/myServices";
 import { useWatchlist } from "@/api/watchlist";
 import { useAuth } from "@/auth/AuthProvider";
+import { Chip } from "@/components/Chip";
 import { Screen } from "@/components/Screen";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { WatchlistGrid } from "@/components/WatchlistGrid";
@@ -12,6 +16,9 @@ export default function MyListScreen() {
   const gutter = useGutter();
   const { user, loading } = useAuth();
   const { data } = useWatchlist();
+  const { ids: myServices } = useMyServices();
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const hasItems = Boolean(user && data && data.length > 0);
 
   return (
     <Screen>
@@ -28,10 +35,25 @@ export default function MyListScreen() {
           </View>
         )}
 
+        {hasItems && (
+          <View style={[styles.filters, { paddingHorizontal: gutter }]}>
+            {myServices.length > 0 ? (
+              <>
+                <Chip label="All" selected={!onlyAvailable} onPress={() => setOnlyAvailable(false)} />
+                <Chip label="On my services" selected={onlyAvailable} onPress={() => setOnlyAvailable(true)} />
+              </>
+            ) : (
+              <Link href="/my-services" style={styles.hint}>
+                Pick your streaming services to see what you can watch right now →
+              </Link>
+            )}
+          </View>
+        )}
+
         {loading ? (
           <ActivityIndicator color={colors.textMuted} style={styles.loading} />
         ) : user ? (
-          <WatchlistGrid />
+          <WatchlistGrid onlyAvailable={onlyAvailable && myServices.length > 0} />
         ) : (
           <View style={{ paddingHorizontal: gutter }}>
             <SignInPrompt
@@ -64,6 +86,17 @@ const styles = StyleSheet.create({
   count: {
     color: colors.textMuted,
     fontSize: 15,
+  },
+  filters: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginTop: -spacing.sm,
+  },
+  hint: {
+    color: colors.accentText,
+    fontSize: 14,
+    fontWeight: "600",
   },
   loading: {
     marginTop: spacing.xl,

@@ -70,7 +70,10 @@ export default function PrivacyScreen() {
           <Bullet>
             If you sign in with Google or Apple: the email address, and name if provided, that they share with us.
           </Bullet>
-          <Bullet>The titles you save to My List, and the streaming services you pick under My services.</Bullet>
+          <Bullet>
+            The titles you save to My List, the streaming services you pick under My services, and the titles you mark
+            as seen, like, dislike or not interested.
+          </Bullet>
           <Bullet>
             Technical data needed to run the service, such as when you signed in and your IP address in server logs,
             which are kept for a short time.

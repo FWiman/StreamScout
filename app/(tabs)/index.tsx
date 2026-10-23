@@ -2,6 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { useMyServices } from "@/api/myServices";
+import { useWatchlist } from "@/api/watchlist";
 import { Button } from "@/components/Button";
 import { Hero } from "@/components/Hero";
 import { MediaRow } from "@/components/MediaRow";
@@ -12,6 +13,11 @@ import { colors, spacing } from "@/theme";
 export default function HomeScreen() {
   const { ids: myServices, isLoading } = useMyServices();
   const hasServices = myServices.length > 0;
+  // Personal tips: titles like the most recently saved movie and TV show in My List.
+  const { data: saved } = useWatchlist();
+  const tips = (["movie", "tv"] as const)
+    .map((type) => saved?.find((item) => item.type === type))
+    .filter((item) => item !== undefined);
 
   return (
     <Screen hero={<Hero kind="trending" type="movie" label="Trending now" />}>
@@ -23,6 +29,15 @@ export default function HomeScreen() {
       ) : (
         !isLoading && <PickServicesPrompt />
       )}
+      {tips.map((item) => (
+        <MediaRow
+          key={`${item.type}-${item.id}`}
+          title={`Because you saved ${item.title}`}
+          kind="recommendations"
+          type={item.type}
+          id={item.id}
+        />
+      ))}
       <MediaRow title="Trending movies" kind="trending" type="movie" />
       <MediaRow title="Trending TV shows" kind="trending" type="tv" />
       <MediaRow title="Top rated movies" kind="topRated" type="movie" />
