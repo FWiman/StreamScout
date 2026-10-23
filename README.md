@@ -98,24 +98,24 @@ The `watchlist` table (My List) uses Row Level Security: each user can only read
 
 ## Publishing the website
 
-The website lives at **https://streamscout.com**: the domain, DNS, hosting ([Cloudflare Pages](https://developers.cloudflare.com/pages/), free) and email forwarding are all on Cloudflare. The site is a static export (`dist/`); with no `404.html`, Pages serves `index.html` for every route, so links like `/privacy` work.
+The website lives at **https://getstreamscout.com**: the domain, DNS, hosting ([Cloudflare Pages](https://developers.cloudflare.com/pages/), free) and email forwarding are all on Cloudflare. The site is a static export (`dist/`); with no `404.html`, Pages serves `index.html` for every route, so links like `/privacy` work.
 
 **First time:**
 
-1. Buy `streamscout.com` in the Cloudflare dashboard (*Domain Registration → Register Domains*).
+1. The domain `getstreamscout.com` is registered with Cloudflare (bought October 2026). `streamscout.com` is parked for sale (USD 6,995 in Oct 2026) – a possible upgrade later, redirecting `get…` there.
 2. In the project folder: `npx wrangler@4 login`, then `npx wrangler@4 pages project create streamscout --production-branch main`.
 3. `npm run deploy:web` – builds the site with the keys in your `.env` and publishes it to `https://streamscout.pages.dev`.
-4. Cloudflare dashboard → *Workers & Pages → streamscout → Custom domains*: add `streamscout.com` and `www.streamscout.com`.
+4. Cloudflare dashboard → *Workers & Pages → streamscout → Custom domains*: add `getstreamscout.com` and `www.getstreamscout.com`.
 
 **Then point the services to the new address:**
 
-- Supabase → [Authentication → URL Configuration](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/url-configuration): *Site URL* `https://streamscout.com`, and add `https://streamscout.com/**` and `https://www.streamscout.com/**` under *Redirect URLs* (keep the localhost ones for development).
-- Google Cloud → your OAuth client: add `https://streamscout.com` and `https://www.streamscout.com` under *Authorized JavaScript origins*; under *Branding*, set the home page and privacy policy links to streamscout.com and add `streamscout.com` under *Authorized domains*.
+- Supabase → [Authentication → URL Configuration](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/url-configuration): *Site URL* `https://getstreamscout.com`, and add `https://getstreamscout.com/**` and `https://www.getstreamscout.com/**` under *Redirect URLs* (keep the localhost ones for development).
+- Google Cloud → your OAuth client: add `https://getstreamscout.com` and `https://www.getstreamscout.com` under *Authorized JavaScript origins*; under *Branding*, set the home page and privacy policy links to getstreamscout.com and add `getstreamscout.com` under *Authorized domains*.
 
 **Email:**
 
-- *Receiving:* Cloudflare → *Email → Email Routing*: forward e.g. `hello@streamscout.com` to your Gmail.
-- *Sending (sign-up and password emails):* create a free [Resend](https://resend.com) account, add and verify `streamscout.com` (Resend shows the DNS records – add them in Cloudflare), then enter Resend's SMTP details in Supabase under [Authentication → Emails → SMTP Settings](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/smtp) with a sender like `no-reply@streamscout.com`. After that, turn "Confirm email" back on.
+- *Receiving:* Cloudflare → *Email → Email Routing*: forward e.g. `hello@getstreamscout.com` to your Gmail.
+- *Sending (sign-up and password emails):* create a free [Resend](https://resend.com) account, add and verify `getstreamscout.com` (Resend shows the DNS records – add them in Cloudflare), then enter Resend's SMTP details in Supabase under [Authentication → Emails → SMTP Settings](https://supabase.com/dashboard/project/zhodxslqoycsohosqlrg/auth/smtp) with a sender like `no-reply@getstreamscout.com`. After that, turn "Confirm email" back on.
 
 **Updating the site:** run `npm run deploy:web` again. (`npm run deploy:eas` still publishes to the old `streamscout.expo.app`.)
 
@@ -152,7 +152,7 @@ src/
 - [x] Filter by streaming service ("what's on Netflix?") on the Movies and TV Shows pages
 - [x] Ready to publish: delete account, privacy policy, icons
 - [x] Publish the website
-- [ ] Own domain streamscout.com on Cloudflare (see *Publishing the website*)
+- [ ] Website on getstreamscout.com via Cloudflare (see *Publishing the website*)
 - [ ] Own SMTP for emails to real users (needs a domain)
 - [x] My services: pick your streaming services, filter by them, see them highlighted
 - [ ] Publish on the App Store and Google Play (EAS Build)

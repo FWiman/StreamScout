@@ -104,7 +104,7 @@ export default function PrivacyScreen() {
           </Bullet>
           <Bullet>
             <ExternalLink url="https://www.cloudflare.com/privacypolicy/">Cloudflare</ExternalLink> hosts the website
-            and handles the streamscout.com domain, which means your IP address passes through their servers when you
+            and handles the getstreamscout.com domain, which means your IP address passes through their servers when you
             visit.
           </Bullet>
           <Bullet>
