@@ -12,11 +12,11 @@ const WORDMARK_FONT = Platform.select({
 
 /**
  * The StreamScout wordmark: "Stream" in cream, "Scout" in coral, with the lens
- * (a magnifying glass with a sparkle) standing in for the "o".
+ * (the glowing magnifying glass with a sparkle, the brand mark) standing in for the "o".
  * `size` is the font size; the lens scales with it.
  */
 export function Logo({ size = 22 }: { size?: number }) {
-  const lensSize = size * 0.8;
+  const lensSize = size * 0.88;
   const text = { fontSize: size, lineHeight: size * 1.2 };
   return (
     <View style={styles.row} accessible accessibilityRole="header" accessibilityLabel="StreamScout">
@@ -29,7 +29,7 @@ export function Logo({ size = 22 }: { size?: number }) {
           width: lensSize,
           height: lensSize,
           // Sit the lens ring on the text's baseline, with the handle dipping just below it.
-          marginBottom: size * 0.04,
+          marginBottom: size * 0.03,
           marginHorizontal: size * 0.01,
         }}
         contentFit="contain"

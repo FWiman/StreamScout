@@ -16,7 +16,7 @@
       "package": "com.fwiman.streamscout",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#21171a"
+        "backgroundColor": "#1d1113"
       }
     },
     "web": {
