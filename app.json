@@ -6,7 +6,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#15110c",
+    "backgroundColor": "#140e10",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fwiman.streamscout",
@@ -16,7 +16,7 @@
       "package": "com.fwiman.streamscout",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#e8a93c"
+        "backgroundColor": "#21171a"
       }
     },
     "web": {
@@ -26,8 +26,8 @@
       "name": "StreamScout",
       "shortName": "StreamScout",
       "description": "Find movies and TV shows and see where to stream them in Sweden.",
-      "themeColor": "#15110c",
-      "backgroundColor": "#15110c",
+      "themeColor": "#140e10",
+      "backgroundColor": "#140e10",
       "lang": "en"
     },
     "plugins": [

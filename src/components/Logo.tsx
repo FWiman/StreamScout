@@ -7,7 +7,7 @@ const mark = require("../../assets/logo-mark.png");
 /** Serif wordmark. A bundled display font (e.g. Fraunces) can replace this later. */
 const WORDMARK_FONT = Platform.select({ ios: "Georgia", android: "serif", default: "Georgia, 'Times New Roman', serif" });
 
-/** The StreamScout logo: an amber lens with a play button (scouting for something to watch), plus the name. */
+/** The StreamScout logo: a coral lens with a sparkle inside (you found your next favorite), plus the name. */
 export function Logo({ size = 22 }: { size?: number }) {
   const markSize = size * 1.45;
   return (

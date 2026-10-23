@@ -1,29 +1,29 @@
 import { Platform, type TextStyle } from "react-native";
 
 export const colors = {
-  // "Projector Amber": warm charcoal surfaces and the amber glow of a projector beam.
-  background: "#15110c",
-  surface: "#211a12",
-  surfaceRaised: "#2b2218",
-  border: "#3a2e20",
-  text: "#f6eee2",
-  textMuted: "#b3a48f",
+  // "Velvet Lens": red-velvet cinema darks and a warm ember coral.
+  background: "#140e10",
+  surface: "#21171a",
+  surfaceRaised: "#2b1f23",
+  border: "#3b2a2f",
+  text: "#f7ece8",
+  textMuted: "#b59e9f",
   /** Brand color: buttons, active tabs, focus rings, avatar. */
-  accent: "#e8a93c",
-  accentSoft: "rgba(232, 169, 60, 0.14)",
-  /** Brand color for text on dark backgrounds. */
-  accentText: "#efb653",
+  accent: "#e3784e",
+  accentSoft: "rgba(227, 120, 78, 0.14)",
+  /** Lighter brand color for text on dark backgrounds. */
+  accentText: "#ec8c66",
   /** Text and icons on top of `accent`. */
-  onAccent: "#1d1407",
+  onAccent: "#220c04",
   /** Errors and warnings – kept red so they don't look like brand elements. */
   danger: "#e5484d",
   dangerSoft: "rgba(229, 72, 77, 0.12)",
   success: "#3dd68c",
   successSoft: "rgba(61, 214, 140, 0.12)",
   rating: "#f5c451",
-  overlay: "rgba(21, 17, 12, 0.85)",
+  overlay: "rgba(20, 14, 16, 0.85)",
   /** The background color, fully transparent – for gradients that fade into the background. */
-  backgroundClear: "rgba(21, 17, 12, 0)",
+  backgroundClear: "rgba(20, 14, 16, 0)",
   glass: "rgba(255, 255, 255, 0.16)",
   shadow: "#000000",
   /** Light button background (e.g. "Continue with Apple", per Apple's guidelines). */
