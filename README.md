@@ -104,7 +104,7 @@ The website lives at **https://getstreamscout.com**: the domain, DNS, hosting ([
 
 1. The domain `getstreamscout.com` is registered with Cloudflare (bought October 2026). `streamscout.com` is parked for sale (USD 6,995 in Oct 2026) – a possible upgrade later, redirecting `get…` there.
 2. In the project folder: `npx wrangler@4 login`, then `npx wrangler@4 pages project create streamscout --production-branch main`.
-3. `npm run deploy:web` – builds the site with the keys in your `.env` and publishes it to `https://streamscout.pages.dev`.
+3. `npm run deploy:web` – builds the site with the keys in your `.env` and publishes it to `https://streamscout-98z.pages.dev` (the plain name was taken, so Cloudflare added a suffix).
 4. Cloudflare dashboard → *Workers & Pages → streamscout → Custom domains*: add `getstreamscout.com` and `www.getstreamscout.com`.
 
 **Then point the services to the new address:**
