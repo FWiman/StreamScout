@@ -6,6 +6,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import "@/lib/webStyles";
 import { AuthProvider } from "@/auth/AuthProvider";
+import { IntroAnimation } from "@/components/IntroAnimation";
 import { TopNav } from "@/components/TopNav";
 import { useIsWide } from "@/hooks/useIsWide";
 import { colors } from "@/theme";
@@ -49,6 +50,7 @@ export default function RootLayout() {
           <Stack.Screen name="about" options={{ title: "About StreamScout", headerShown: !isWide }} />
           <Stack.Screen name="reset-password" options={{ title: "New password", headerShown: !isWide }} />
         </Stack>
+        <IntroAnimation />
       </View>
       </AuthProvider>
     </QueryClientProvider>
